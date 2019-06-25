@@ -11,13 +11,12 @@ var libs = ['firebase-app.js','firebase-auth.js','firebase-database.js','firebas
 
 window.prepare_firebase = function(){
   firebase.initializeApp({
-    "apiKey": "AIzaSyAO6L_lAR4KPq9znC177zL_uweOXOdbIyU",
-    "databaseURL": "https://loadboard-bda89.firebaseio.com",
-    "storageBucket": "loadboard-bda89.appspot.com",
-    "authDomain": "loadboard-bda89.firebaseapp.com",
-    "messagingSenderId": "277983893497",
-    "projectId": "loadboard-bda89",
-    "appId": "1:277983893497:web:baa22f73e8ad1786"
+    "apiKey": "AIzaSyCYLDTKAfXBgAdF6hqF3qsSYo1o-2WHo7s",
+    "databaseURL": "https://payahead-80360.firebaseio.com",
+    "storageBucket": "payahead-80360.appspot.com",
+    "authDomain": "payahead-80360.firebaseapp.com",
+    "messagingSenderId": "392417005472",
+    "projectId": "payahead-80360"
   });
 
   window.ui = new firebaseui.auth.AuthUI(firebase.auth());
