@@ -2669,3 +2669,12 @@ input.firebaseui-input, input.firebaseui-input-invalid {
   background-position: 0 -3598px;
 }
 
+::-webkit-scrollbar {
+  width: 0px;
+  background-color: #075e54;
+}
+
+.input-group > .custom-select:not(:first-child), .input-group > .form-control:not(:first-child) {
+  height: 100%;
+}
+

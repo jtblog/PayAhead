@@ -1,6 +1,6 @@
 //import { loadavg } from "os";
-var database, auth, messaging, storage, ui, user;
-var vendors_ref, customers_ref, payments_ref;
+var database, auth, messaging, storage, ui, user, phone_user, user_json;
+var vendors_ref, customers_ref, payments_ref, reports_ref;
 
 var vendors = {}; 
 var customers = {};
@@ -30,60 +30,51 @@ window.prepare_firebase = function(){
   window.vendors_ref = database.ref('/vendors/');
   window.customers_ref = database.ref('/customers/');
   window.payments_ref = database.ref('/payments/');
+  window.reports_ref = database.ref('/reports/');
 
   window.auth.onAuthStateChanged(authstateobserver);
-  document.getElementById('firebaseui-auth-container').innerHTML = "";
-  window.ui.start('#firebaseui-auth-container', window.uiConfig);
+  var site = window.location.href+"";
+  if(site.endsWith("signup.html") || site.indexOf("signup.html")>-1){
+    document.getElementById('firebaseui-auth-container').innerHTML = "";
+    window.ui.start('#firebaseui-auth-container', window.uiConfig);
+  }
+
+  if(site.endsWith("signin.html") || site.indexOf("signin.html")>-1){
+    $("#login-form").submit(login);
+  }
+  
 }
 
 function prepare_uiConfig(){
   return {
     callbacks: {
       signInSuccessWithAuthResult: function(authResult, redirectUrl) {
-        if (authResult.user) {
-          window.user = JSON.parse(JSON.stringify(authResult.user));
-          window.actionCodeSettings = {
-              url: 'https://loadbuddy.web.app/?email=' + window.user.email,
-              //iOS: {
-                //bundleId: 'com.example.ios'
-              //},
-              //android: {
-                //packageName: 'com.example.android',
-                //installApp: true,
-                //minimumVersion: '12'
-              //},
-              handleCodeInApp: false//,
-              //dynamicLinkDomain: "loadbuddy.web.app"
-            };
-          if(user.emailVerified){
-            
-            //handleSignedInUser(authResult.user);
+        if (authResult.user != null) {
+          if(typeof(authResult.user.email) != undefined && authResult.user.email != null){
+            window.user = authResult.user;
+            window.user_json = JSON.parse(JSON.stringify(user));
+            window.location = "/user.html";
           }else{
-            if(authResult.additionalUserInfo.isNewUser){
-              /*auth.currentUser.sendEmailVerification(window.actionCodeSettings).then(
-                function() {
-                    // Email sent.
-                    document.getElementById('firebaseui-auth-container').innerHTML = "A verification link has been sent to your email";
-                }, function(error) {
-                    // An error happened.
-                }
-              );*/
+            window.phone_user = authResult.user;
+            window.user_json = JSON.parse(JSON.stringify(phone_user));
+            create_account_ui();
+          }
+        }else{
+          if(window.auth.currentUser != null){
+            if(typeof(window.auth.currentUser.email) != undefined && window.auth.currentUser.email != null){
+              window.user = window.auth.currentUser.user;
+              window.user_json = JSON.parse(JSON.stringify(user));
+              window.location = "/user.html";
             }else{
-              //document.getElementById('firebaseui-auth-container').innerHTML = "A verification link has been sent to your email";
+              window.phone_user = window.auth.currentUser.user;
+              window.user_json = JSON.parse(JSON.stringify(phone_user));
+              create_account_ui();
             }
-            
           }
         }
-        /*if (authResult.additionalUserInfo) {
-          //True for new users otherwise false
-          //authResult.additionalUserInfo.isNewUser
-        }*/
         return false;
       },
-      uiShown: function() {
-        // The widget is rendered. Hide the loader.
-        //document.getElementById('loader').style.display = 'none';
-      }
+      uiShown: function() {}
     },
     credentialHelper : firebaseui.auth.CredentialHelper.NONE,
     signInFlow: 'popup',
@@ -112,7 +103,6 @@ function prepare_dependencies(){
   }
 
   setTimeout(window.prepare_firebase, 1000);
-
   /*08033953050
   08085221450*/
 }
@@ -134,15 +124,85 @@ document.addEventListener('DOMContentLoaded', function() {
   //
 });
 
+function create_account_ui(){
+  document.getElementById('firebaseui-auth-container').innerHTML = create_account
+  $("#create-acct-form").submit(continue_registration);
+
+  setInputFilter(document.getElementById("bvn-input"), function(value) {
+    return /^\d*$/.test(value);
+  });
+}
+
+function previewImage(input) {
+  if (input.files && input.files[0]) {
+    var reader = new FileReader();
+    reader.onload = function (e) {
+      if(typeof(document.getElementById('profilepic')) != undefined){
+        document.getElementById('profilepic').src = e.target.result;
+        //$('#profilepic').attr('src', e.target.result);
+      }
+    };
+  reader.readAsDataURL(input.files[0]);
+  }
+}
+
+var continue_registration = function(e) {
+
+  user_json['email'] = $("#email-input").val();
+  user_json['password'] = $("#password-input").val();
+  user_json['displayName'] = $("#firstname-input").val() + ' ' + $("#lastname-input").val();
+  user_json['bvn'] = $("#bvn-input").val();
+
+  phone_user.updateProfile({
+    displayName: user_json['displayName'],
+    photoURL: null
+  }).then(function() {
+    //var displayName = user.displayName;
+    //var photoURL = user.photoURL;
+  }, function(error) {
+    // An error happened.
+    alert(JSON.stringify(error));
+  });
+
+  var credential = firebase.auth.EmailAuthProvider.credential(user_json['email'], user_json['password']);
+  auth.currentUser.linkAndRetrieveDataWithCredential(credential).then(function(usercred) {
+    window.user = usercred.user;
+    user.sendEmailVerification();
+    user_json = JSON.parse(JSON.stringify(user));
+    user_json['bvn'] = $("#bvn-input").val();
+    set_user(user_json);
+    set_customer(user_json);
+
+    window.location = "/user.html";
+  }, function(error) {
+    //alert(JSON.stringify(error));
+    //{"code":"auth/provider-already-linked","message":"User can only be linked to one identity for the given provider."}
+  });
+
+  e.preventDefault();
+};
+
+var login = function(e){
+  var ldetails = {
+    'email' : $("#email-input").val(),
+    'password' : $("#password-input").val()
+  };
+  var credential = firebase.auth.EmailAuthProvider.credential(ldetails['email'], ldetails['password']);
+  firebase.auth().signInAndRetrieveDataWithCredential(credential)
+    .then(function(userCredential) {
+      window.user = userCredential.user;
+      window.user_json = JSON.parse(JSON.stringify(user));
+      window.location = "/user.html";
+      //console.log(userCredential.additionalUserInfo.username);
+      //console.log(userCredential.additionalUserInfo.isNewUser);
+    });
+    e.preventDefault();
+}
+
 function authstateobserver(user){
-  if(user != null){
+  if(user != null && user.email != null){
     window.user = user;
   }
-  /*
-  document.getElementById('loading').style.display = 'none';
-  document.getElementById('loaded').style.display = 'block';
-  user ? handleSignedInUser(user) : handleSignedOutUser();
-  */
 }
 
 function set_user(user) {
@@ -157,21 +217,6 @@ function set_user(user) {
     }
   );
 }
-
-/*
-function set_vendor(user){
-  database.ref("vendors/" + user.uid).set(
-    user, 
-    function(error) {
-      if (error) {
-        //alert(JSON.stringify(error));
-      } else {
-        // Data saved successfully!
-      }
-    }
-  );
-}
-
 function set_customer(user){
   database.ref("customers/" + user.uid).set(
     user, 
@@ -183,12 +228,11 @@ function set_customer(user){
       }
     }
   );
-}*/
+}
 
 function signout() {
   auth.signOut();
 }
-
 
 function get_vendors(){
   vendors_ref.once('value').then(
@@ -240,48 +284,14 @@ function set_current_conversation(){
 
 }
 
-function get_conversations(){
+var handleSignIn = function(user) {
   
-}
-
-
-
-
-
-
-/**
- * Displays the UI for a signed in user.
- * @param {!firebase.User} user
- */
-var handleSignedInUser = function(user) {
-  /*
-  document.getElementById('user-signed-in').style.display = 'block';
-  document.getElementById('user-signed-out').style.display = 'none';
-  document.getElementById('name').textContent = user.displayName;
-  document.getElementById('email').textContent = user.email;
-  document.getElementById('phone').textContent = user.phoneNumber;
-  if (user.photoURL) {
-    var photoURL = user.photoURL;
-    // Append size to the photo URL for Google hosted images to avoid requesting
-    // the image with its original resolution (using more bandwidth than needed)
-    // when it is going to be presented in smaller size.
-    if ((photoURL.indexOf('googleusercontent.com') != -1) ||
-        (photoURL.indexOf('ggpht.com') != -1)) {
-      photoURL = photoURL + '?sz=' +
-          document.getElementById('photo').clientHeight;
-    }
-    document.getElementById('photo').src = photoURL;
-    document.getElementById('photo').style.display = 'block';
-  } else {
-    document.getElementById('photo').style.display = 'none';
-  }
-  */
 };
 
 /**
  * Displays the UI for a signed out user.
  */
-var handleSignedOutUser = function() {
+var handleSignOut = function() {
   /*
   document.getElementById('user-signed-in').style.display = 'none';
   document.getElementById('user-signed-out').style.display = 'block';
@@ -327,10 +337,25 @@ var errorHandler = function(error) {
     log("Error: POSITION_UNAVAILABLE: Network is down or positioning satellites cannot be reached");
     alert("Error: POSITION_UNAVAILABLE: Network is down or positioning satellites cannot be reached");
   } else if (error.code === 3) {
-    log("Error: TIMEOUT: Calculating the user's location too took long");
+    log("Error: TIMEOUT: Calculating the user's location too took long0");
     alert("Error: TIMEOUT: Calculating the user's location too took long");
   } else {
     log("Unexpected error code");
     alert("Unexpected error code");
   }
 };
+
+function setInputFilter(textbox, inputFilter) {
+  ["input", "keydown", "keyup", "mousedown", "mouseup", "select", "contextmenu", "drop"].forEach(function(event) {
+    textbox.addEventListener(event, function() {
+      if (inputFilter(this.value)) {
+        this.oldValue = this.value;
+        this.oldSelectionStart = this.selectionStart;
+        this.oldSelectionEnd = this.selectionEnd;
+      } else if (this.hasOwnProperty("oldValue")) {
+        this.value = this.oldValue;
+        this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd);
+      }
+    });
+  });
+}

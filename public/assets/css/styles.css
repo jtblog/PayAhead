@@ -1,0 +1,69 @@
+.input-group {
+  margin: 0 auto 5px auto;
+  height: 25px;
+  border-radius: 10px;
+  width: 95%;
+}
+
+.input-group-prepend {
+  height: inherit;
+}
+
+.workspace1 {
+  max-width: 360px;
+  max-height: 550px;
+  margin: 0 auto;
+  margin: 0 auto;
+  background: #ffffff;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  overflow-y: scroll;
+  overflow: -moz-scrollbars-none;
+}
+
+.firebaseui-card-content {
+  padding: 0 0 0 7px;
+}
+
+.input-group > .input-group-append:last-child > .btn:not(:last-child):not(.dropdown-toggle), .input-group > .input-group-append:last-child > .input-group-text:not(:last-child), .input-group > .input-group-append:not(:last-child) > .btn, .input-group > .input-group-append:not(:last-child) > .input-group-text, .input-group > .input-group-prepend > .btn, .input-group > .input-group-prepend > .input-group-text {
+  font-size: small;
+}
+
+#profilepic-input {
+  font-size: 32px;
+  width: inherit;
+  opacity: 0;
+  filter: alpha(opacity=0);
+  height: 150px;
+  border-radius: 50%;
+  position: absolute;
+}
+
+.form-control {
+  margin: 0 auto 5px auto;
+  height: 25px;
+  border-radius: 10px;
+  width: 95%;
+}
+
+.navbar.navbar-light.navbar-expand-md.navigation-clean-button {
+  background-color: #5f9ea0;
+}
+
+.btn:not(:disabled):not(.disabled) {
+}
+
+.btn.btn-primary.btn-block.login-btn {
+  background-color: #5f9ea0;
+}
+
+.btn.btn-primary.btn-block.login-btn {
+  background-color: #5f9ea0;
+  border-radius: 100px;
+  margin: 0 auto;
+}
+
+.firebaseui-id-submit.firebaseui-button.mdl-button.mdl-js-button.mdl-button--raised.mdl-button--colored {
+  background: #5f9ea0;
+}
+

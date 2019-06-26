@@ -1,6 +1,30 @@
 {
   "rules": {
-    ".read": "auth != null",
-    ".write": "auth != null"
+  	"carriers": {
+      ".read": "true",
+      ".write": "true"
+    },
+  	"shippers": {
+      ".read": "true",
+      ".write": "true"
+    },
+    "users": {
+      "$uid": {
+      	".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid"
+      }
+    },
+    "reports": {
+      "$uid": {
+      	".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid"
+      }
+    },
+    "customers": {
+      "$uid": {
+      	".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid"
+      }
+    }
   }
 }
