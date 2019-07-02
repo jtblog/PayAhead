@@ -30,35 +30,38 @@
             <h2 class="text-center"><strong>Create</strong> an account.</h2>
             <div class="form-group"><input class="form-control" type="text" name="firstname" required="" placeholder="First Name" autocomplete="on" id="fn_input"></div>
             <div class="form-group"><input class="form-control" type="text" name="lastname" required="" placeholder="Last Name" autocomplete="on" id="ln_input"></div>
-            <div class="form-group"><input class="form-control" type="text" required="" placeholder="Email address or Phone number" autocomplete="on" inputmode="email" id="ep_input"></div>
-            <div class="form-group"><select class="form-control" id="industry_input" style="padding: 0px;"><optgroup label="Industry" id="industry_group"><option value="12" selected="">This is item 1</option></optgroup></select></div>
-            <div class="form-group"><input class="form-control" type="password" name="password" required="" placeholder="password" id="password_input"></div>
-            <div class="form-group"><input class="form-control" type="text" name="bvn" placeholder="BVN" autocomplete="on" id="bvn_input"></div>
-            <div class="form-group">
-                <div class="form-check"><label class="form-check-label"><input class="form-check-input" type="checkbox" required="">I agree to the license terms.</label></div>
-            </div>
-            <div class="form-group"><button class="btn btn-primary" type="submit" id="signup_btn" style="width: 95%;">Sign Up</button></div>
-            <div class="form-group"><a href="#" class="already">You already have an account? Sign in here.</a></div>
+            <div class="form-group" style="margin-bottom: 0px;"><input class="form-control" type="text" required="" placeholder="Email address or Phone number" autocomplete="on" inputmode="email" id="ep_input" style="margin-bottom: 0px;"><span id="ep_span" style="margin-left: 2.5%;color: red;font-size: smaller;"></span></div>
+            <div
+                class="form-group" style="margin-top: 0px;"><select class="form-control" id="industry_input" style="padding: 0px;"><optgroup label="Industry" id="industry_group"><option value="12" selected="">This is item 1</option></optgroup></select></div>
+    <div class="form-group" style="margin-bottom: 0px;"><input class="form-control" type="password" name="password" required="" placeholder="password" id="password_input" style="margin-bottom: 0px;"><span id="password_span" style="margin-left: 2.5%;color: red;font-size: smaller;height: 15px;"></span></div>
+    <div
+        class="form-group" style="margin-top: 0px;"><input class="form-control" type="text" name="bvn" placeholder="BVN" autocomplete="on" id="bvn_input"></div>
+        <div class="form-group">
+            <div class="form-check"><label class="form-check-label"><input class="form-check-input" type="checkbox" required="">I agree to the license terms.</label></div>
+        </div>
+        <div class="form-group"><button class="btn btn-primary" type="submit" id="signup_btn" style="width: 95%;">Sign Up</button></div>
+        <div class="form-group"><a href="signin.html" class="already">You already have an account? Sign in here.</a></div>
         </form>
         <form id="verify_otp_form" style="visibility: hidden;">
             <h2 class="text-center"><strong>Verify&nbsp;</strong>phone number.</h2>
-            <div class="form-group"><input class="form-control" type="text" name="otp" required="" placeholder="Enter code here" autocomplete="on" id="otp_input"></div>
-            <div class="form-group"><button class="btn btn-primary" type="submit" id="signup_btn" style="width: 95%;">Verify</button></div>
-            <div class="form-group"><a href="#" class="already">Didn't receive OTP code. Resend</a></div>
+            <div class="form-group" style="margin-bottom: 0px;"><input class="form-control" type="text" name="otp" required="" placeholder="Enter code here" autocomplete="on" id="otp_input" style="margin-bottom: 0px;"><span id="otp_span" style="margin-left: 2.5%;color: red;font-size: smaller;"></span></div>
+            <div
+                class="form-group" style="margin-top: 0px;"><button class="btn btn-primary" type="submit" id="signup_btn" style="width: 95%;">Verify</button></div>
+                <div class="form-group"><a href="#" class="already">Didn't receive OTP code. Resend</a></div>
         </form>
-    </div>
-    <script src="assets/js/jquery.min.js"></script>
-    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
-    <script src="assets/js/app.js"></script>
-    <script src="assets/js/firebase-app.js"></script>
-    <script src="assets/js/firebase-auth.js"></script>
-    <script src="assets/js/firebase-database.js"></script>
-    <script src="assets/js/firebase-firestore.js"></script>
-    <script src="assets/js/firebase-messaging.js"></script>
-    <script src="assets/js/firebase-storage.js"></script>
-    <script src="assets/js/firebaseui.js"></script>
-    <script src="assets/js/libphonenumber-js.min.js"></script>
-    <script src="assets/js/resources.js"></script>
+        </div>
+        <script src="assets/js/jquery.min.js"></script>
+        <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+        <script src="assets/js/app.js"></script>
+        <script src="assets/js/firebase-app.js"></script>
+        <script src="assets/js/firebase-auth.js"></script>
+        <script src="assets/js/firebase-database.js"></script>
+        <script src="assets/js/firebase-firestore.js"></script>
+        <script src="assets/js/firebase-messaging.js"></script>
+        <script src="assets/js/firebase-storage.js"></script>
+        <script src="assets/js/firebaseui.js"></script>
+        <script src="assets/js/libphonenumber-js.min.js"></script>
+        <script src="assets/js/resources.js"></script>
 </body>
 
 </html>

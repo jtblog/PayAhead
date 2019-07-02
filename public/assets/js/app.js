@@ -38,6 +38,9 @@ window.prepare_firebase = function(){
   window.auth.onAuthStateChanged(authstateobserver);
   var site = window.location.href+"";
   if(site.endsWith("signup.html") || site.indexOf("signup.html")>-1){
+    if(auth.currentUser != null){
+      signOut();
+    }
     if( document.getElementById("bvn_input") != undefined){
       setInputFilter(document.getElementById("bvn_input"), function(value) {
         return /^\d*$/.test(value);
@@ -213,6 +216,8 @@ var signup = function(e){
                 window.user_json[key] = window.su_details[key];
               });
               set_user(window.user_json);
+              set_customer(window.user_json);
+              localStorage["user"] = JSON.stringify(window.user_json);
               window.user.sendEmailVerification().then(
                 function() {
                     // Email sent.
@@ -223,11 +228,19 @@ var signup = function(e){
                     console.log(error);
                 }
               );
+              window.location = "user.html";
 
           }, 
           function(error) { 
-            //if (error.message != null)
-            //Account could not be created
+            if (error.code != null){
+              switch(error.code) {
+                case "auth/weak-password":
+                  $("#password_span").html(error.message);
+                  break;
+                default:
+                  $("#ep_span").html(error.message);
+              } 
+            }
             console.log(error);
           });
     }else{
@@ -255,15 +268,33 @@ var signup = function(e){
               document.getElementById("verify_otp_form").style.visibility = "visible"; 
             }).catch(function (error) {
               // Error; SMS not sent
+              if (error.code != null){
+                switch(error.code) {
+                  case "auth/user-disabled":
+                    //to developer
+                    break;
+                  case "auth/quota-exceeded":
+                    //to developer
+                    break;
+                  case "auth/operation-not-allowed":
+                    //to developer
+                    break;
+                  default:
+                    $("#ep_span").html(error.message);
+                } 
+              }
               console.log(error);
             });
         }else{
           //Neither a phone number nor an email
+          $("#ep_span").html("Neither a phone number nor an email");
           console.log('It is neither a phone number nor an email');
         }
     }
   }else{
     //Paswword is short
+    $("#password_span").html("Password should not be less than 8 letters");
+    console.log('Password should be 8 letters or more');
   }
 };
 
@@ -299,10 +330,15 @@ var verifyOTPcode = function(e){
     Object.keys(su_details).forEach(function(key) {
       window.user_json[key] = window.su_details[key];
     });
-    removeElement("verify_otp_form");
     set_phone_user(window.user_json);
+    set_customer(window.user_json);
+    localStorage["user"] = JSON.stringify(window.user_json);
+    window.location = "/user.html";
   }).catch(function (error) {
     // User couldn't sign in (bad verification code?)
+    if (error.code != null){
+      $("#otp_span").html(error.message);
+    }
     console.log(error);
   });
 };
@@ -321,9 +357,31 @@ var signin = function(e){
       .then(function(userCredential) {
         window.user = userCredential.user;
         window.user_json = JSON.parse(JSON.stringify(user));
-        //window.location = "/user.html";
+        localStorage["user"] = JSON.stringify(window.user_json);
+        window.location = "/user.html";
       },
       function(error) {
+        if (error.code != null){
+          switch(error.code) {
+            case "auth/user-disabled":
+              //to developer
+              break;
+            case "auth/operation-not-allowed":
+              //to developer
+              break;
+            case "auth/account-exists-with-different-credential":
+              $("#ep_span").html("Email already associated with another account.");
+              break;
+            case "auth/user-not-found":
+              window.location = "/signup.html";
+              break;
+            case "auth/wrong-password":
+              $("#password_span").html(error.message);
+              break;
+            //default:
+              //$("#ep_span").html(error.message);
+          } 
+        }
         console.log(error);
       });
   }else{
@@ -333,10 +391,14 @@ var signin = function(e){
         function(snapshot) {
           snapshot.forEach(
             function(childSnapshot) {
+              exst = "yes";
               if(window.si_details['password'] == childSnapshot.val()['password']){
                 window.user_json = childSnapshot.val();
+                localStorage["user"] = JSON.stringify(window.user_json);
+                window.location = "/user.html";
               }else{
                 //Error; Password doesn't match record
+                $("#password_span").html("Incorrect password. Forgot your password?");
                 console.log("Incorrect password. Forgot your password?");
               }
             }
@@ -402,6 +464,7 @@ function set_user(uj) {
     function(error) {
       if (error) {
         //alert(JSON.stringify(error));
+        console.log(error);
       } else {
         // Data saved successfully!
       }
@@ -414,7 +477,8 @@ function set_phone_user(uj) {
     window.user_json, 
     function(error) {
       if (error) {
-        //alert(JSON.stringify(error));
+        //alert();
+        console.log(error);
       } else {
         // Data saved successfully!
       }
@@ -422,12 +486,13 @@ function set_phone_user(uj) {
   );
 };
 
-function set_customer(user){
-  database.ref("customers/" + user.uid).set(
-    user, 
+function set_customer(uj){
+  database.ref("customers/" + window.user_json["uid"]).set(
+    window.user_json, 
     function(error) {
       if (error) {
         //alert(JSON.stringify(error));
+        console.log(error);
       } else {
         // Data saved successfully!
       }
