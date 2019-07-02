@@ -50,9 +50,6 @@
   background-color: #5f9ea0;
 }
 
-.btn:not(:disabled):not(.disabled) {
-}
-
 .btn.btn-primary.btn-block.login-btn {
   background-color: #5f9ea0;
 }
@@ -65,5 +62,32 @@
 
 .firebaseui-id-submit.firebaseui-button.mdl-button.mdl-js-button.mdl-button--raised.mdl-button--colored {
   background: #5f9ea0;
+}
+
+.forgot {
+  margin: 0 auto;
+}
+
+.btn:not(:disabled):not(.disabled) {
+  background-color: #5f9ea0;
+  border-radius: 100px;
+  margin: 0 auto;
+  margin: 0 2.5%;
+}
+
+.register-photo {
+  background: #ffffff;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  overflow-y: scroll;
+  overflow: -moz-scrollbars-none;
+  display: inline;
+  max-width: 375px;
+  max-height: 550px;
+}
+
+.form-group {
+  width: 95%;
+  margin: 15px 2.5% 15px 2.5%;
 }
 

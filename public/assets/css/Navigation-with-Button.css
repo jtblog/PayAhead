@@ -97,9 +97,6 @@
   font-size: inherit;
   color: #fff;
   box-shadow: none;
-  border: none;
-  text-shadow: none;
-  padding: .5rem 1rem;
   transition: background-color 0.25s;
   font-size: inherit;
 }

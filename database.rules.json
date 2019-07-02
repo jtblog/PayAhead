@@ -1,10 +1,13 @@
 {
   "rules": {
-  	"carriers": {
+    ".read": "true",
+    ".write": "true",
+
+  	"industry": {
       ".read": "true",
       ".write": "true"
     },
-  	"shippers": {
+    "phone_users": {
       ".read": "true",
       ".write": "true"
     },
@@ -15,6 +18,18 @@
       }
     },
     "reports": {
+      "$uid": {
+      	".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid"
+      }
+    },
+    "vendors": {
+      "$uid": {
+      	".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid"
+      }
+    },
+    "payments": {
       "$uid": {
       	".read": "$uid === auth.uid",
         ".write": "$uid === auth.uid"

@@ -1,6 +1,6 @@
-//import { loadavg } from "os";
 var database, auth, messaging, storage, ui, user, phone_user, user_json;
-var vendors_ref, customers_ref, payments_ref, reports_ref;
+var vendors_ref, customers_ref, payments_ref, reports_ref, phone_users_ref, industry_ref;
+var cre_ac_cntr, cre_ac_frm, vrfy_otp_frm;
 
 var vendors = {}; 
 var customers = {};
@@ -24,23 +24,43 @@ window.prepare_firebase = function(){
   window.ui.disableAutoSignIn();
   window.database = firebase.database();
   window.auth = firebase.auth();
-  window.messaging = firebase.messaging();
+  //window.messaging = firebase.messaging();
   window.storage = firebase.storage();
+  //try{}catch(error){}
 
   window.vendors_ref = database.ref('/vendors/');
   window.customers_ref = database.ref('/customers/');
   window.payments_ref = database.ref('/payments/');
   window.reports_ref = database.ref('/reports/');
-
+  window.phone_users_ref = database.ref('/phone_users/');
+  window.industry_ref = database.ref('/industry/');
+  
   window.auth.onAuthStateChanged(authstateobserver);
   var site = window.location.href+"";
   if(site.endsWith("signup.html") || site.indexOf("signup.html")>-1){
-    document.getElementById('firebaseui-auth-container').innerHTML = "";
-    window.ui.start('#firebaseui-auth-container', window.uiConfig);
+    if( document.getElementById("bvn_input") != undefined){
+      setInputFilter(document.getElementById("bvn_input"), function(value) {
+        return /^\d*$/.test(value);
+      });
+    }
+    if( document.getElementById("otp_input") != undefined){
+      setInputFilter(document.getElementById("otp_input"), function(value) {
+        return /^\d*$/.test(value);
+      });
+    }
+    
+    //document.getElementById('firebaseui-auth-container').innerHTML = "";
+    //window.ui.start('#firebaseui-auth-container', window.uiConfig);
+    window.cre_ac_cntr = document.getElementById("create_acct_container");
+    window.cre_ac_frm = document.getElementById("create_acct_form");
+    window.vrfy_otp_frm = document.getElementById("verify_otp_form");
+    removeElement("verify_otp_form");
+    $("#create_acct_form").submit(signup);
+    populate_industry();
   }
 
   if(site.endsWith("signin.html") || site.indexOf("signin.html")>-1){
-    $("#login-form").submit(login);
+    $("#login_form").submit(signin);
   }
   
 }
@@ -124,15 +144,6 @@ document.addEventListener('DOMContentLoaded', function() {
   //
 });
 
-function create_account_ui(){
-  document.getElementById('firebaseui-auth-container').innerHTML = create_account
-  $("#create-acct-form").submit(continue_registration);
-
-  setInputFilter(document.getElementById("bvn-input"), function(value) {
-    return /^\d*$/.test(value);
-  });
-}
-
 function previewImage(input) {
   if (input.files && input.files[0]) {
     var reader = new FileReader();
@@ -146,8 +157,9 @@ function previewImage(input) {
   }
 }
 
+/*
 var continue_registration = function(e) {
-
+  e.preventDefault();
   user_json['email'] = $("#email-input").val();
   user_json['password'] = $("#password-input").val();
   user_json['displayName'] = $("#firstname-input").val() + ' ' + $("#lastname-input").val();
@@ -162,11 +174,10 @@ var continue_registration = function(e) {
   }, function(error) {
     // An error happened.
     alert(JSON.stringify(error));
-  });
-
-  var credential = firebase.auth.EmailAuthProvider.credential(user_json['email'], user_json['password']);
+});
+var credential = firebase.auth.EmailAuthProvider.credential(user_json['email'], user_json['password']);
   auth.currentUser.linkAndRetrieveDataWithCredential(credential).then(function(usercred) {
-    window.user = usercred.user;
+  window.user = usercred.user;
     user.sendEmailVerification();
     user_json = JSON.parse(JSON.stringify(user));
     user_json['bvn'] = $("#bvn-input").val();
@@ -178,15 +189,185 @@ var continue_registration = function(e) {
     //alert(JSON.stringify(error));
     //{"code":"auth/provider-already-linked","message":"User can only be linked to one identity for the given provider."}
   });
+};*/
 
+var signup = function(e){
   e.preventDefault();
+  var ep = $("#ep_input").val();
+
+  window.su_details = {
+    'displayName' : $("#fn_input").val() + " " + $("#ln_input").val(),
+    'industry' : $('#industry_input option:selected').text(),
+    'password' : $("#password_input").val(),
+    'bvn' : $("#bvn_input").val()
+  }
+
+  if(window.su_details['password'].length >= 8){
+    if(isEmail(ep)){
+      window.su_details['email'] = ep;
+        auth.createUserWithEmailAndPassword(window.su_details['email'], window.su_details['password']).then(
+          function(value) { 
+              window.user = auth.currentUser;
+              window.user_json = JSON.parse(JSON.stringify(window.user));
+              Object.keys(su_details).forEach(function(key) {
+                window.user_json[key] = window.su_details[key];
+              });
+              set_user(window.user_json);
+              window.user.sendEmailVerification().then(
+                function() {
+                    // Email sent.
+                    $("#create_acct_container").html("A verification link has been sent to your email address");
+                }, function(error) {
+                    // An error happened.
+                    //Verification not sent
+                    console.log(error);
+                }
+              );
+
+          }, 
+          function(error) { 
+            //if (error.message != null)
+            //Account could not be created
+            console.log(error);
+          });
+    }else{
+        if(libphonenumber.isValidNumber(ep)){
+          window.su_details['phoneNumber'] = ep;
+          window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('signup_btn', {
+            'size': 'invisible',
+            'callback': function(response) {
+              //response
+            }
+          });
+          recaptchaVerifier.render().then(function(widgetId) {
+            window.recaptchaWidgetId = widgetId;
+          });
+
+
+          window.auth.signInWithPhoneNumber(su_details['phoneNumber'], window.recaptchaVerifier)
+            .then(function (confirmationResult) {
+              // SMS sent. Prompt user to type the code from the message, then sign the user in with confirmationResult.confirm(code).
+              e.preventDefault();
+              window.confirmationResult = confirmationResult;
+              removeElement("create_acct_form");
+              addElement(cre_ac_cntr, vrfy_otp_frm);
+              $("#verify_otp_form").submit(verifyOTPcode);
+              document.getElementById("verify_otp_form").style.visibility = "visible"; 
+            }).catch(function (error) {
+              // Error; SMS not sent
+              console.log(error);
+            });
+        }else{
+          //Neither a phone number nor an email
+          console.log('It is neither a phone number nor an email');
+        }
+    }
+  }else{
+    //Paswword is short
+  }
 };
 
-var login = function(e){
-  var ldetails = {
-    'email' : $("#email-input").val(),
-    'password' : $("#password-input").val()
+function populate_industry(){
+  var first = false;
+  var i_html = '';
+  document.getElementById('industry_group').innerHTML = "";
+  industry_ref.orderByKey().once('value').then(
+    function(snapshot) {
+      snapshot.forEach(
+        function(childSnapshot) {
+          opt = document.createElement('OPTION');
+          opt.textContent = childSnapshot.val();
+          opt.value = childSnapshot.key;
+          document.getElementById('industry_group').appendChild(opt);
+        }
+      )
+    },
+    function(error) {
+      //if (error.message != null){}else{}
+    }
+  );
+  document.getElementById('industry_group').innerHTML = i_html;
+}
+
+var verifyOTPcode = function(e){
+  e.preventDefault();
+  var otp = $("#otp_input").val();
+  window.confirmationResult.confirm(otp).then(function (result) {
+    // User signed in successfully.
+    window.user = result.user;
+    window.user_json = JSON.parse(JSON.stringify(window.user));
+    Object.keys(su_details).forEach(function(key) {
+      window.user_json[key] = window.su_details[key];
+    });
+    removeElement("verify_otp_form");
+    set_phone_user(window.user_json);
+  }).catch(function (error) {
+    // User couldn't sign in (bad verification code?)
+    console.log(error);
+  });
+};
+
+var signin = function(e){
+  e.preventDefault();
+  var ep = $("#ep_input").val();
+  window.si_details = {
+    'password' : $("#password_input").val()
   };
+  
+  if(isEmail(ep)){
+    window.si_details['email'] = ep;
+    var credential = firebase.auth.EmailAuthProvider.credential(window.si_details['email'], window.si_details['password']);
+    firebase.auth().signInWithCredential(credential)
+      .then(function(userCredential) {
+        window.user = userCredential.user;
+        window.user_json = JSON.parse(JSON.stringify(user));
+        //window.location = "/user.html";
+      },
+      function(error) {
+        console.log(error);
+      });
+  }else{
+    if(libphonenumber.isValidNumber(ep)){
+      window.si_details['phoneNumber'] = ep;
+      phone_users_ref.orderByChild("phoneNumber").equalTo(window.si_details['phoneNumber']).once('value').then(
+        function(snapshot) {
+          snapshot.forEach(
+            function(childSnapshot) {
+              if(window.si_details['password'] == childSnapshot.val()['password']){
+                window.user_json = childSnapshot.val();
+              }else{
+                //Error; Password doesn't match record
+                console.log("Incorrect password. Forgot your password?");
+              }
+            }
+          )
+        },
+        function(error) {
+          console.log(error);
+        }
+      );
+    }else{
+        //Neither a phone number nor an email
+        console.log('It is neither a phone number nor an email');
+    }
+  }
+
+  /*
+  phone_users_ref.orderByKey().equalTo(ldetails["phone-number"]).once('value').then(
+    function(snapshot) {
+      snapshot.forEach(
+        function(childSnapshot) {
+          //var childKey = childSnapshot.key;
+          //var childData = childSnapshot.val();
+          //alert(JSON.stringify(childSnapshot.val()));
+        }
+      )
+    },
+    function(error) {
+      //if (error.message != null){}else{}
+    }
+  );
+  
   var credential = firebase.auth.EmailAuthProvider.credential(ldetails['email'], ldetails['password']);
   firebase.auth().signInAndRetrieveDataWithCredential(credential)
     .then(function(userCredential) {
@@ -196,18 +377,28 @@ var login = function(e){
       //console.log(userCredential.additionalUserInfo.username);
       //console.log(userCredential.additionalUserInfo.isNewUser);
     });
-    e.preventDefault();
-}
+  */
+};
+
+function isEmail(str){
+  var format = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+  if(str.match(format)){
+    return true;
+  }else{
+    return false;
+  }
+};
 
 function authstateobserver(user){
   if(user != null && user.email != null){
     window.user = user;
+    window.user_json = JSON.parse(JSON.stringify(window.user));
   }
-}
+};
 
-function set_user(user) {
-  database.ref("users/" + user.uid).set(
-    user, 
+function set_user(uj) {
+  database.ref("users/" + window.user_json["uid"]).set(
+    window.user_json, 
     function(error) {
       if (error) {
         //alert(JSON.stringify(error));
@@ -216,7 +407,21 @@ function set_user(user) {
       }
     }
   );
-}
+};
+
+function set_phone_user(uj) {
+  database.ref("phone_users/" + window.user_json["uid"]).set(
+    window.user_json, 
+    function(error) {
+      if (error) {
+        //alert(JSON.stringify(error));
+      } else {
+        // Data saved successfully!
+      }
+    }
+  );
+};
+
 function set_customer(user){
   database.ref("customers/" + user.uid).set(
     user, 
@@ -228,11 +433,11 @@ function set_customer(user){
       }
     }
   );
-}
+};
 
 function signout() {
   auth.signOut();
-}
+};
 
 function get_vendors(){
   vendors_ref.once('value').then(
@@ -248,7 +453,17 @@ function get_vendors(){
       //if (error.message != null){}else{}
     }
   );
-}
+};
+
+function addElement(parent, element) {
+    parent.appendChild(element);
+};
+
+function removeElement(elementId) {
+    // Removes an element from the document
+    var element = document.getElementById(elementId);
+    element.parentNode.removeChild(element);
+};
 
 /*
 function get_customers(){
@@ -274,19 +489,13 @@ function get_current_location(){
   } else {
     alert("Your browser does not support location services")
   }
-}
-
-function set_current_location(){
-
-} 
-
-function set_current_conversation(){
-
-}
-
-var handleSignIn = function(user) {
-  
 };
+
+function set_current_location(){} 
+
+function set_current_conversation(){}
+
+var handleSignIn = function(user) {};
 
 /**
  * Displays the UI for a signed out user.
@@ -310,22 +519,7 @@ var handleSignOut = function() {
 var geolocationCallback = function(location) {
   var latitude = location.coords.latitude;
   var longitude = location.coords.longitude;
-  //log("Retrieved user's location: [" + latitude + ", " + longitude + "]");
-
-  /*
-  var username = "wesley";
-  geoFire.set(username, [latitude, longitude]).then(function() {
-  log("Current user " + username + "'s location has been added to GeoFire");
-
-  // When the user disconnects from Firebase (e.g. closes the app, exits the browser),
-  // remove their GeoFire entry
-  firebaseRef.child(username).onDisconnect().remove();
-
-  log("Added handler to remove user " + username + " from GeoFire when you leave this page.");
-  }).catch(function(error) {
-    log("Error adding user " + username + "'s location to GeoFire");
-  });
-  */
+  //firebaseRef.child(username).onDisconnect().remove();
 }
 
 /* Handles any errors from trying to get the user's current location */
