@@ -1,6 +1,5 @@
 var validator = require('validator');
 var _auth;
-var _admin;
 
 function payaheadAuth() {
 }
@@ -13,19 +12,19 @@ payaheadAuth.prototype.signin = function (credential_name, credential_password, 
 	if(validator.isEmail(credential_name)){
 		_auth.getUserByEmail(credential_name)
 		    .then(function(user) {
-		    	response.json(user);
+		    	return response.json(user);
 		    })
 		    .catch(function(error) {
-		      	response.json(error);
+		      	return response.json(error);
 		  	});
 	}else{
 		if(validator.isMobilePhone(credential_name)){
 			_auth.getUserByPhoneNumber(credential_name)
 				.then(function(user) {
-			        response.json(user);
+			        return response.json(user);
 				})
 			    .catch(function(error) {
-			    	response.json(error);
+			    	return response.json(error);
 				});
 		}else{
 			var err = {
@@ -42,10 +41,10 @@ payaheadAuth.prototype.signup = function (details, response) {
 		details
 		)
 		.then(function(user) {
-			response.json(user)//.toJSON());
+			return response.json(user)//.toJSON());
 		})
 		.catch(function(error) {
-			response.json(error);
+			return response.json(error);
 		});
 }; 
 

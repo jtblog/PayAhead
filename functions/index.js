@@ -6,7 +6,8 @@ const path = require('path');
 
 const serviceAccount  = require('./payahead-80360-firebase-adminsdk-0862z-b5e58ff081.json');
 var mAuth = require('./payaheadAuth');
-//global.db = require('./db');
+var db = require('./db');
+var pay = require('./pay');
 
 const router = express.Router();
 const app = express();
@@ -30,8 +31,11 @@ var defaultApp = admin.initializeApp({
 
 //global.defaultAuth = defaultApp.auth();
 //global.defaultDatabase = defaultApp.database();
-var mAuth = new mAuth();
+mAuth = new mAuth();
+db = new db();
+pay = new pay();
 mAuth.shareApp(defaultApp);
+db.shareApp(defaultApp);
 
 router.get('/',function(request, response){
   response.sendFile(path.join(__dirname.replace("functions", "public")+'/index.html'));
@@ -57,6 +61,11 @@ router.post('/auth/signup', function(request, response){
 	mAuth.signup(su_details, response);
 });
 
+router.post('/payment/initialize', function(request, response){
+	const p_details = JSON.parse(request.body);
+	pay.initialize(p_details, response);
+});
+
 /*
 app.post('/signin-form', (request, response) => {
   const username = request.body.username
@@ -65,8 +74,6 @@ app.post('/signin-form', (request, response) => {
 */
 
 app.use('/', router);
-
-
 
 /*
 app.get('/', function (request, response) {
