@@ -91,3 +91,42 @@
   margin: 15px 2.5% 15px 2.5%;
 }
 
+.tab-content.border.rounded {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  overflow: scroll;
+  overflow: -moz-scrollbars-none;
+  max-width: 360px;
+  display: inline;
+}
+
+custompaystack1 {
+  background: #ffffff;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  overflow-y: scroll;
+  overflow: -moz-scrollbars-none;
+  max-width: 360px;
+  margin: 0 auto;
+  max-height: 550px;
+  border: none;
+}
+
+.test-mode-badge {
+  visibility: hidden;
+}
+
+#payEmbedContainer {
+  background: #ffffff;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  overflow-y: scroll;
+  overflow: -moz-scrollbars-none;
+  max-width: 360px;
+  margin: 0 auto;
+  max-height: 550px;
+  border: none;
+  padding-top: 50px;
+  height: 550px;
+}
+

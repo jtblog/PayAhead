@@ -6,8 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>PayAhead</title>
     <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Actor">
     <link rel="stylesheet" href="assets/css/firebaseui.css">
+    <link rel="stylesheet" href="assets/css/Profile-Card-1.css">
+    <link rel="stylesheet" href="assets/css/Profile-Card.css">
     <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 
@@ -22,17 +25,49 @@
                     <li class="dropdown nav-item"><a class="dropdown-toggle nav-link" data-toggle="dropdown" aria-expanded="false" href="#" style="color: white;">Help</a>
                         <div class="dropdown-menu" role="menu"><a class="dropdown-item" role="presentation" href="#">First Item</a><a class="dropdown-item" role="presentation" href="#">Second Item</a><a class="dropdown-item" role="presentation" href="#">Third Item</a></div>
                     </li>
-                </ul><span class="text-center navbar-text actions"> <a href="signin.html" class="login" style="color: white;">Sign In</a><a class="btn btn-light action-button" role="button" href="signup.html" style="color: white;">Sign Up</a></span></div>
+                </ul><span class="text-center invisible navbar-text actions"> <a href="signin" class="login" style="color: white;">Sign In</a><a class="btn btn-light action-button" role="button" href="signup" style="color: white;">Sign Up</a></span></div>
         </div>
     </nav>
-    <div class="container" style="background: #ffffff;-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;/*display: inline;*/max-width: 360px;margin: 0 auto;border: none;">
+    <div style="max-height: 550px;margin: 0 auto;max-width: 360px;">
         <ul class="nav nav-tabs">
-            <li class="nav-item"><a class="nav-link active" href="#">First Item</a></li>
-            <li class="nav-item"><a class="nav-link" href="#">Second Item</a></li>
-            <li class="nav-item"><a class="nav-link" href="#">Third Item</a></li>
+            <li class="nav-item"><a class="nav-link active" role="tab" data-toggle="tab" href="#tab-1"><i class="fa fa-user" style="font-size: larger;"></i>&nbsp;My Profile</a></li>
+            <li class="nav-item"><a class="nav-link" role="tab" data-toggle="tab" href="#tab-2"><i class="fa fa-money"></i>&nbsp;Transactions</a></li>
+            <li class="nav-item"><a class="nav-link" role="tab" data-toggle="tab" href="#tab-3">Tab 3</a></li>
+        </ul>
+        <div class="tab-content" style="-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;max-width: 360px;max-height: 550px;">
+            <div class="tab-pane active" role="tabpanel" id="tab-1">
+                <div class="profile-card">
+                    <div class="profile-back"></div><img class="rounded-circle profile-pic" src="assets/img/2.jpg">
+                    <h3 class="profile-name">FirstName LastName</h3>
+                    <form id="update_form">
+                        <div class="form-group"><input class="form-control" type="text" name="firstname" required="" placeholder="First Name" autocomplete="on" id="fn_input"></div>
+                        <div class="form-group"><input class="form-control" type="text" name="lastname" required="" placeholder="Last Name" autocomplete="on" id="ln_input"></div>
+                        <div class="form-group" style="margin-bottom: 0px;"><input class="form-control" type="text" required="" placeholder="Email address" autocomplete="on" inputmode="email" id="email_input" style="margin-bottom: 0px;"><span id="email_span" style="margin-left: 2.5%;color: red;font-size: smaller;"></span></div>
+                        <div
+                            class="form-group" style="margin-bottom: 0px;margin-top: 0px;"><input class="form-control" type="text" required="" placeholder="Phone number" autocomplete="on" inputmode="email" id="pno_input" style="margin-bottom: 0px;"><span id="pno_span" style="margin-left: 2.5%;color: red;font-size: smaller;"></span></div>
+                <div
+                    class="form-group" style="margin-top: 0px;"><select class="form-control" id="industry_input" style="padding: 0px;"><optgroup label="Industry" id="industry_group"></optgroup></select></div>
+            <div class="form-group" style="margin-bottom: 0px;"><input class="form-control" type="password" name="password" required="" placeholder="password" id="password_input" style="margin-bottom: 0px;"><span id="password_span" style="margin-left: 2.5%;color: red;font-size: smaller;height: 15px;"></span></div>
+            <div
+                class="form-group" style="margin-top: 0px;"><input class="form-control" type="text" name="bvn" placeholder="BVN" autocomplete="on" id="bvn_input"></div>
+        <div class="form-group"><button class="btn btn-primary" type="submit" id="update_btn" style="width: 95%;">Update</button></div>
+        <div class="form-group"><a href="#" class="already">Reset password</a></div>
+        </form>
+        <ul class="social-list">
+            <li> <i class="fa fa-facebook-official"></i></li>
+            <li> <i class="fa fa-twitter-square"></i></li>
+            <li> <i class="fa fa-linkedin-square"></i></li>
         </ul>
     </div>
-    <div class="container" style="background: #ffffff;-ms-overflow-style: none;scrollbar-width: none;overflow-y: scroll;overflow: -moz-scrollbars-none;/*display: inline;*/max-width: 360px;margin: 0 auto;max-height: 550px;padding-top: 50px;border: none;"></div>
+    </div>
+    <div class="tab-pane" role="tabpanel" id="tab-2">
+        <p>Content for tab 2.</p>
+    </div>
+    <div class="tab-pane" role="tabpanel" id="tab-3">
+        <p>Content for tab 3.</p>
+    </div>
+    </div>
+    </div>
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="assets/js/app.js"></script>
@@ -43,7 +78,8 @@
     <script src="assets/js/firebase-messaging.js"></script>
     <script src="assets/js/firebase-storage.js"></script>
     <script src="assets/js/firebaseui.js"></script>
-    <script src="assets/js/libphonenumber-js.min.js"></script>
+    <script src="https://js.paystack.co/v1/inline.js"></script>
+    <script src="assets/js/pay.js"></script>
     <script src="assets/js/resources.js"></script>
 </body>
 

@@ -1,3 +1,5 @@
+
+
 var database, auth, messaging, storage, ui, user, phone_user, user_json;
 var vendors_ref, customers_ref, payments_ref, reports_ref, phone_users_ref, industry_ref;
 var cre_ac_cntr, cre_ac_frm, vrfy_otp_frm;
@@ -65,7 +67,10 @@ window.prepare_firebase = function(){
   if(site.endsWith("signin.html") || site.indexOf("signin.html")>-1){
     $("#login_form").submit(signin);
   }
-  
+
+  if(site.endsWith("user.html") || site.indexOf("user.html")>-1){
+    prepare_userhtml();
+  }
 }
 
 function prepare_uiConfig(){
@@ -298,6 +303,34 @@ var signup = function(e){
   }
 };
 
+function prepare_userhtml(){
+  if(localStorage["user"] != null && typeof(localStorage["user"]) != undefined){
+    window.user_json = JSON.parse(localStorage["user"]);
+    if(window.user_json != null && typeof(window.user_json) != undefined){
+      $(".profile-name").html(window.user_json['displayName']);
+      $("#fn_input").val(window.user_json['displayName'].split(" ")[0]);
+      $("#ln_input").val(window.user_json['displayName'].split(" ")[1]);
+      $("#password_input").val(window.user_json['password']);
+      $("#bvn_input").val(window.user_json['bvn']);
+
+      if(window.user_json['email'] != null && typeof(window.user_json['email']) != undefined){
+        $("#email_input").val(window.user_json['email']);
+      }else{
+        $("#email_input").val("");
+      }
+      if(window.user_json['phoneNumber'] != null && typeof(window.user_json['phoneNumber']) != undefined){
+        $("#pno_input").val(window.user_json['phoneNumber']);
+      }else{
+        $("#pno_input").val('');
+      }
+
+      opt = document.createElement('OPTION');
+      opt.textContent = window.user_json['industry'];
+      document.getElementById('industry_group').appendChild(opt);
+    }
+  }
+}
+
 function populate_industry(){
   var first = false;
   var i_html = '';
@@ -343,6 +376,7 @@ var verifyOTPcode = function(e){
   });
 };
 
+/*
 var signin = function(e){
   e.preventDefault();
   var ep = $("#ep_input").val();
@@ -439,8 +473,9 @@ var signin = function(e){
       //console.log(userCredential.additionalUserInfo.username);
       //console.log(userCredential.additionalUserInfo.isNewUser);
     });
-  */
+  
 };
+*/
 
 function isEmail(str){
   var format = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;

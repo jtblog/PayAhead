@@ -2671,7 +2671,6 @@ input.firebaseui-input, input.firebaseui-input-invalid {
 
 ::-webkit-scrollbar {
   width: 0px;
-  background-color: #075e54;
 }
 
 .input-group > .custom-select:not(:first-child), .input-group > .form-control:not(:first-child) {
