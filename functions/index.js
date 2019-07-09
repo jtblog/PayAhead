@@ -49,7 +49,6 @@ router.get('/signup',function(request, response){
   response.sendFile(path.join(__dirname.replace("functions", "public")+'/signup.html'));
 });
 
-
 router.post('/auth/signin', function(request, response){
 	const credential_name = JSON.parse(request.body).emailOrPhoneNumber;
 	const credential_password = JSON.parse(request.body).password;
