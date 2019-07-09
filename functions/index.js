@@ -54,7 +54,7 @@ router.post('/auth/signin', function(request, response){
 	//const credential_name = JSON.parse(request.body).emailOrPhoneNumber;
 	//const credential_password = JSON.parse(request.body).password;
 	//mAuth.signin(credential_name, credential_password, response);
-	firebase.auth().signInWithEmailAndPassword("joetfx@hotmail.com", "06143460AI")
+	/*firebase.auth().signInWithEmailAndPassword("joetfx@hotmail.com", "06143460AI")
   	.then(function(user) {
   		response.json(user);
 	})
@@ -62,12 +62,12 @@ router.post('/auth/signin', function(request, response){
 	  //var errorCode = error.code;
 	  //var errorMessage = error.message;
 	  response.json(error);
-	});
+	});*/
 });
 
 router.post('/auth/signup', function(request, response){
-	const su_details = JSON.parse(request.body);
-	mAuth.signup(su_details, response);
+	/*const su_details = JSON.parse(request.body);
+	mAuth.signup(su_details, response);*/
 });
 
 router.post('/payment/initialize', function(request, response){
