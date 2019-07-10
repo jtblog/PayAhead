@@ -1,14 +1,13 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 var firebase = require('firebase');
-//console.log(firebase.auth);
 
 const express = require('express');
 const path = require('path');
 
 const serviceAccount  = require('./payahead-80360-firebase-adminsdk-0862z-b5e58ff081.json');
 var mAuth = require('./payaheadAuth');
-var db = require('./db');
+var mdb = require('./payaheadDb');
 var pay = require('./pay');
 
 const router = express.Router();
@@ -33,10 +32,11 @@ var defaultApp = admin.initializeApp({
 });
 
 mAuth = new mAuth();
-db = new db();
+mdb = new mdb();
 pay = new pay();
-mAuth.shareApp(defaultApp);
-db.shareApp(defaultApp);
+global.payahead_auth = firebase.auth();
+mAuth.shareApp(payahead_auth, defaultApp);
+mdb.shareApp(firebase.database());
 
 router.get('/',function(request, response){
   response.sendFile(path.join(__dirname.replace("functions", "public")+'/index.html'));
@@ -51,24 +51,34 @@ router.get('/signup',function(request, response){
 });
 
 router.post('/auth/signin', function(request, response){
-	//const credential_name = JSON.parse(request.body).emailOrPhoneNumber;
-	//const credential_password = JSON.parse(request.body).password;
-	//mAuth.signin(credential_name, credential_password, response);
-	/*firebase.auth().signInWithEmailAndPassword("joetfx@hotmail.com", "06143460AI")
-  	.then(function(user) {
-  		response.json(user);
-	})
-  	.catch(function(error) {
-	  //var errorCode = error.code;
-	  //var errorMessage = error.message;
-	  response.json(error);
-	});*/
+	const credential_name = JSON.parse(ts(request.body)).emailOrPhoneNumber;
+	const credential_password = JSON.parse(ts(request.body)).password;
+	mAuth.signin(credential_name, credential_password, response);
 });
 
 router.post('/auth/signup', function(request, response){
-	/*const su_details = JSON.parse(request.body);
-	mAuth.signup(su_details, response);*/
+	const _details = JSON.parse(ts(request.body));
+	const su_details = {};
+	su_details["emailVerified"] = false;
+	su_details["disabled"] = false;
+	su_details["displayName"] = _details["displayName"];
+	su_details["email"] = _details["email"];
+	su_details["password"] = _details["password"];
+	su_details["phoneNumber"] = _details["phoneNumber"];
+	if(_details["photoURL"] == ""){
+		su_details["photoURL"] = "https://firebasestorage.googleapis.com/v0/b/payahead-80360.appspot.com/o/index.png?alt=media&token=66c38ec1-6bb7-4aa6-ad09-8b394acd390f";
+	}
+	
+	const other_details = {};
+	other_details["bvn"] = _details["bvn"];
+	other_details["industry"] = _details["industry"];
+
+	mAuth.signup(su_details, other_details, mdb, response);
 });
+
+function ts(_in) {
+	return ""+_in.replace(/'/g, '"');
+}
 
 router.post('/payment/initialize', function(request, response){
 	const p_details = JSON.parse(request.body);
@@ -107,15 +117,3 @@ app.delete('/', function (request, response) {
 */
 
 exports.app = functions.https.onRequest(app);
-
-
-
-//"axios": "^0.19.0",
-    //"body-parser": "^1.19.0",
-    //"express": "^4.17.1",
-    //"firebase-functions": "^3.0.0",
-    //"google-libphonenumber": "^3.2.3",
-   // "libphonenumber": "0.0.10",
-    //"libphonenumber-js": "^1.7.20",
-    //"paystack": "^2.0.1",
-    //"validator": "^11.1.0"
