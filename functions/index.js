@@ -1,14 +1,14 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-var firebase = require('firebase');
+global.firebase = require('firebase');
 
 const express = require('express');
 const path = require('path');
 
 const serviceAccount  = require('./payahead-80360-firebase-adminsdk-0862z-b5e58ff081.json');
-var mAuth = require('./payaheadAuth');
-var mdb = require('./payaheadDb');
-var pay = require('./pay');
+global.mAuth = require('./payaheadAuth');
+global.mdb = require('./payaheadDb');
+global.pay = require('./pay');
 
 const router = express.Router();
 const app = express();
@@ -35,8 +35,9 @@ mAuth = new mAuth();
 mdb = new mdb();
 pay = new pay();
 global.payahead_auth = firebase.auth();
+global.payahead_db = firebase.database();
 mAuth.shareApp(payahead_auth, defaultApp);
-mdb.shareApp(firebase.database());
+mdb.shareApp(payahead_db);
 
 router.get('/',function(request, response){
   response.sendFile(path.join(__dirname.replace("functions", "public")+'/index.html'));
@@ -65,15 +66,30 @@ router.post('/auth/signup', function(request, response){
 	su_details["email"] = _details["email"];
 	su_details["password"] = _details["password"];
 	su_details["phoneNumber"] = _details["phoneNumber"];
-	if(_details["photoURL"] == ""){
+	if(_details["photoURL"] == "" || _details["photoURL"] == null || typeof(_details["photoURL"]) == undefined){
 		su_details["photoURL"] = "https://firebasestorage.googleapis.com/v0/b/payahead-80360.appspot.com/o/index.png?alt=media&token=66c38ec1-6bb7-4aa6-ad09-8b394acd390f";
 	}
 	
 	const other_details = {};
-	other_details["bvn"] = _details["bvn"];
-	other_details["industry"] = _details["industry"];
-
-	mAuth.signup(su_details, other_details, mdb, response);
+	if(_details["bvn"] == null || typeof(_details["bvn"]) == undefined){
+		response.json({
+			"code" : "auth/bvn",
+			"message" : "BVN is not attached or is invalid"
+		});
+		response.end();
+	}else{
+		other_details["bvn"] = _details["bvn"];
+	}
+	if(_details["industry"] == null || typeof(_details["industry"]) == undefined){
+		response.json({
+			"code" : "auth/industry",
+			"message" : "Industry is not attached or is invalid"
+		});
+		response.end();
+	}else{
+		other_details["industry"] = _details["industry"];
+	}
+	mAuth.signup(su_details, other_details, this.mdb, response);
 });
 
 function ts(_in) {
