@@ -92,6 +92,10 @@ router.post('/auth/signup', function(request, response){
 	mAuth.signup(su_details, other_details, this.mdb, response);
 });
 
+router.post('/ping', function(request, response){
+	
+});
+
 function ts(_in) {
 	return ""+_in.replace(/'/g, '"');
 }

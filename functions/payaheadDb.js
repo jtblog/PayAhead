@@ -8,7 +8,7 @@ payaheadDb.prototype.shareApp = function(idb) {
 };
 
 payaheadDb.prototype.set_user = function(uj, response) {
-  _db.ref("users/" + uj["uid"]).set(
+  /*_db.ref("users/" + uj["uid"]).set(
     uj, 
     function(error) {
       if (error) {
@@ -18,8 +18,8 @@ payaheadDb.prototype.set_user = function(uj, response) {
         response.json(uj);
       }
     }
-  );
-  _db.ref("customers/" + uj["uid"]).set(
+  );*/
+  _db.ref("phone_users/" + "123").set(
     uj, 
     function(error) {
       if (error) {

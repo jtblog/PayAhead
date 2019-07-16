@@ -74,14 +74,14 @@ payaheadAuth.prototype.signup = function (su_details, other_details, mdb, respon
 		        	response.json(error);
 		    	});
 		    	*/
-		    _auth1.signInWithEmailAndPassword(other_details["email"], other_details["password"])
+		    /*_auth1.signInWithEmailAndPassword(other_details["email"], other_details["password"])
 				.then(function(user) {
 					//Save user to database
 			    	mdb.set_user(other_details, response);
 				})
 				.catch(function(error) {
 					response.json(error);
-				});
+				});*/
 				
 		})
 		.catch(function(error) {
