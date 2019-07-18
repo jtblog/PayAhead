@@ -3,7 +3,7 @@
     ".read": "true",
     ".write": "true",
 
-  	"industry": {
+    "industry": {
       ".read": "true",
       ".write": "true"
     },
@@ -13,31 +13,31 @@
     },
     "users": {
       "$uid": {
-      	".read": "$uid === auth.uid",
-        ".write": "$uid === auth.uid"
+        ".read": "true",
+        ".write": "$uid === newData.child('uid').val()"
       }
     },
     "reports": {
       "$uid": {
-      	".read": "$uid === auth.uid",
+        ".read": "$uid === auth.uid",
         ".write": "$uid === auth.uid"
       }
     },
     "vendors": {
       "$uid": {
-      	".read": "$uid === auth.uid",
+        ".read": "$uid === auth.uid",
         ".write": "$uid === auth.uid"
       }
     },
     "payments": {
       "$uid": {
-      	".read": "$uid === auth.uid",
+        ".read": "$uid === auth.uid",
         ".write": "$uid === auth.uid"
       }
     },
     "customers": {
       "$uid": {
-      	".read": "$uid === auth.uid",
+        ".read": "$uid === auth.uid",
         ".write": "$uid === auth.uid"
       }
     }

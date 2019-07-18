@@ -1,21 +1,25 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 global.firebase = require('firebase');
+global.needle = require('needle');
+global.storage = require('node-persist');
+storage.init();
 
 const express = require('express');
 const path = require('path');
 
 const serviceAccount  = require('./payahead-80360-firebase-adminsdk-0862z-b5e58ff081.json');
 global.mAuth = require('./payaheadAuth');
-global.mdb = require('./payaheadDb');
+global.mDb = require('./payaheadDb');
 global.pay = require('./pay');
+global.resp;
+global.reqst;
 
-const router = express.Router();
+const unsecured_router = express.Router();
+const secured_router = express.Router();
 const app = express();
 
-app.use(express.urlencoded());
-
-var config = {
+global.config = {
     "apiKey": "AIzaSyCYLDTKAfXBgAdF6hqF3qsSYo1o-2WHo7s",
     "databaseURL": "https://payahead-80360.firebaseio.com",
     "storageBucket": "payahead-80360.appspot.com",
@@ -26,38 +30,83 @@ var config = {
 firebase.initializeApp(config);
 
 // Initialize the default app
-var defaultApp = admin.initializeApp({
+global.defaultApp = admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: "https://payahead-80360.firebaseio.com"
 });
 
 mAuth = new mAuth();
-mdb = new mdb();
+mDb = new mDb();
 pay = new pay();
 global.payahead_auth = firebase.auth();
-global.payahead_db = firebase.database();
-mAuth.shareApp(payahead_auth, defaultApp);
-mdb.shareApp(payahead_db);
+//global.payahead_db = firebase.database();
+global._auth = defaultApp.auth();
+global._db = defaultApp.database();
+mAuth.shareApp(payahead_auth, defaultApp, _db);
+//mDb.shareApp(payahead_db);
+mDb.shareApp(_db);
 
-router.get('/',function(request, response){
+function verifyToken(request, response, next){
+	reqst = request;
+	resp = response;
+	const idToken = reqst.headers.authorization;
+
+	try{
+		const _ctoken = _auth.verifyIdToken(idToken);
+		if(_ctoken){
+			reqst.body.uid = _ctoken.uid;
+			return next();
+		}else{
+			resp.status(401).send('Unauthorized');
+		}
+	}catch(e){
+		resp.status(401).send('Unauthorized');
+	}
+};
+
+function ts(_in) {
+	return ""+_in.replace(/'/g, '"');
+};
+
+function _respond(_in){
+	resp.json(_in);
+};
+
+function _post_request(_in, base_url){
+	storage.setItem('user', _in);
+	var url = reqst.protocol + "://" + reqst.headers['x-forwarded-host'] +  base_url;
+	needle.post(url, _in, 
+	    function (error, response, body) {
+	        if (!error && response.statusCode == 200) {
+	            resp.json(error);
+	        }
+	    }
+	   );
+};
+
+unsecured_router.get('/',function(request, response){
   response.sendFile(path.join(__dirname.replace("functions", "public")+'/index.html'));
 });
 
-router.get('/signin',function(request, response){
+unsecured_router.get('/signin',function(request, response){
   response.sendFile(path.join(__dirname.replace("functions", "public")+'/signin.html'));
 });
 
-router.get('/signup',function(request, response){
+unsecured_router.get('/signup',function(request, response){
   response.sendFile(path.join(__dirname.replace("functions", "public")+'/signup.html'));
 });
 
-router.post('/auth/signin', function(request, response){
+unsecured_router.post('/auth/signin', function(request, response){
+	resp = response;
+	reqst = request;
 	const credential_name = JSON.parse(ts(request.body)).emailOrPhoneNumber;
 	const credential_password = JSON.parse(ts(request.body)).password;
-	mAuth.signin(credential_name, credential_password, response);
+	mAuth.signin(credential_name, credential_password, _respond);
 });
 
-router.post('/auth/signup', function(request, response){
+unsecured_router.post('/auth/signup', function(request, response){
+	resp = response;
+	reqst = request;
 	const _details = JSON.parse(ts(request.body));
 	const su_details = {};
 	su_details["emailVerified"] = false;
@@ -66,12 +115,12 @@ router.post('/auth/signup', function(request, response){
 	su_details["email"] = _details["email"];
 	su_details["password"] = _details["password"];
 	su_details["phoneNumber"] = _details["phoneNumber"];
-	if(_details["photoURL"] == "" || _details["photoURL"] == null || typeof(_details["photoURL"]) == undefined){
+	if(_details["photoURL"] === "" || _details["photoURL"] === null || typeof(_details["photoURL"]) === undefined){
 		su_details["photoURL"] = "https://firebasestorage.googleapis.com/v0/b/payahead-80360.appspot.com/o/index.png?alt=media&token=66c38ec1-6bb7-4aa6-ad09-8b394acd390f";
 	}
 	
 	const other_details = {};
-	if(_details["bvn"] == null || typeof(_details["bvn"]) == undefined){
+	if(_details["bvn"] === null || typeof(_details["bvn"]) === undefined){
 		response.json({
 			"code" : "auth/bvn",
 			"message" : "BVN is not attached or is invalid"
@@ -80,7 +129,7 @@ router.post('/auth/signup', function(request, response){
 	}else{
 		other_details["bvn"] = _details["bvn"];
 	}
-	if(_details["industry"] == null || typeof(_details["industry"]) == undefined){
+	if(_details["industry"] === null || typeof(_details["industry"]) === undefined){
 		response.json({
 			"code" : "auth/industry",
 			"message" : "Industry is not attached or is invalid"
@@ -89,21 +138,32 @@ router.post('/auth/signup', function(request, response){
 	}else{
 		other_details["industry"] = _details["industry"];
 	}
-	mAuth.signup(su_details, other_details, this.mdb, response);
+	mAuth.signup(su_details, other_details, _respond, _post_request);
 });
 
-router.post('/ping', function(request, response){
-	
+secured_router.post('/ping', function(request, response){
+	resp = response;
+	reqst = request;
+	_respond('pong');
 });
 
-function ts(_in) {
-	return ""+_in.replace(/'/g, '"');
-}
-
-router.post('/payment/initialize', function(request, response){
+secured_router.post('/payment/initialize', function(request, response){
 	const p_details = JSON.parse(request.body);
 	pay.initialize(p_details, response);
 });
+
+unsecured_router.post('/writeNewUser', function(request, response){
+	resp = response;
+	reqst = request;
+	storage.getItem('user').then(function(user){
+		mDb.set_user(user, _respond);
+	});
+});
+
+app.use('/', unsecured_router);
+app.use('/', verifyToken, secured_router);
+app.use(_respond);
+app.use(_post_request);
 
 /*
 app.post('/signin-form', (request, response) => {
@@ -112,24 +172,19 @@ app.post('/signin-form', (request, response) => {
 });
 */
 
-app.use('/', router);
-
 /*
 app.get('/', function (request, response) {
   console.log("HTTP Get Request");
   response.send("HTTP GET Request");
 });
-
 app.put('/', function (request, response) {
   console.log("HTTP Put Request");
   response.send("HTTP PUT Request");
 });
-
 app.post('/', function (request, response) {
   console.log("HTTP POST Request");
   response.send("HTTP POST Request");  
 });
-
 app.delete('/', function (request, response) {
   console.log("HTTP DELETE Request");
   response.send("HTTP DELETE Request");

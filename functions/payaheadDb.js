@@ -7,29 +7,16 @@ payaheadDb.prototype.shareApp = function(idb) {
 	_db = idb;
 };
 
-payaheadDb.prototype.set_user = function(uj, response) {
-  /*_db.ref("users/" + uj["uid"]).set(
-    uj, 
-    function(error) {
-      if (error) {
-      	response.json(error);
-      } else {
-        // Data saved successfully!
-        response.json(uj);
-      }
+payaheadDb.prototype.set_user = function(uj, _respond) {
+  _db.ref("users/" + uj["uid"]).set(
+  	uj
+  	, function(error) {
+    if (error) {
+      _respond(error);
+    } else {
+      _respond(uj);
     }
-  );*/
-  _db.ref("phone_users/" + "123").set(
-    uj, 
-    function(error) {
-      if (error) {
-        response.json(error);
-      } else {
-        // Data saved successfully!
-        response.json(uj);
-      }
-    }
-  );
+  });
 };
 
 payaheadDb.prototype.get_industry = function(response){
