@@ -130,3 +130,7 @@ custompaystack1 {
   height: 550px;
 }
 
+::-webkit-scrollbar {
+  width: 0px;
+}
+

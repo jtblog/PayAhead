@@ -1,48 +1,17 @@
+var host = window.location.href.slice(0, window.location.href.lastIndexOf("/"));
 
-
-var database, auth, messaging, storage, ui, user, phone_user, user_json;
-var vendors_ref, customers_ref, payments_ref, reports_ref, phone_users_ref, industry_ref;
+var authorization, user_json;
 var cre_ac_cntr, cre_ac_frm, vrfy_otp_frm;
 
 var vendors = {}; 
 var customers = {};
 var payments = {};
 
-var libs = ['firebase-app.js','firebase-auth.js','firebase-database.js','firebase-firestore.js',
-'firebase-messaging.js', 'firebase-storage.js', 'firebaseui.js'];
-
 window.prepare_firebase = function(){
-  firebase.initializeApp({
-    "apiKey": "AIzaSyCYLDTKAfXBgAdF6hqF3qsSYo1o-2WHo7s",
-    "databaseURL": "https://payahead-80360.firebaseio.com",
-    "storageBucket": "payahead-80360.appspot.com",
-    "authDomain": "payahead-80360.firebaseapp.com",
-    "messagingSenderId": "392417005472",
-    "projectId": "payahead-80360"
-  });
 
-  window.ui = new firebaseui.auth.AuthUI(firebase.auth());
-  window.uiConfig = prepare_uiConfig();
-  window.ui.disableAutoSignIn();
-  window.database = firebase.database();
-  window.auth = firebase.auth();
-  //window.messaging = firebase.messaging();
-  window.storage = firebase.storage();
-  //try{}catch(error){}
-
-  window.vendors_ref = database.ref('/vendors/');
-  window.customers_ref = database.ref('/customers/');
-  window.payments_ref = database.ref('/payments/');
-  window.reports_ref = database.ref('/reports/');
-  window.phone_users_ref = database.ref('/phone_users/');
-  window.industry_ref = database.ref('/industry/');
-  
-  window.auth.onAuthStateChanged(authstateobserver);
+  //window.auth.onAuthStateChanged(authstateobserver);
   var site = window.location.href+"";
   if(site.endsWith("signup.html") || site.indexOf("signup.html")>-1){
-    if(auth.currentUser != null){
-      signOut();
-    }
     if( document.getElementById("bvn_input") != undefined){
       setInputFilter(document.getElementById("bvn_input"), function(value) {
         return /^\d*$/.test(value);
@@ -55,7 +24,6 @@ window.prepare_firebase = function(){
     }
     
     //document.getElementById('firebaseui-auth-container').innerHTML = "";
-    //window.ui.start('#firebaseui-auth-container', window.uiConfig);
     window.cre_ac_cntr = document.getElementById("create_acct_container");
     window.cre_ac_frm = document.getElementById("create_acct_form");
     window.vrfy_otp_frm = document.getElementById("verify_otp_form");
@@ -73,53 +41,12 @@ window.prepare_firebase = function(){
   }
 }
 
-function prepare_uiConfig(){
-  return {
-    callbacks: {
-      signInSuccessWithAuthResult: function(authResult, redirectUrl) {
-        if (authResult.user != null) {
-          if(typeof(authResult.user.email) != undefined && authResult.user.email != null){
-            window.user = authResult.user;
-            window.user_json = JSON.parse(JSON.stringify(user));
-            window.location = "/user.html";
-          }else{
-            window.phone_user = authResult.user;
-            window.user_json = JSON.parse(JSON.stringify(phone_user));
-            create_account_ui();
-          }
-        }else{
-          if(window.auth.currentUser != null){
-            if(typeof(window.auth.currentUser.email) != undefined && window.auth.currentUser.email != null){
-              window.user = window.auth.currentUser.user;
-              window.user_json = JSON.parse(JSON.stringify(user));
-              window.location = "/user.html";
-            }else{
-              window.phone_user = window.auth.currentUser.user;
-              window.user_json = JSON.parse(JSON.stringify(phone_user));
-              create_account_ui();
-            }
-          }
-        }
-        return false;
-      },
-      uiShown: function() {}
-    },
-    credentialHelper : firebaseui.auth.CredentialHelper.NONE,
-    signInFlow: 'popup',
-    signInOptions: [
-      {
-        provider: firebase.auth.PhoneAuthProvider.PROVIDER_ID
-      }
-    ]
-  }
-}
-
 var initApp = function() {
   prepare_dependencies();
 };
 
 function prepare_dependencies(){
-  var scriptElements = document.getElementsByTagName('script');
+  /*var scriptElements = document.getElementsByTagName('script');
   var firstsource = scriptElements[0].src;
   var folder = firstsource.substring(document.URL.substring(0, document.URL.lastIndexOf("/")+1).length, firstsource.lastIndexOf("/")+1);
   
@@ -128,8 +55,7 @@ function prepare_dependencies(){
     script.setAttribute("type", "text/javascript");
     script.setAttribute("src", folder+libs[i]);
     document.getElementsByTagName("head")[0].appendChild(script);
-  }
-
+  }*/
   setTimeout(window.prepare_firebase, 1000);
   /*08033953050
   08085221450*/
@@ -157,7 +83,7 @@ function previewImage(input) {
     var reader = new FileReader();
     reader.onload = function (e) {
       if(typeof(document.getElementById('profilepic')) != undefined){
-        document.getElementById('profilepic').src = e.target.result;
+        //document.getElementById('profilepic').src = e.target.result;
         //$('#profilepic').attr('src', e.target.result);
       }
     };
@@ -165,79 +91,39 @@ function previewImage(input) {
   }
 }
 
-/*
-var continue_registration = function(e) {
-  e.preventDefault();
-  user_json['email'] = $("#email-input").val();
-  user_json['password'] = $("#password-input").val();
-  user_json['displayName'] = $("#firstname-input").val() + ' ' + $("#lastname-input").val();
-  user_json['bvn'] = $("#bvn-input").val();
-
-  phone_user.updateProfile({
-    displayName: user_json['displayName'],
-    photoURL: null
-  }).then(function() {
-    //var displayName = user.displayName;
-    //var photoURL = user.photoURL;
-  }, function(error) {
-    // An error happened.
-    alert(JSON.stringify(error));
-});
-var credential = firebase.auth.EmailAuthProvider.credential(user_json['email'], user_json['password']);
-  auth.currentUser.linkAndRetrieveDataWithCredential(credential).then(function(usercred) {
-  window.user = usercred.user;
-    user.sendEmailVerification();
-    user_json = JSON.parse(JSON.stringify(user));
-    user_json['bvn'] = $("#bvn-input").val();
-    set_user(user_json);
-    set_customer(user_json);
-
-    window.location = "/user.html";
-  }, function(error) {
-    //alert(JSON.stringify(error));
-    //{"code":"auth/provider-already-linked","message":"User can only be linked to one identity for the given provider."}
-  });
-};*/
-
 var signup = function(e){
   e.preventDefault();
-  var ep = $("#ep_input").val();
-
+  var endpoint = "/auth/signup";
   window.su_details = {
     'displayName' : $("#fn_input").val() + " " + $("#ln_input").val(),
     'industry' : $('#industry_input option:selected').text(),
     'password' : $("#password_input").val(),
-    'bvn' : $("#bvn_input").val()
+    'bvn' : $("#bvn_input").val(),
+    'email' : $("#email_input").val(),
+    'phoneNumber' : $("#pno_input").val(),
+    'photoURL' : ""
   }
 
-  if(window.su_details['password'].length >= 8){
-    if(isEmail(ep)){
-      window.su_details['email'] = ep;
-        auth.createUserWithEmailAndPassword(window.su_details['email'], window.su_details['password']).then(
-          function(value) { 
-              window.user = auth.currentUser;
-              window.user_json = JSON.parse(JSON.stringify(window.user));
-              Object.keys(su_details).forEach(function(key) {
-                window.user_json[key] = window.su_details[key];
-              });
-              set_user(window.user_json);
-              set_customer(window.user_json);
-              localStorage["user"] = JSON.stringify(window.user_json);
-              window.user.sendEmailVerification().then(
-                function() {
-                    // Email sent.
-                    $("#create_acct_container").html("A verification link has been sent to your email address");
-                }, function(error) {
-                    // An error happened.
-                    //Verification not sent
-                    console.log(error);
-                }
-              );
-              window.location = "user.html";
 
-          }, 
-          function(error) { 
-            if (error.code != null){
+  var settings = {
+      "async": true,
+      "crossDomain": true,
+      "url": host+endpoint,
+      "method": "POST",
+      "data": window.su_details
+    }
+
+    document.getElementById('industry_group').innerHTML = "";
+    $.ajax(settings)
+      .done(function (response) {
+        var data = response;
+        //localStorage["user"] = JSON.stringify(window.user_json);
+        //window.location = "user.html";
+        alert(JSON.stringify(data))
+      })
+      .fail(function(jqXHR, textStatus, errorThrown) {
+        console.log(textStatus + ': ' + errorThrown);
+        /*if (error.code != null){
               switch(error.code) {
                 case "auth/weak-password":
                   $("#password_span").html(error.message);
@@ -247,60 +133,8 @@ var signup = function(e){
               } 
             }
             console.log(error);
-          });
-    }else{
-        if(libphonenumber.isValidNumber(ep)){
-          window.su_details['phoneNumber'] = ep;
-          window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('signup_btn', {
-            'size': 'invisible',
-            'callback': function(response) {
-              //response
-            }
-          });
-          recaptchaVerifier.render().then(function(widgetId) {
-            window.recaptchaWidgetId = widgetId;
-          });
-
-
-          window.auth.signInWithPhoneNumber(su_details['phoneNumber'], window.recaptchaVerifier)
-            .then(function (confirmationResult) {
-              // SMS sent. Prompt user to type the code from the message, then sign the user in with confirmationResult.confirm(code).
-              e.preventDefault();
-              window.confirmationResult = confirmationResult;
-              removeElement("create_acct_form");
-              addElement(cre_ac_cntr, vrfy_otp_frm);
-              $("#verify_otp_form").submit(verifyOTPcode);
-              document.getElementById("verify_otp_form").style.visibility = "visible"; 
-            }).catch(function (error) {
-              // Error; SMS not sent
-              if (error.code != null){
-                switch(error.code) {
-                  case "auth/user-disabled":
-                    //to developer
-                    break;
-                  case "auth/quota-exceeded":
-                    //to developer
-                    break;
-                  case "auth/operation-not-allowed":
-                    //to developer
-                    break;
-                  default:
-                    $("#ep_span").html(error.message);
-                } 
-              }
-              console.log(error);
-            });
-        }else{
-          //Neither a phone number nor an email
-          $("#ep_span").html("Neither a phone number nor an email");
-          console.log('It is neither a phone number nor an email');
-        }
-    }
-  }else{
-    //Paswword is short
-    $("#password_span").html("Password should not be less than 8 letters");
-    console.log('Password should be 8 letters or more');
-  }
+            */
+      });
 };
 
 function prepare_userhtml(){
@@ -332,28 +166,32 @@ function prepare_userhtml(){
 }
 
 function populate_industry(){
-  var first = false;
-  var i_html = '';
+  var endpoint = "/industries";
+  var settings = {
+    "async": true,
+    "crossDomain": true,
+    "url": host+endpoint,
+    "method": "GET"
+  }
+
   document.getElementById('industry_group').innerHTML = "";
-  industry_ref.orderByKey().once('value').then(
-    function(snapshot) {
-      snapshot.forEach(
-        function(childSnapshot) {
-          opt = document.createElement('OPTION');
-          opt.textContent = childSnapshot.val();
-          opt.value = childSnapshot.key;
-          document.getElementById('industry_group').appendChild(opt);
-        }
-      )
-    },
-    function(error) {
-      //if (error.message != null){}else{}
-    }
-  );
-  document.getElementById('industry_group').innerHTML = i_html;
+  $.ajax(settings)
+    .done(function (response) {
+      var data = response;
+      for(i=0; i<data.length; i++){
+        opt = document.createElement('OPTION');
+        opt.textContent = data[i];
+        opt.value = i;
+        document.getElementById('industry_group').appendChild(opt);
+      }
+    })
+    .fail(function(jqXHR, textStatus, errorThrown) {
+      console.log(textStatus + ': ' + errorThrown);
+    });
 }
 
 var verifyOTPcode = function(e){
+  /*
   e.preventDefault();
   var otp = $("#otp_input").val();
   window.confirmationResult.confirm(otp).then(function (result) {
@@ -374,108 +212,51 @@ var verifyOTPcode = function(e){
     }
     console.log(error);
   });
+  */
 };
 
-/*
 var signin = function(e){
   e.preventDefault();
-  var ep = $("#ep_input").val();
+  
+  var endpoint = "/auth/signin"
   window.si_details = {
-    'password' : $("#password_input").val()
+    'password' : $("#password_input").val(),
+    'emailOrPhoneNumber' : $("#ep_input").val()
   };
-  
-  if(isEmail(ep)){
-    window.si_details['email'] = ep;
-    var credential = firebase.auth.EmailAuthProvider.credential(window.si_details['email'], window.si_details['password']);
-    firebase.auth().signInWithCredential(credential)
-      .then(function(userCredential) {
-        window.user = userCredential.user;
-        window.user_json = JSON.parse(JSON.stringify(user));
-        localStorage["user"] = JSON.stringify(window.user_json);
-        window.location = "/user.html";
-      },
-      function(error) {
-        if (error.code != null){
-          switch(error.code) {
-            case "auth/user-disabled":
-              //to developer
-              break;
-            case "auth/operation-not-allowed":
-              //to developer
-              break;
-            case "auth/account-exists-with-different-credential":
-              $("#ep_span").html("Email already associated with another account.");
-              break;
-            case "auth/user-not-found":
-              window.location = "/signup.html";
-              break;
-            case "auth/wrong-password":
-              $("#password_span").html(error.message);
-              break;
-            //default:
-              //$("#ep_span").html(error.message);
-          } 
-        }
-        console.log(error);
-      });
-  }else{
-    if(libphonenumber.isValidNumber(ep)){
-      window.si_details['phoneNumber'] = ep;
-      phone_users_ref.orderByChild("phoneNumber").equalTo(window.si_details['phoneNumber']).once('value').then(
-        function(snapshot) {
-          snapshot.forEach(
-            function(childSnapshot) {
-              exst = "yes";
-              if(window.si_details['password'] == childSnapshot.val()['password']){
-                window.user_json = childSnapshot.val();
-                localStorage["user"] = JSON.stringify(window.user_json);
-                window.location = "/user.html";
-              }else{
-                //Error; Password doesn't match record
-                $("#password_span").html("Incorrect password. Forgot your password?");
-                console.log("Incorrect password. Forgot your password?");
-              }
-            }
-          )
-        },
-        function(error) {
-          console.log(error);
-        }
-      );
-    }else{
-        //Neither a phone number nor an email
-        console.log('It is neither a phone number nor an email');
-    }
-  }
 
-  /*
-  phone_users_ref.orderByKey().equalTo(ldetails["phone-number"]).once('value').then(
-    function(snapshot) {
-      snapshot.forEach(
-        function(childSnapshot) {
-          //var childKey = childSnapshot.key;
-          //var childData = childSnapshot.val();
-          //alert(JSON.stringify(childSnapshot.val()));
-        }
-      )
-    },
-    function(error) {
-      //if (error.message != null){}else{}
+  var settings = {
+      "async": true,
+      "crossDomain": true,
+      "url": host+endpoint,
+      "method": "POST",
+      //"headers": {
+      //  "authorization": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjYwZTQxMjczMzMwYTg2ZmRjMjhlMjgzMDVhNDRkYzlhODgzZTI2YTciLCJ0eXAiOiJKV1QifQ.eyJuYW1lIjoiT2JhZ2JlbWlzb3llIEpvc2VwaCIsImlzcyI6Imh0dHBzOi8vc2VjdXJldG9rZW4uZ29vZ2xlLmNvbS9wYXlhaGVhZC04MDM2MCIsImF1ZCI6InBheWFoZWFkLTgwMzYwIiwiYXV0aF90aW1lIjoxNTYzNDU3MDc2LCJ1c2VyX2lkIjoiT0dYaHBrdGMwbVBuQTNIcHhURmZDRm1CNzNLMiIsInN1YiI6Ik9HWGhwa3RjMG1QbkEzSHB4VEZmQ0ZtQjczSzIiLCJpYXQiOjE1NjM0NTcwNzcsImV4cCI6MTU2MzQ2MDY3NywiZW1haWwiOiJqb2V0ZnhAaG90bWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsInBob25lX251bWJlciI6IisyMzQ5MDIxODQ5NjQ1IiwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJwaG9uZSI6WyIrMjM0OTAyMTg0OTY0NSJdLCJlbWFpbCI6WyJqb2V0ZnhAaG90bWFpbC5jb20iXX0sInNpZ25faW5fcHJvdmlkZXIiOiJwYXNzd29yZCJ9fQ.Xh8PUPlPAk6AdSB-oQqjI0dDr5XybDspYts5d3Lez04vG5sSm-FTrUNCmaktFdDH7vC_gbaNf7NJBwMVHdnysZoJ4EYZ0a75jXwgOCYRQDG9kYdVCRLw9ijxS_jP99SWyEoDw_Zl_1Ew8k2012f2ELdq4bnfehl4ciINsIW2Zf1XLVsp2GVnkZWfe8wP6SuRMmyCsR_X2muRn_QPrVh-Ma5wIsGPZisChD3WwwBi1HR7s2f9Q_pkuH1N74pbx_2aI982bg5E0Yg1FSXLx4OAO4fWMlprzTx99sYDC81ylq68plaDk4_gDxGgDoJfA-IZte5jF658gOMg6gOSUwnJ_Q",
+      //}//,
+      "data": window.si_details
     }
-  );
-  
-  var credential = firebase.auth.EmailAuthProvider.credential(ldetails['email'], ldetails['password']);
-  firebase.auth().signInAndRetrieveDataWithCredential(credential)
-    .then(function(userCredential) {
-      window.user = userCredential.user;
-      window.user_json = JSON.parse(JSON.stringify(user));
-      window.location = "/user.html";
-      //console.log(userCredential.additionalUserInfo.username);
-      //console.log(userCredential.additionalUserInfo.isNewUser);
-    });
-  
+
+    $.ajax(settings)
+      .done(function (response) {
+        var data = response;
+        //localStorage["user"] = JSON.stringify(window.user_json);
+        //window.location = "user.html";
+        alert(JSON.stringify(data))
+      })
+      .fail(function(jqXHR, textStatus, errorThrown) {
+        console.log(textStatus + ': ' + errorThrown);
+        /*if (error.code != null){
+              switch(error.code) {
+                case "auth/weak-password":
+                  $("#password_span").html(error.message);
+                  break;
+                default:
+                  $("#ep_span").html(error.message);
+              } 
+            }
+            console.log(error);
+            */
+      });
 };
-*/
 
 function isEmail(str){
   var format = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
@@ -493,34 +274,8 @@ function authstateobserver(user){
   }
 };
 
-function set_user(uj) {
-  database.ref("users/" + window.user_json["uid"]).set(
-    window.user_json, 
-    function(error) {
-      if (error) {
-        //alert(JSON.stringify(error));
-        console.log(error);
-      } else {
-        // Data saved successfully!
-      }
-    }
-  );
-};
 
-function set_phone_user(uj) {
-  database.ref("phone_users/" + window.user_json["uid"]).set(
-    window.user_json, 
-    function(error) {
-      if (error) {
-        //alert();
-        console.log(error);
-      } else {
-        // Data saved successfully!
-      }
-    }
-  );
-};
-
+/*
 function set_customer(uj){
   database.ref("customers/" + window.user_json["uid"]).set(
     window.user_json, 
@@ -535,25 +290,14 @@ function set_customer(uj){
   );
 };
 
+function get_vendors(){
+
+}
+
 function signout() {
   auth.signOut();
 };
-
-function get_vendors(){
-  vendors_ref.once('value').then(
-    function(snapshot) {
-      snapshot.forEach(
-        function(childSnapshot) {
-          //var childKey = childSnapshot.key;
-          //var childData = childSnapshot.val();
-        }
-      )
-    },
-    function(error) {
-      //if (error.message != null){}else{}
-    }
-  );
-};
+*/
 
 function addElement(parent, element) {
     parent.appendChild(element);
@@ -565,22 +309,6 @@ function removeElement(elementId) {
     element.parentNode.removeChild(element);
 };
 
-/*
-function get_customers(){
-  customers_ref.once('value').then(
-    function(snapshot) {
-      snapshot.forEach(
-        function(childSnapshot) {
-          //var childKey = childSnapshot.key;
-          //var childData = childSnapshot.val();
-        }
-      )
-    },
-    function(error) {
-      //if (error.message != null){}else{}
-    }
-  );
-}*/
 
 function get_current_location(){
   if (typeof navigator !== "undefined" && typeof navigator.geolocation !== "undefined") {

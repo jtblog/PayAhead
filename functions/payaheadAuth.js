@@ -96,8 +96,22 @@ payaheadAuth.prototype.signup = function (su_details, other_details, _respond, _
 		});		
 }; 
 
-function ts(_in) {
-	return ""+_in.replace(/'/g, '"');
-};
+payaheadAuth.prototype.update_profile = function (u_details, other_details, _respond, _post_request) {
+	_auth2.updateUser(other_details["uid"], u_details)
+		.then(function(user) {
+			Object.keys(user).forEach(function(key) {
+				other_details[key] = user[key];
+		    });
+		    Object.keys(su_details).forEach(function(key) {
+				other_details[key] = u_details[key];
+		    });
+		})
+		.then(function(user){
+			_post_request(other_details, "/writeNewUser");
+		})
+		.catch(function(error) {
+			_respond(error);
+		});		
+}; 
 
 module.exports = payaheadAuth;

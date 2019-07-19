@@ -64,8 +64,12 @@ function verifyToken(request, response, next){
 	}
 };
 
-function ts(_in) {
-	return ""+_in.replace(/'/g, '"');
+function toJSON(_in) {
+	try{
+		return JSON.parse(""+_in.replace(/'/g, '"'));
+	}catch(error){
+		return _in
+	}
 };
 
 function _respond(_in){
@@ -104,15 +108,15 @@ unsecured_router.get('/signup',function(request, response){
 unsecured_router.post('/auth/signin', function(request, response){
 	resp = response;
 	reqst = request;
-	const credential_name = JSON.parse(ts(request.body)).emailOrPhoneNumber;
-	const credential_password = JSON.parse(ts(request.body)).password;
+	const credential_name = toJSON(request.body)["emailOrPhoneNumber"];
+	const credential_password = toJSON(request.body)["password"];
 	mAuth.signin(credential_name, credential_password, _respond);
 });
 
 unsecured_router.post('/auth/signup', function(request, response){
 	resp = response;
 	reqst = request;
-	const _details = JSON.parse(ts(request.body));
+	const _details = toJSON(request.body);
 	const su_details = {};
 	su_details["emailVerified"] = false;
 	su_details["disabled"] = false;
@@ -120,12 +124,14 @@ unsecured_router.post('/auth/signup', function(request, response){
 	su_details["email"] = _details["email"];
 	su_details["password"] = _details["password"];
 	su_details["phoneNumber"] = _details["phoneNumber"];
-	if(_details["photoURL"] === "" || _details["photoURL"] === null || typeof(_details["photoURL"]) === undefined){
+	if(_details["photoURL"] !== "" || _details["photoURL"] !== null || typeof(_details["photoURL"]) !== undefined){
+		su_details["photoURL"] = _details["photoURL"];
+	}else{
 		su_details["photoURL"] = "https://firebasestorage.googleapis.com/v0/b/payahead-80360.appspot.com/o/index.png?alt=media&token=66c38ec1-6bb7-4aa6-ad09-8b394acd390f";
 	}
 	
 	const other_details = {};
-	if(_details["bvn"] != null || _details["bvn"] != "" || typeof(_details["bvn"]) != undefined){
+	if(_details["bvn"] !== null || _details["bvn"] !== "" || typeof(_details["bvn"]) !== undefined){
 		other_details["bvn"] = _details["bvn"];
 	}else{
 		response.json({
@@ -135,7 +141,7 @@ unsecured_router.post('/auth/signup', function(request, response){
 		response.end();
 	}
 
-	if(_details["industry"] != null || _details["industry"] != "" || typeof(_details["industry"]) != undefined){
+	if(_details["industry"] !== null || _details["industry"] !== "" || typeof(_details["industry"]) !== undefined){
 		other_details["industry"] = _details["industry"];
 	}else{
 		response.json({
@@ -156,7 +162,7 @@ secured_router.post('/ping', function(request, response){
 secured_router.post('/payment/initialize', function(request, response){
 	resp = response;
 	reqst = request;
-	const p_details = JSON.parse(ts(request.body));
+	const p_details = toJSON(request.body);
 	mPay.initialize(p_details, _save_authorization_data);
 });
 
@@ -177,14 +183,14 @@ unsecured_router.get('/industries', function(request, response){
 secured_router.get('/get_profile', function(request, response){
 	resp = response;
 	reqst = request;
-	const _in = JSON.parse(ts(request.body));
-	if(_in["uid"] != null || _in["uid"] != "" || typeof(_in["uid"]) != undefined){
+	const _in = toJSON(request.body);
+	if(_in["uid"] !== null || _in["uid"] !== "" || typeof(_in["uid"]) !== undefined){
 		mDb.get_user(_in, _respond);
 	}else{
 		var err = {
-    			"code": "db/bad-uid",
-    			"message": "UserID is not attached or is invalid. uid cannot be empty, null or undefined"
-			}
+    		"code": "db/bad-uid",
+    		"message": "UserID is not attached or is invalid. uid cannot be empty, null or undefined"
+		}
 		_respond(err);
 	}
 });
@@ -192,11 +198,48 @@ secured_router.get('/get_profile', function(request, response){
 secured_router.post('/update_profile', function(request, response){
 	resp = response;
 	reqst = request;
+	const _details = toJSON(request.body);
+	const u_details = {};
+	u_details["emailVerified"] = _details["emailVerified"];
+	u_details["disabled"] = _details["disabled"];
+	u_details["displayName"] = _details["displayName"];
+	u_details["email"] = _details["email"];
+	u_details["password"] = _details["password"];
+	u_details["phoneNumber"] = _details["phoneNumber"];
+	if(_details["photoURL"] !== "" || _details["photoURL"] !== null || typeof(_details["photoURL"]) !== undefined){
+		u_details["photoURL"] = _details["photoURL"];
+	}else{
+		u_details["photoURL"] = "https://firebasestorage.googleapis.com/v0/b/payahead-80360.appspot.com/o/index.png?alt=media&token=66c38ec1-6bb7-4aa6-ad09-8b394acd390f";
+	}
+	
+	const other_details = {};
+	Object.keys(_details).forEach(function(key) {
+		if(key !== "photoURL" || key !== "phoneNumber" || key !== "password" || key !== "email" || key !== "displayName" || key !== "disabled" || key !== "emailVerified")
+		other_details[key] = _details[key];
+	});
 
-	/*
-	storage.getItem('user').then(function(user){
-		mDb.set_user(user, _respond);
-	});*/
+	other_details["uid"] = _details["uid"];
+
+	if(_details["bvn"] !== null || _details["bvn"] !== "" || typeof(_details["bvn"]) !== undefined){
+		other_details["bvn"] = _details["bvn"];
+	}else{
+		response.json({
+			"code" : "auth/bvn",
+			"message" : "BVN is not attached or is invalid. bvn cannot be null, empty or undefined"
+		});
+		response.end();
+	}
+
+	if(_details["industry"] !== null || _details["industry"] !== "" || typeof(_details["industry"]) !== undefined){
+		other_details["industry"] = _details["industry"];
+	}else{
+		response.json({
+			"code" : "auth/industry",
+			"message" : "Industry is not attached or is invalid. industry cannot be null, empty or undefined"
+		});
+		response.end();
+	}
+	mAuth.update_profile(u_details, other_details, _respond, _post_request);
 });
 
 app.use('/', unsecured_router);
