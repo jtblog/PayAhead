@@ -3,21 +3,22 @@ var paystack = require('paystack')(secret_key);
 
 //const axios = require('axios');
 
-function pay() {
+function payaheadPay() {
 }
 
-pay.prototype.initialize = function (details, response) {
+payaheadPay.prototype.initialize = function (details, _save_authorization_data) {
 	paystack.transaction.initialize(
 		details
 	)
 	.then(function(body) {
-	  return response.json(body.data);
+	  _save_authorization_data(body.data);
+	  //body.data.authorization_url
 	  //body.data.access_code
 	  //body.data.reference
 	})
 	.catch(function(error) {
-	  return response.json(error);
+	  response.json(error);
 	});
 };
 
-module.exports = pay;
+module.exports = payaheadPay;

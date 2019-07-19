@@ -11,7 +11,7 @@ const path = require('path');
 const serviceAccount  = require('./payahead-80360-firebase-adminsdk-0862z-b5e58ff081.json');
 global.mAuth = require('./payaheadAuth');
 global.mDb = require('./payaheadDb');
-global.pay = require('./pay');
+global.mPay = require('./payaheadPay');
 global.resp;
 global.reqst;
 
@@ -37,7 +37,7 @@ global.defaultApp = admin.initializeApp({
 
 mAuth = new mAuth();
 mDb = new mDb();
-pay = new pay();
+mPay = new mPay();
 global.payahead_auth = firebase.auth();
 //global.payahead_db = firebase.database();
 global._auth = defaultApp.auth();
@@ -82,6 +82,11 @@ function _post_request(_in, base_url){
 	        }
 	    }
 	   );
+};
+
+function _save_authorization_data(_in){
+	storage.setItem('authorization_data', _in);
+	resp.redirect(_in.authorization_url);
 };
 
 unsecured_router.get('/',function(request, response){
@@ -148,8 +153,10 @@ secured_router.post('/ping', function(request, response){
 });
 
 secured_router.post('/payment/initialize', function(request, response){
+	resp = response;
+	reqst = request;
 	const p_details = JSON.parse(request.body);
-	pay.initialize(p_details, response);
+	mPay.initialize(p_details, _save_authorization_data);
 });
 
 unsecured_router.post('/writeNewUser', function(request, response){
@@ -160,10 +167,38 @@ unsecured_router.post('/writeNewUser', function(request, response){
 	});
 });
 
+unsecured_router.post('/industries', function(request, response){
+	resp = response;
+	reqst = request;
+	/*
+	storage.getItem('user').then(function(user){
+		mDb.set_user(user, _respond);
+	});*/
+});
+
+secured_router.post('/get_profile', function(request, response){
+	resp = response;
+	reqst = request;
+	/*
+	storage.getItem('user').then(function(user){
+		mDb.set_user(user, _respond);
+	});*/
+});
+
+secured_router.post('/update_profile', function(request, response){
+	resp = response;
+	reqst = request;
+	/*
+	storage.getItem('user').then(function(user){
+		mDb.set_user(user, _respond);
+	});*/
+});
+
 app.use('/', unsecured_router);
 app.use('/', verifyToken, secured_router);
 app.use(_respond);
 app.use(_post_request);
+app.use(_save_authorization_data);
 
 /*
 app.post('/signin-form', (request, response) => {
