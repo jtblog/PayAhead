@@ -114,4 +114,14 @@ payaheadAuth.prototype.update_profile = function (u_details, other_details, _res
 		});		
 }; 
 
+payaheadAuth.prototype.signout = function (_details, _respond) {
+	_auth2.revokeRefreshTokens(_details["uid"])
+		.then(function() {
+			_respond({"message" : "Successful"});
+		})
+		.catch(function(error) {
+			_respond(error);
+		});		
+}; 
+
 module.exports = payaheadAuth;

@@ -242,6 +242,21 @@ secured_router.post('/update_profile', function(request, response){
 	mAuth.update_profile(u_details, other_details, _respond, _post_request);
 });
 
+secured_router.post('/auth/signout', function(request, response){
+	resp = response;
+	reqst = request;
+	const _in = toJSON(request.body);
+	if(_in["uid"] !== null || _in["uid"] !== "" || typeof(_in["uid"]) !== undefined){
+		mAuth.signout(_in, _respond);
+	}else{
+		var err = {
+    		"code": "db/bad-uid",
+    		"message": "UserID is not attached or is invalid. uid cannot be empty, null or undefined"
+		}
+		_respond(err);
+	}
+})
+
 app.use('/', unsecured_router);
 app.use('/', verifyToken, secured_router);
 app.use(_respond);

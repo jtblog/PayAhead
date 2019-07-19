@@ -38,6 +38,7 @@ window.prepare_firebase = function(){
 
   if(site.endsWith("user.html") || site.indexOf("user.html")>-1){
     prepare_userhtml();
+    $("#signout_btn").submit(signout);
   }
 }
 
@@ -104,7 +105,6 @@ var signup = function(e){
     'photoURL' : ""
   }
 
-
   var settings = {
       "async": true,
       "crossDomain": true,
@@ -117,9 +117,7 @@ var signup = function(e){
     $.ajax(settings)
       .done(function (response) {
         var data = response;
-        //localStorage["user"] = JSON.stringify(window.user_json);
-        //window.location = "user.html";
-        alert(JSON.stringify(data))
+        window.location = "signin.html";
       })
       .fail(function(jqXHR, textStatus, errorThrown) {
         console.log(textStatus + ': ' + errorThrown);
@@ -163,7 +161,7 @@ function prepare_userhtml(){
       document.getElementById('industry_group').appendChild(opt);
     }
   }
-}
+};
 
 function populate_industry(){
   var endpoint = "/industries";
@@ -188,7 +186,7 @@ function populate_industry(){
     .fail(function(jqXHR, textStatus, errorThrown) {
       console.log(textStatus + ': ' + errorThrown);
     });
-}
+};
 
 var verifyOTPcode = function(e){
   /*
@@ -231,30 +229,30 @@ var signin = function(e){
       "method": "POST",
       //"headers": {
       //  "authorization": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjYwZTQxMjczMzMwYTg2ZmRjMjhlMjgzMDVhNDRkYzlhODgzZTI2YTciLCJ0eXAiOiJKV1QifQ.eyJuYW1lIjoiT2JhZ2JlbWlzb3llIEpvc2VwaCIsImlzcyI6Imh0dHBzOi8vc2VjdXJldG9rZW4uZ29vZ2xlLmNvbS9wYXlhaGVhZC04MDM2MCIsImF1ZCI6InBheWFoZWFkLTgwMzYwIiwiYXV0aF90aW1lIjoxNTYzNDU3MDc2LCJ1c2VyX2lkIjoiT0dYaHBrdGMwbVBuQTNIcHhURmZDRm1CNzNLMiIsInN1YiI6Ik9HWGhwa3RjMG1QbkEzSHB4VEZmQ0ZtQjczSzIiLCJpYXQiOjE1NjM0NTcwNzcsImV4cCI6MTU2MzQ2MDY3NywiZW1haWwiOiJqb2V0ZnhAaG90bWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsInBob25lX251bWJlciI6IisyMzQ5MDIxODQ5NjQ1IiwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJwaG9uZSI6WyIrMjM0OTAyMTg0OTY0NSJdLCJlbWFpbCI6WyJqb2V0ZnhAaG90bWFpbC5jb20iXX0sInNpZ25faW5fcHJvdmlkZXIiOiJwYXNzd29yZCJ9fQ.Xh8PUPlPAk6AdSB-oQqjI0dDr5XybDspYts5d3Lez04vG5sSm-FTrUNCmaktFdDH7vC_gbaNf7NJBwMVHdnysZoJ4EYZ0a75jXwgOCYRQDG9kYdVCRLw9ijxS_jP99SWyEoDw_Zl_1Ew8k2012f2ELdq4bnfehl4ciINsIW2Zf1XLVsp2GVnkZWfe8wP6SuRMmyCsR_X2muRn_QPrVh-Ma5wIsGPZisChD3WwwBi1HR7s2f9Q_pkuH1N74pbx_2aI982bg5E0Yg1FSXLx4OAO4fWMlprzTx99sYDC81ylq68plaDk4_gDxGgDoJfA-IZte5jF658gOMg6gOSUwnJ_Q",
-      //}//,
+      //},
       "data": window.si_details
     }
 
     $.ajax(settings)
       .done(function (response) {
         var data = response;
-        //localStorage["user"] = JSON.stringify(window.user_json);
-        //window.location = "user.html";
-        alert(JSON.stringify(data))
+        localStorage["user"] = JSON.stringify(data["user"]);
+        localStorage["authorization"] = JSON.stringify(data["authorization"]);
+        window.location = "user.html";
       })
       .fail(function(jqXHR, textStatus, errorThrown) {
         console.log(textStatus + ': ' + errorThrown);
         /*if (error.code != null){
-              switch(error.code) {
-                case "auth/weak-password":
-                  $("#password_span").html(error.message);
-                  break;
-                default:
-                  $("#ep_span").html(error.message);
-              } 
-            }
-            console.log(error);
-            */
+            switch(error.code) {
+              case "auth/weak-password":
+                $("#password_span").html(error.message);
+                break;
+              default:
+                $("#ep_span").html(error.message);
+            } 
+          }
+          console.log(error);
+        */
       });
 };
 
@@ -274,6 +272,50 @@ function authstateobserver(user){
   }
 };
 
+function signout(e) {
+
+  if(localStorage["user"] != null && typeof(localStorage["user"]) != undefined || localStorage["user"] != ""){
+    
+    if(localStorage["authorization"] != null && typeof(localStorage["authorization"]) != undefined || localStorage["authorization"] != ""){
+      
+      var endpoint = "/auth/signout"
+
+      var settings = {
+          "async" : true,
+          "crossDomain" : true,
+          "url" : host+endpoint,
+          "method" : "POST",
+          "headers" : {
+            "authorization" : localStorage["authorization"],
+          },
+          "data" : localStorage["user"]
+        }
+
+        $.ajax(settings)
+          .done(function (response) {
+            var data = response;
+            //localStorage["user"] = JSON.stringify(data["user"]);
+            localStorage["authorization"] = "";
+            window.location = "index.html";
+          })
+          .fail(function(jqXHR, textStatus, errorThrown) {
+            console.log(textStatus + ': ' + errorThrown);
+            /*
+              if (error.code != null){
+                switch(error.code) {
+                  case "auth/weak-password":
+                    $("#password_span").html(error.message);
+                    break;
+                  default:
+                    $("#ep_span").html(error.message);
+                } 
+              }
+              console.log(error);
+            */
+          });
+    }
+  }
+};
 
 /*
 function set_customer(uj){
@@ -289,13 +331,7 @@ function set_customer(uj){
     }
   );
 };
-
 function get_vendors(){
-
-}
-
-function signout() {
-  auth.signOut();
 };
 */
 
@@ -304,11 +340,9 @@ function addElement(parent, element) {
 };
 
 function removeElement(elementId) {
-    // Removes an element from the document
     var element = document.getElementById(elementId);
     element.parentNode.removeChild(element);
 };
-
 
 function get_current_location(){
   if (typeof navigator !== "undefined" && typeof navigator.geolocation !== "undefined") {
@@ -319,23 +353,9 @@ function get_current_location(){
   }
 };
 
-function set_current_location(){} 
+//function set_current_location(){} 
 
-function set_current_conversation(){}
-
-var handleSignIn = function(user) {};
-
-/**
- * Displays the UI for a signed out user.
- */
-var handleSignOut = function() {
-  /*
-  document.getElementById('user-signed-in').style.display = 'none';
-  document.getElementById('user-signed-out').style.display = 'block';
-  ui.start('#firebaseui-container', getUiConfig());
-  */
-};
-
+//function set_current_conversation(){}
 
 // Generate a random Firebase location
 //var firebaseRef = firebase.database().ref().push();
@@ -348,7 +368,7 @@ var geolocationCallback = function(location) {
   var latitude = location.coords.latitude;
   var longitude = location.coords.longitude;
   //firebaseRef.child(username).onDisconnect().remove();
-}
+};
 
 /* Handles any errors from trying to get the user's current location */
 var errorHandler = function(error) {
@@ -380,4 +400,4 @@ function setInputFilter(textbox, inputFilter) {
       }
     });
   });
-}
+};
