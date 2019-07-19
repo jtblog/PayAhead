@@ -8,7 +8,7 @@ storage.init();
 const express = require('express');
 const path = require('path');
 
-const serviceAccount  = require('./payahead-80360-firebase-adminsdk-0862z-b5e58ff081.json');
+const serviceAccount  = require('./payahead-firebase-adminsdk-credentials.json');
 global.mAuth = require('./payaheadAuth');
 global.mDb = require('./payaheadDb');
 global.mPay = require('./payaheadPay');
@@ -155,7 +155,7 @@ secured_router.post('/ping', function(request, response){
 secured_router.post('/payment/initialize', function(request, response){
 	resp = response;
 	reqst = request;
-	const p_details = JSON.parse(request.body);
+	const p_details = JSON.parse(ts(request.body));
 	mPay.initialize(p_details, _save_authorization_data);
 });
 
@@ -167,27 +167,31 @@ unsecured_router.post('/writeNewUser', function(request, response){
 	});
 });
 
-unsecured_router.post('/industries', function(request, response){
+unsecured_router.get('/industries', function(request, response){
 	resp = response;
 	reqst = request;
-	/*
-	storage.getItem('user').then(function(user){
-		mDb.set_user(user, _respond);
-	});*/
+	mDb.get_industry(_respond);
 });
 
-secured_router.post('/get_profile', function(request, response){
+secured_router.get('/get_profile', function(request, response){
 	resp = response;
 	reqst = request;
-	/*
-	storage.getItem('user').then(function(user){
-		mDb.set_user(user, _respond);
-	});*/
+	const _in = JSON.parse(ts(request.body));
+	if(_in["uid"] != null || _in["uid"] != "" || typeof(_in["uid"]) != undefined){
+		mDb.get_user(_in, _respond);
+	}else{
+		var err = {
+    			"code": "db/bad-uid",
+    			"message": "uid cannot be empty, null or undefined"
+			}
+		_respond(err);
+	}
 });
 
 secured_router.post('/update_profile', function(request, response){
 	resp = response;
 	reqst = request;
+
 	/*
 	storage.getItem('user').then(function(user){
 		mDb.set_user(user, _respond);

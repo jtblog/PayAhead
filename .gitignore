@@ -46,8 +46,6 @@ build/Release
 # Dependency directories
 node_modules/
 
-.node-persist/
-
 # Optional npm cache directory
 .npm
 
@@ -65,3 +63,6 @@ node_modules/
 
 # dotenv environment variables file
 .env
+
+.node-persist/
+payahead-firebase-adminsdk-credentials.json
