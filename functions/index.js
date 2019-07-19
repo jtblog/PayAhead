@@ -73,7 +73,7 @@ function toJSON(_in) {
 };
 
 function _respond(_in, code){
-	resp..status(code).json(_in);
+	resp.status(code).json(_in);
 };
 
 function _post_request(_in, base_url){
