@@ -72,8 +72,8 @@ function toJSON(_in) {
 	}
 };
 
-function _respond(_in){
-	resp.json(_in);
+function _respond(_in, code){
+	resp..status(code).json(_in);
 };
 
 function _post_request(_in, base_url){
@@ -156,7 +156,7 @@ unsecured_router.post('/auth/signup', function(request, response){
 secured_router.post('/ping', function(request, response){
 	resp = response;
 	reqst = request;
-	_respond('pong');
+	_respond('pong', 200);
 });
 
 secured_router.post('/payment/initialize', function(request, response){
@@ -191,7 +191,7 @@ secured_router.get('/get_profile', function(request, response){
     		"code": "db/bad-uid",
     		"message": "UserID is not attached or is invalid. uid cannot be empty, null or undefined"
 		}
-		_respond(err);
+		_respond(err, 400);
 	}
 });
 
@@ -253,7 +253,7 @@ secured_router.post('/auth/signout', function(request, response){
     		"code": "db/bad-uid",
     		"message": "UserID is not attached or is invalid. uid cannot be empty, null or undefined"
 		}
-		_respond(err);
+		_respond(err, 400);
 	}
 })
 

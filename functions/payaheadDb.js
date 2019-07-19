@@ -14,9 +14,9 @@ payaheadDb.prototype.set_user = function(uj, _respond) {
   	uj
   	, function(error) {
         if (error) {
-          _respond(error);
+          _respond(error, 400);
         } else {
-          _respond(uj);
+          _respond(uj, 200);
         }
     });
 };
@@ -30,10 +30,10 @@ payaheadDb.prototype.get_industry = function(_respond){
           industries.push(childSnapshot.val());
         }
       )
-      _respond(industries);
+      _respond(industries, 200);
     },
     function(error) {
-      _respond(error);
+      _respond(error, 400);
     }
   );
 }
@@ -41,10 +41,10 @@ payaheadDb.prototype.get_industry = function(_respond){
 payaheadDb.prototype.get_user = function(uj, _respond){
   _db.ref("users/" + uj["uid"]).once('value').then(
     function(snapshot) {
-      _respond(snapshot.val());
+      _respond(snapshot.val(), 200);
     },
     function(error) {
-      _respond(error);
+      _respond(error, 400);
     }
   );
 }

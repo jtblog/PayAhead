@@ -20,18 +20,18 @@ payaheadAuth.prototype.signin = function (credential_name, credential_password, 
 					.then(function(UserCredential){
 				  		UserCredential.user.getIdToken(true)
 				  		.then(function(token){
-				  			_respond({"authorization":token, "user": UserCredential.user});
+				  			_respond({"authorization":token, "user": UserCredential.user}, 200);
 				  		})
 				  		.catch(function(error) {
-				  			_respond(error);
+				  			_respond(error, 400);
 				  		});
 				  	})
 				  	.catch(function(error) {
-					  _respond(error);
+					  _respond(error, 400);
 					});
 		    })
 		    .catch(function(error) {
-		      	_respond(error);
+		      	_respond(error, 400);
 		  	});
 	}else{
 		if(validator.isMobilePhone(credential_name)){
@@ -41,25 +41,25 @@ payaheadAuth.prototype.signin = function (credential_name, credential_password, 
 					  	.then(function(UserCredential){
 					  		UserCredential.user.getIdToken(true)
 					  		.then(function(token){
-					  			_respond({"authorization":token, "user": UserCredential.user})
+					  			_respond({"authorization":token, "user": UserCredential.user}, 200)
 					  		})
 					  		.catch(function(error) {
-					  			_respond(error);
+					  			_respond(error, 400);
 					  		});
 					  	})
 					  	.catch(function(error) {
-						  _respond(error);
+						  _respond(error, 400);
 						});
 				})
 			    .catch(function(error) {
-			    	_respond(error);
+			    	_respond(error, 400);
 				});
 		}else{
 			var err = {
     			"code": "auth/not-email-or-phone",
     			"message": "This is neither an email address nor a phone number"
 			}
-			_respond(err);
+			_respond(err, 400);
 		}
 	}
 };
@@ -81,18 +81,18 @@ payaheadAuth.prototype.signup = function (su_details, other_details, _respond, _
 				.then(function(user) {
 			    	_auth1.currentUser.sendEmailVerification()
 						.catch(function(error){
-		                	_respond(error);
+		                	_respond(error, 400);
 		                	console.log(error);
 		                });
 				}).then(function(user){
 					_post_request(other_details, "/writeNewUser");
 				})
 				.catch(function(error) {
-					_respond(error);
+					_respond(error, 400);
 				});
 		})
 		.catch(function(error) {
-			_respond(error);
+			_respond(error, 400);
 		});		
 }; 
 
@@ -110,17 +110,17 @@ payaheadAuth.prototype.update_profile = function (u_details, other_details, _res
 			_post_request(other_details, "/writeNewUser");
 		})
 		.catch(function(error) {
-			_respond(error);
+			_respond(error, 400);
 		});		
 }; 
 
 payaheadAuth.prototype.signout = function (_details, _respond) {
 	_auth2.revokeRefreshTokens(_details["uid"])
 		.then(function() {
-			_respond({"message" : "Successful"});
+			_respond({"message" : "Successful"}, 200);
 		})
 		.catch(function(error) {
-			_respond(error);
+			_respond(error, 400);
 		});		
 }; 
 
