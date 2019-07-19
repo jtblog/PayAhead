@@ -38,9 +38,9 @@ window.prepare_firebase = function(){
 
   if(site.endsWith("user.html") || site.indexOf("user.html")>-1){
     prepare_userhtml();
-    $("#signout_btn").submit(signout);
+    $("#signout_btn").click(signout);
   }
-}
+};
 
 var initApp = function() {
   prepare_dependencies();
@@ -60,7 +60,7 @@ function prepare_dependencies(){
   setTimeout(window.prepare_firebase, 1000);
   /*08033953050
   08085221450*/
-}
+};
 
 window.addEventListener('load', initApp);
 
@@ -90,7 +90,7 @@ function previewImage(input) {
     };
   reader.readAsDataURL(input.files[0]);
   }
-}
+};
 
 var signup = function(e){
   e.preventDefault();
@@ -227,9 +227,6 @@ var signin = function(e){
       "crossDomain": true,
       "url": host+endpoint,
       "method": "POST",
-      //"headers": {
-      //  "authorization": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjYwZTQxMjczMzMwYTg2ZmRjMjhlMjgzMDVhNDRkYzlhODgzZTI2YTciLCJ0eXAiOiJKV1QifQ.eyJuYW1lIjoiT2JhZ2JlbWlzb3llIEpvc2VwaCIsImlzcyI6Imh0dHBzOi8vc2VjdXJldG9rZW4uZ29vZ2xlLmNvbS9wYXlhaGVhZC04MDM2MCIsImF1ZCI6InBheWFoZWFkLTgwMzYwIiwiYXV0aF90aW1lIjoxNTYzNDU3MDc2LCJ1c2VyX2lkIjoiT0dYaHBrdGMwbVBuQTNIcHhURmZDRm1CNzNLMiIsInN1YiI6Ik9HWGhwa3RjMG1QbkEzSHB4VEZmQ0ZtQjczSzIiLCJpYXQiOjE1NjM0NTcwNzcsImV4cCI6MTU2MzQ2MDY3NywiZW1haWwiOiJqb2V0ZnhAaG90bWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsInBob25lX251bWJlciI6IisyMzQ5MDIxODQ5NjQ1IiwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJwaG9uZSI6WyIrMjM0OTAyMTg0OTY0NSJdLCJlbWFpbCI6WyJqb2V0ZnhAaG90bWFpbC5jb20iXX0sInNpZ25faW5fcHJvdmlkZXIiOiJwYXNzd29yZCJ9fQ.Xh8PUPlPAk6AdSB-oQqjI0dDr5XybDspYts5d3Lez04vG5sSm-FTrUNCmaktFdDH7vC_gbaNf7NJBwMVHdnysZoJ4EYZ0a75jXwgOCYRQDG9kYdVCRLw9ijxS_jP99SWyEoDw_Zl_1Ew8k2012f2ELdq4bnfehl4ciINsIW2Zf1XLVsp2GVnkZWfe8wP6SuRMmyCsR_X2muRn_QPrVh-Ma5wIsGPZisChD3WwwBi1HR7s2f9Q_pkuH1N74pbx_2aI982bg5E0Yg1FSXLx4OAO4fWMlprzTx99sYDC81ylq68plaDk4_gDxGgDoJfA-IZte5jF658gOMg6gOSUwnJ_Q",
-      //},
       "data": window.si_details
     }
 
@@ -272,10 +269,8 @@ function authstateobserver(user){
   }
 };
 
-function signout(e) {
-
+function signout() {
   if(localStorage["user"] != null && typeof(localStorage["user"]) != undefined || localStorage["user"] != ""){
-    
     if(localStorage["authorization"] != null && typeof(localStorage["authorization"]) != undefined || localStorage["authorization"] != ""){
       
       var endpoint = "/auth/signout"
