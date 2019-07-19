@@ -125,23 +125,24 @@ unsecured_router.post('/auth/signup', function(request, response){
 	}
 	
 	const other_details = {};
-	if(_details["bvn"] === null || typeof(_details["bvn"]) === undefined){
+	if(_details["bvn"] != null || _details["bvn"] != "" || typeof(_details["bvn"]) != undefined){
+		other_details["bvn"] = _details["bvn"];
+	}else{
 		response.json({
 			"code" : "auth/bvn",
-			"message" : "BVN is not attached or is invalid"
+			"message" : "BVN is not attached or is invalid. bvn cannot be null, empty or undefined"
 		});
 		response.end();
-	}else{
-		other_details["bvn"] = _details["bvn"];
 	}
-	if(_details["industry"] === null || typeof(_details["industry"]) === undefined){
+
+	if(_details["industry"] != null || _details["industry"] != "" || typeof(_details["industry"]) != undefined){
+		other_details["industry"] = _details["industry"];
+	}else{
 		response.json({
 			"code" : "auth/industry",
-			"message" : "Industry is not attached or is invalid"
+			"message" : "Industry is not attached or is invalid. industry cannot be null, empty or undefined"
 		});
 		response.end();
-	}else{
-		other_details["industry"] = _details["industry"];
 	}
 	mAuth.signup(su_details, other_details, _respond, _post_request);
 });
@@ -182,7 +183,7 @@ secured_router.get('/get_profile', function(request, response){
 	}else{
 		var err = {
     			"code": "db/bad-uid",
-    			"message": "uid cannot be empty, null or undefined"
+    			"message": "UserID is not attached or is invalid. uid cannot be empty, null or undefined"
 			}
 		_respond(err);
 	}
