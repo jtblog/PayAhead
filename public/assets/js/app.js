@@ -113,13 +113,13 @@ var signup = function(e){
       "data": window.su_details
     }
 
-    document.getElementById('industry_group').innerHTML = "";
     $.ajax(settings)
       .done(function (response) {
         var data = response;
         window.location = "signin.html";
       })
       .fail(function(jqXHR, textStatus, errorThrown) {
+        populate_industry();
         console.log(textStatus + ': ' + errorThrown);
         /*if (error.code != null){
               switch(error.code) {
@@ -269,7 +269,7 @@ function authstateobserver(user){
   }
 };
 
-function signout() {
+var signout = function() {
   if(localStorage["user"] != null && typeof(localStorage["user"]) != undefined || localStorage["user"] != ""){
     if(localStorage["authorization"] != null && typeof(localStorage["authorization"]) != undefined || localStorage["authorization"] != ""){
       
@@ -283,7 +283,7 @@ function signout() {
           "headers" : {
             "authorization" : localStorage["authorization"],
           },
-          "data" : localStorage["user"]
+          "data" : JSON.parse(localStorage["user"])
         }
 
         $.ajax(settings)

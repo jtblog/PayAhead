@@ -14,7 +14,7 @@ payaheadDb.prototype.set_user = function(uj, _respond) {
   	uj
   	, function(error) {
         if (error) {
-          _respond(error, 400);
+          _respond(error, 404);
         } else {
           _respond(uj, 200);
         }
@@ -33,7 +33,7 @@ payaheadDb.prototype.get_industry = function(_respond){
       _respond(industries, 200);
     },
     function(error) {
-      _respond(error, 400);
+      _respond(error, 404);
     }
   );
 }
@@ -44,7 +44,7 @@ payaheadDb.prototype.get_user = function(uj, _respond){
       _respond(snapshot.val(), 200);
     },
     function(error) {
-      _respond(error, 400);
+      _respond(error, 404);
     }
   );
 }

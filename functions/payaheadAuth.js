@@ -23,15 +23,15 @@ payaheadAuth.prototype.signin = function (credential_name, credential_password, 
 				  			_respond({"authorization":token, "user": UserCredential.user}, 200);
 				  		})
 				  		.catch(function(error) {
-				  			_respond(error, 400);
+				  			_respond(error, 404);
 				  		});
 				  	})
 				  	.catch(function(error) {
-					  _respond(error, 400);
+					  _respond(error, 404);
 					});
 		    })
 		    .catch(function(error) {
-		      	_respond(error, 400);
+		      	_respond(error, 404);
 		  	});
 	}else{
 		if(validator.isMobilePhone(credential_name)){
@@ -44,22 +44,22 @@ payaheadAuth.prototype.signin = function (credential_name, credential_password, 
 					  			_respond({"authorization":token, "user": UserCredential.user}, 200)
 					  		})
 					  		.catch(function(error) {
-					  			_respond(error, 400);
+					  			_respond(error, 404);
 					  		});
 					  	})
 					  	.catch(function(error) {
-						  _respond(error, 400);
+						  _respond(error, 404);
 						});
 				})
 			    .catch(function(error) {
-			    	_respond(error, 400);
+			    	_respond(error, 404);
 				});
 		}else{
 			var err = {
     			"code": "auth/not-email-or-phone",
     			"message": "This is neither an email address nor a phone number"
 			}
-			_respond(err, 400);
+			_respond(err, 404);
 		}
 	}
 };
@@ -81,18 +81,18 @@ payaheadAuth.prototype.signup = function (su_details, other_details, _respond, _
 				.then(function(user) {
 			    	_auth1.currentUser.sendEmailVerification()
 						.catch(function(error){
-		                	_respond(error, 400);
+		                	_respond(error, 404);
 		                	console.log(error);
 		                });
 				}).then(function(user){
 					_post_request(other_details, "/writeNewUser");
 				})
 				.catch(function(error) {
-					_respond(error, 400);
+					_respond(error, 404);
 				});
 		})
 		.catch(function(error) {
-			_respond(error, 400);
+			_respond(error, 404);
 		});		
 }; 
 
@@ -110,7 +110,7 @@ payaheadAuth.prototype.update_profile = function (u_details, other_details, _res
 			_post_request(other_details, "/writeNewUser");
 		})
 		.catch(function(error) {
-			_respond(error, 400);
+			_respond(error, 404);
 		});		
 }; 
 
@@ -120,7 +120,7 @@ payaheadAuth.prototype.signout = function (_details, _respond) {
 			_respond({"message" : "Successful"}, 200);
 		})
 		.catch(function(error) {
-			_respond(error, 400);
+			_respond(error, 404);
 		});		
 }; 
 

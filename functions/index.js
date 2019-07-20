@@ -191,7 +191,7 @@ secured_router.get('/get_profile', function(request, response){
     		"code": "db/bad-uid",
     		"message": "UserID is not attached or is invalid. uid cannot be empty, null or undefined"
 		}
-		_respond(err, 400);
+		_respond(err, 404);
 	}
 });
 
@@ -253,7 +253,7 @@ secured_router.post('/auth/signout', function(request, response){
     		"code": "db/bad-uid",
     		"message": "UserID is not attached or is invalid. uid cannot be empty, null or undefined"
 		}
-		_respond(err, 400);
+		_respond(err, 404);
 	}
 })
 

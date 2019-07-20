@@ -17,7 +17,7 @@ payaheadPay.prototype.initialize = function (details, _save_authorization_data) 
 	  //body.data.reference
 	})
 	.catch(function(error) {
-	  response.json(error);
+	  response.json(error, 404);
 	});
 };
 
