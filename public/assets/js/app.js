@@ -314,24 +314,26 @@ function authstateobserver(user){
 
 
 var signout = function() {
-  var endpoint = "/signout/" + window.user_json["uid"]
+  if(window.authorization !== null || window.authorization !== "" || typeof(window.authorization) !== undefined){
+    var endpoint = "/signout/" + window.user_json["uid"]
 
-  var settings = {
-    "async": true,
-    "crossDomain": true,
-    "url": window.host + endpoint,
-    "method": "POST",
-    "headers": {
-      "authorization": window.authorization
+    var settings = {
+      "async": true,
+      "crossDomain": true,
+      "url": window.host + endpoint,
+      "method": "POST",
+      "headers": {
+        "authorization": window.authorization
+      }
     }
-  }
 
-  $.ajax(settings).done(function (response) {
-    localStorage["uid"] = "";
-    localStorage["authorization"] = "";
-    window.location = "index.html";
-    console.log(response);
-  });
+    $.ajax(settings).done(function (response) {
+      localStorage["uid"] = "";
+      localStorage["authorization"] = "";
+      window.location = "index.html";
+      console.log(response);
+    });
+  }
 };
 
 /*

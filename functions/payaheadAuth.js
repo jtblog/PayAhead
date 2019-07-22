@@ -112,9 +112,7 @@ payaheadAuth.prototype.update_profile = function (u_details, other_details, _res
 		    Object.keys(u_details).forEach(function(key) {
 				other_details[key] = u_details[key];
 		    });
-		})
-		.then(function(user){
-			_post_request(other_details, "/writeNewUser");
+		    _post_request(other_details, "/writeNewUser");
 		})
 		.catch(function(error) {
 			console.log(error);
