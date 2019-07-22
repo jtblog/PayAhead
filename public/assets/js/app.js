@@ -234,7 +234,7 @@ var pay_redirect = function(e){
   e.preventDefault();
   var dat = {
     "email" : window.user_json["email"],
-    "amount" : $("#amount_input").val()
+    "amount" : $("#amount_input").val() * 100
   }
 
   var endpoint = "/payment/initialize";
