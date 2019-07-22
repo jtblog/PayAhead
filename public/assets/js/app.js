@@ -40,6 +40,16 @@ window.prepare_firebase = function(){
     get_profile();
     $("#signout_btn").click(signout);
   }
+
+  if(site.endsWith("pay.html") || site.indexOf("pay.html")>-1){
+    if( document.getElementById("amount_input") != undefined){
+      setInputFilter(document.getElementById("amount_input"), function(value) {
+        return /^\d*$/.test(value);
+      });
+    }
+    get_profile2();
+    $("#payment_form").submit(pay_redirect);
+  }
 };
 
 var initApp = function() {
@@ -140,8 +150,8 @@ var signup = function(e){
 function get_profile(){
 
   var endpoint = "/get_profile/" + localStorage["uid"];
-  
-  var settings = {
+      
+    var settings = {
       "async": true,
       "crossDomain": true,
       "url": host+endpoint,
@@ -162,21 +172,91 @@ function get_profile(){
         populate_user_view();
       })
       .fail(function(jqXHR, textStatus, errorThrown) {
-        populate_industry();
+        window.location = "/signin.html";
         console.log(jqXHR.responseText);
         /*if (error.code != null){
-              switch(error.code) {
-                case "auth/weak-password":
+            switch(error.code) {
+              case "auth/weak-password":
                   $("#password_span").html(error.message);
                   break;
-                default:
-                  $("#ep_span").html(error.message);
+                  default:
+                    $("#ep_span").html(error.message);
               } 
-            }
+          }
             console.log(error);
             */
       });
 };
+
+function get_profile2(){
+
+  var endpoint = "/get_profile/" + localStorage["uid"];
+      
+    var settings = {
+      "async": true,
+      "crossDomain": true,
+      "url": host+endpoint,
+      "method": "GET",
+      //"contentType": "application/json",
+      //"dataType": "json",
+      "headers" : {
+        "authorization" : localStorage["authorization"],
+      },
+      "data": ""
+    }
+
+    $.ajax(settings)
+      .done(function (response) {
+        var data = response;
+        window.user_json = data["user"];
+        window.authorization = data["authorization"];
+        //populate_user_view();
+      })
+      .fail(function(jqXHR, textStatus, errorThrown) {
+        window.location = "/signin.html";
+        console.log(jqXHR.responseText);
+        
+        /*if (error.code != null){
+            switch(error.code) {
+              case "auth/weak-password":
+                  $("#password_span").html(error.message);
+                  break;
+                  default:
+                    $("#ep_span").html(error.message);
+              } 
+          }
+            console.log(error);
+            */
+      });
+};
+
+var pay_redirect = function(e){
+  e.preventDefault();
+  var dat = {
+    "email" : window.user_json["email"],
+    "amount" : $("#amount_input").val()
+  }
+
+  var endpoint = "/payment/initialize";
+
+  var settings = {
+    "async": true,
+    "crossDomain": true,
+    "url": host + endpoint,
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json",
+      "authorization": window.authorization
+    },
+    "data": JSON.stringify(dat)
+  }
+
+  $.ajax(settings).done(function (response) {
+    var data = response;
+    localStorage["authorization_data"] = data;
+    window.location = data["authorization_url"];
+  });
+}
 
 function populate_user_view(){
   $(".profile-name").html(window.user_json['displayName']);

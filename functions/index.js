@@ -95,7 +95,7 @@ function _post_request(_in, base_url){
 
 function _save_authorization_data(_in){
 	storage.setItem('authorization_data', _in);
-	resp.redirect(_in.authorization_url);
+	resp.json(_in);
 };
 
 unsecured_router.get('/',json_parser, function(request, response){
