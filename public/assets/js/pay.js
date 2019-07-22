@@ -3,11 +3,11 @@ document.addEventListener('DOMContentLoaded', function() {
   
   if(site.endsWith("pay.html") || site.indexOf("pay.html")>-1){
     //$("#login_form").submit(signin);
-    //payWithPayStack();
+    payWithPayStack();
   }
 });
 
-/*
+
 function payWithPayStack(){
   var handler = PaystackPop.setup({
       key: 'pk_test_e7ea4eef9e85c26ac13c834a249f077a7d3780d4',
@@ -38,20 +38,5 @@ function payWithPayStack(){
 
   //setTimeout(window.prepare_firebase, 3000);
 
-  customizeUI();
+  
 }
-
-function customizeUI(){
-  document.querySelector("iframe").addEventListener("load", function() {
-    //this.style.visibility = "hidden";
-    //window.innerDoc = this.contentDocument || this.contentWindow.document;
-
-    var name = "workspace1";
-    var arr = this.className.split(" ");
-    if (arr.indexOf(name) == -1) {
-      this.className += " " + name;
-    }
-
-  });
-}
-*/
