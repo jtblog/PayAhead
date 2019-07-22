@@ -333,6 +333,8 @@ var signout = function() {
       window.location = "index.html";
       console.log(response);
     });
+  }else{
+    window.location = "index.html";
   }
 };
 
