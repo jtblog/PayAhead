@@ -1,5 +1,6 @@
 var _db;
-var industry_ref
+var industry_ref;
+var users_ref;
 
 function payaheadDb() {
 }
@@ -7,6 +8,7 @@ function payaheadDb() {
 payaheadDb.prototype.shareApp = function(idb) {
 	_db = idb;
   industry_ref = _db.ref('/industry/');
+  users_ref = _db.ref('/users/');
 };
 
 payaheadDb.prototype.set_user = function(uj, _respond) {
@@ -14,7 +16,8 @@ payaheadDb.prototype.set_user = function(uj, _respond) {
   	uj
   	, function(error) {
         if (error) {
-          _respond(error, 404);
+          console.log(error);
+          _respond(error, 400);
         } else {
           _respond(uj, 200);
         }
@@ -33,20 +36,23 @@ payaheadDb.prototype.get_industry = function(_respond){
       _respond(industries, 200);
     },
     function(error) {
-      _respond(error, 404);
+      console.log(error);
+      _respond(error, 400);
     }
   );
 }
 
-payaheadDb.prototype.get_user = function(uj, _respond){
-  _db.ref("users/" + uj["uid"]).once('value').then(
-    function(snapshot) {
-      _respond(snapshot.val(), 200);
-    },
-    function(error) {
-      _respond(error, 404);
-    }
-  );
+payaheadDb.prototype.get_user = function(uid, authorization, _respond){
+  
+  _db.ref("users/" + uid).once("value", function(data) {
+      if (data) {
+        _respond( {"authorization" : authorization, "user" : data }, 200 );
+      } else {
+         console.log(error);
+        _respond(error, 400);
+      }
+  });
+
 }
 
 module.exports = payaheadDb;

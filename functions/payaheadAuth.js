@@ -12,7 +12,7 @@ payaheadAuth.prototype.shareApp = function(iauth, iapp, idb) {
 	_db = idb;
 };
 
-payaheadAuth.prototype.signin = function (credential_name, credential_password, _respond) {
+payaheadAuth.prototype.signin = function (credential_name, credential_password, _respond, mDb) {
 	if(validator.isEmail(credential_name)){
 		_auth2.getUserByEmail(credential_name)
 		    .then(function(user) {
@@ -20,18 +20,21 @@ payaheadAuth.prototype.signin = function (credential_name, credential_password, 
 					.then(function(UserCredential){
 				  		UserCredential.user.getIdToken(true)
 				  		.then(function(token){
-				  			_respond({"authorization":token, "user": UserCredential.user}, 200);
+				  			mDb.get_user(UserCredential.user["uid"], token, _respond);
 				  		})
 				  		.catch(function(error) {
-				  			_respond(error, 404);
+				  			console.log(error);
+				  			_respond(error, 400);
 				  		});
 				  	})
 				  	.catch(function(error) {
-					  _respond(error, 404);
+				  		console.log(error);
+					  _respond(error, 400);
 					});
 		    })
 		    .catch(function(error) {
-		      	_respond(error, 404);
+		    	console.log(error);
+		      	_respond(error, 400);
 		  	});
 	}else{
 		if(validator.isMobilePhone(credential_name)){
@@ -41,25 +44,27 @@ payaheadAuth.prototype.signin = function (credential_name, credential_password, 
 					  	.then(function(UserCredential){
 					  		UserCredential.user.getIdToken(true)
 					  		.then(function(token){
-					  			_respond({"authorization":token, "user": UserCredential.user}, 200)
+					  			mDb.get_user(UserCredential.user["uid"], token, _respond);
 					  		})
 					  		.catch(function(error) {
-					  			_respond(error, 404);
+					  			console.log(error);
+					  			_respond(error, 400);
 					  		});
 					  	})
 					  	.catch(function(error) {
-						  _respond(error, 404);
+						  _respond(error, 400);
 						});
 				})
 			    .catch(function(error) {
-			    	_respond(error, 404);
+			    	console.log(error);
+			    	_respond(error, 400);
 				});
 		}else{
 			var err = {
     			"code": "auth/not-email-or-phone",
     			"message": "This is neither an email address nor a phone number"
 			}
-			_respond(err, 404);
+			_respond(err, 400);
 		}
 	}
 };
@@ -81,18 +86,20 @@ payaheadAuth.prototype.signup = function (su_details, other_details, _respond, _
 				.then(function(user) {
 			    	_auth1.currentUser.sendEmailVerification()
 						.catch(function(error){
-		                	_respond(error, 404);
 		                	console.log(error);
+		                	_respond(error, 400);
 		                });
 				}).then(function(user){
 					_post_request(other_details, "/writeNewUser");
 				})
 				.catch(function(error) {
-					_respond(error, 404);
+					console.log(error);
+					_respond(error, 400);
 				});
 		})
 		.catch(function(error) {
-			_respond(error, 404);
+			console.log(error);
+			_respond(error, 400);
 		});		
 }; 
 
@@ -102,7 +109,7 @@ payaheadAuth.prototype.update_profile = function (u_details, other_details, _res
 			Object.keys(user).forEach(function(key) {
 				other_details[key] = user[key];
 		    });
-		    Object.keys(su_details).forEach(function(key) {
+		    Object.keys(u_details).forEach(function(key) {
 				other_details[key] = u_details[key];
 		    });
 		})
@@ -110,17 +117,19 @@ payaheadAuth.prototype.update_profile = function (u_details, other_details, _res
 			_post_request(other_details, "/writeNewUser");
 		})
 		.catch(function(error) {
-			_respond(error, 404);
+			console.log(error);
+			_respond(error, 400);
 		});		
 }; 
 
-payaheadAuth.prototype.signout = function (_details, _respond) {
-	_auth2.revokeRefreshTokens(_details["uid"])
+payaheadAuth.prototype.signout = function (_uid, _respond) {
+	_auth2.revokeRefreshTokens(_uid)
 		.then(function() {
-			_respond({"message" : "Successful"}, 200);
+			_respond( { "message" : "successful" } , 200 );
 		})
 		.catch(function(error) {
-			_respond(error, 404);
+			console.log(error);
+			_respond(error, 400);
 		});		
 }; 
 

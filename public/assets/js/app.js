@@ -37,7 +37,7 @@ window.prepare_firebase = function(){
   }
 
   if(site.endsWith("user.html") || site.indexOf("user.html")>-1){
-    prepare_userhtml();
+    get_profile();
     $("#signout_btn").click(signout);
   }
 };
@@ -110,7 +110,9 @@ var signup = function(e){
       "crossDomain": true,
       "url": host+endpoint,
       "method": "POST",
-      "data": window.su_details
+      "contentType": "application/json",
+      "dataType": "json",
+      "data": JSON.stringify(window.su_details)
     }
 
     $.ajax(settings)
@@ -120,7 +122,7 @@ var signup = function(e){
       })
       .fail(function(jqXHR, textStatus, errorThrown) {
         populate_industry();
-        console.log(textStatus + ': ' + errorThrown);
+        console.log(jqXHR.responseText);
         /*if (error.code != null){
               switch(error.code) {
                 case "auth/weak-password":
@@ -135,11 +137,49 @@ var signup = function(e){
       });
 };
 
-function prepare_userhtml(){
-  if(localStorage["user"] != null && typeof(localStorage["user"]) != undefined){
-    window.user_json = JSON.parse(localStorage["user"]);
-    if(window.user_json != null && typeof(window.user_json) != undefined){
-      $(".profile-name").html(window.user_json['displayName']);
+function get_profile(){
+
+  var endpoint = "/get_profile/" + localStorage["uid"];
+  
+  var settings = {
+      "async": true,
+      "crossDomain": true,
+      "url": host+endpoint,
+      "method": "GET",
+      //"contentType": "application/json",
+      //"dataType": "json",
+      "headers" : {
+        "authorization" : localStorage["authorization"],
+      },
+      "data": ""
+    }
+
+    $.ajax(settings)
+      .done(function (response) {
+        var data = response;
+        window.user_json = data["user"];
+        window.authorization = data["authorization"];
+        populate_user_view();
+      })
+      .fail(function(jqXHR, textStatus, errorThrown) {
+        populate_industry();
+        console.log(jqXHR.responseText);
+        /*if (error.code != null){
+              switch(error.code) {
+                case "auth/weak-password":
+                  $("#password_span").html(error.message);
+                  break;
+                default:
+                  $("#ep_span").html(error.message);
+              } 
+            }
+            console.log(error);
+            */
+      });
+};
+
+function populate_user_view(){
+  $(".profile-name").html(window.user_json['displayName']);
       $("#fn_input").val(window.user_json['displayName'].split(" ")[0]);
       $("#ln_input").val(window.user_json['displayName'].split(" ")[1]);
       $("#password_input").val(window.user_json['password']);
@@ -159,16 +199,16 @@ function prepare_userhtml(){
       opt = document.createElement('OPTION');
       opt.textContent = window.user_json['industry'];
       document.getElementById('industry_group').appendChild(opt);
-    }
-  }
-};
+}
 
 function populate_industry(){
-  var endpoint = "/industries";
+  var endpoint = "/db/industries";
   var settings = {
     "async": true,
     "crossDomain": true,
     "url": host+endpoint,
+    //"contentType": "application/json",
+    //"dataType": "json",
     "method": "GET"
   }
 
@@ -184,7 +224,7 @@ function populate_industry(){
       }
     })
     .fail(function(jqXHR, textStatus, errorThrown) {
-      console.log(textStatus + ': ' + errorThrown);
+      console.log(jqXHR.responseText);
     });
 };
 
@@ -227,18 +267,21 @@ var signin = function(e){
       "crossDomain": true,
       "url": host+endpoint,
       "method": "POST",
-      "data": window.si_details
+      "contentType": "application/json",
+      "dataType": "json",
+      "data": JSON.stringify(window.si_details)
     }
 
     $.ajax(settings)
       .done(function (response) {
         var data = response;
-        localStorage["user"] = JSON.stringify(data["user"]);
-        localStorage["authorization"] = JSON.stringify(data["authorization"]);
+        console.log(data);
+        localStorage["uid"] = data["user"]["uid"];
+        localStorage["authorization"] = data["authorization"];
         window.location = "user.html";
       })
       .fail(function(jqXHR, textStatus, errorThrown) {
-        console.log(textStatus + ': ' + errorThrown);
+        console.log(jqXHR.responseText);
         /*if (error.code != null){
             switch(error.code) {
               case "auth/weak-password":
@@ -263,53 +306,32 @@ function isEmail(str){
 };
 
 function authstateobserver(user){
-  if(user != null && user.email != null){
+  /*if(user != null && user.email != null){
     window.user = user;
     window.user_json = JSON.parse(JSON.stringify(window.user));
-  }
+  }*/
 };
 
+
 var signout = function() {
-  if(localStorage["user"] != null && typeof(localStorage["user"]) != undefined || localStorage["user"] != ""){
-    if(localStorage["authorization"] != null && typeof(localStorage["authorization"]) != undefined || localStorage["authorization"] != ""){
-      
-      var endpoint = "/auth/signout"
+  var endpoint = "/signout/" + window.user_json["uid"]
 
-      var settings = {
-          "async" : true,
-          "crossDomain" : true,
-          "url" : host+endpoint,
-          "method" : "POST",
-          "headers" : {
-            "authorization" : localStorage["authorization"],
-          },
-          "data" : JSON.parse(localStorage["user"])
-        }
-
-        $.ajax(settings)
-          .done(function (response) {
-            var data = response;
-            //localStorage["user"] = JSON.stringify(data["user"]);
-            localStorage["authorization"] = "";
-            window.location = "index.html";
-          })
-          .fail(function(jqXHR, textStatus, errorThrown) {
-            console.log(textStatus + ': ' + errorThrown);
-            /*
-              if (error.code != null){
-                switch(error.code) {
-                  case "auth/weak-password":
-                    $("#password_span").html(error.message);
-                    break;
-                  default:
-                    $("#ep_span").html(error.message);
-                } 
-              }
-              console.log(error);
-            */
-          });
+  var settings = {
+    "async": true,
+    "crossDomain": true,
+    "url": window.host + endpoint,
+    "method": "POST",
+    "headers": {
+      "authorization": window.authorization
     }
   }
+
+  $.ajax(settings).done(function (response) {
+    localStorage["uid"] = "";
+    localStorage["authorization"] = "";
+    window.location = "index.html";
+    console.log(response);
+  });
 };
 
 /*
@@ -367,6 +389,7 @@ var geolocationCallback = function(location) {
 
 /* Handles any errors from trying to get the user's current location */
 var errorHandler = function(error) {
+  /*
   if (error.code == 1) {
     log("Error: PERMISSION_DENIED: User denied access to their location");
     alert("Error: PERMISSION_DENIED: User denied access to their location");
@@ -380,6 +403,7 @@ var errorHandler = function(error) {
     log("Unexpected error code");
     alert("Unexpected error code");
   }
+  */
 };
 
 function setInputFilter(textbox, inputFilter) {
