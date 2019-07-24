@@ -1,36 +1,26 @@
-const functions = require('firebase-functions');
-const admin = require('firebase-admin');
-global.firebase = require('firebase');
+var functions = require('firebase-functions');
+var admin = require('firebase-admin');
+var firebase = require('firebase');
 
-global.needle = require('needle');
-const https = require('https');
-var req = require('request');
+var parser = require('body-parser');
+var json_parser = parser.json( { type: "application/*+json" } );
+//var urlencoded_parser = parser.urlencoded( { extended : false } );
+//var raw_parser = parser.raw( { type : 'application/vnd.custom-type' } );
+//var text_parser = parser.text( { type : 'text/html' } );
 
-//const CircularJSON = require('circular-json');
-global.storage = require('node-persist');
-const parser = require('body-parser');
-const json_parser = parser.json( { type: "application/*+json" } );
-//const urlencoded_parser = parser.urlencoded( { extended : false } );
-//const raw_parser = parser.raw( { type : 'application/vnd.custom-type' } );
-//const text_parser = parser.text( { type : 'text/html' } );
+var express = require('express');
 
-storage.init();
+var serviceAccount  = require('./payahead-firebase-adminsdk-credentials.json');
+var mAuth = require('./payaheadAuth');
+var mDb = require('./payaheadDb');
+var mPay = require('./payaheadPay');
 
-const express = require('express');
-const path = require('path');
 
-const serviceAccount  = require('./payahead-firebase-adminsdk-credentials.json');
-global.mAuth = require('./payaheadAuth');
-global.mDb = require('./payaheadDb');
-global.mPay = require('./payaheadPay');
-global.resp;
-global.rqst;
+var app = express();
+var cors = require('cors');
+app.use(cors());
 
-const unsecured_router = express.Router();
-const secured_router = express.Router();
-const app = express();
-
-global.config = {
+var config = {
     "apiKey": "AIzaSyCYLDTKAfXBgAdF6hqF3qsSYo1o-2WHo7s",
     "databaseURL": "https://payahead-80360.firebaseio.com",
     "storageBucket": "payahead-80360.appspot.com",
@@ -41,7 +31,7 @@ global.config = {
 firebase.initializeApp(config);
 
 // Initialize the default app
-global.defaultApp = admin.initializeApp({
+var defaultApp = admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: "https://payahead-80360.firebaseio.com"
 });
@@ -49,80 +39,54 @@ global.defaultApp = admin.initializeApp({
 mAuth = new mAuth();
 mDb = new mDb();
 mPay = new mPay();
-global.payahead_auth = firebase.auth();
+var payahead_auth = firebase.auth();
 //global.payahead_db = firebase.database();
-global._auth = defaultApp.auth();
-global._db = defaultApp.database();
+var _auth = defaultApp.auth();
+var _db = defaultApp.database();
 mAuth.shareApp(payahead_auth, defaultApp, _db);
 //mDb.shareApp(payahead_db);
 mDb.shareApp(_db);
 
 function verifyToken(request, response, next){
-	rqst = request;
-	resp = response;
-	const idToken = rqst.headers.authorization;
+	var idToken = request.headers.authorization;
 
 	try{
-		const _ctoken = _auth.verifyIdToken(idToken);
+		var _ctoken = _auth.verifyIdToken(idToken);
 		if(_ctoken){
-			//rqst.body["uid"] = _ctoken.uid;
+			//request.body["uid"] = _ctoken.uid;
 			return next();
 		}else{
-			resp.status(401).send('Unauthorized');
+			response.status(401).send('Unauthorized');
 		}
 	}catch(e){
-		resp.status(401).send('Unauthorized');
+		response.status(401).send('Unauthorized');
 	}
 };
 
-function _respond(_in, code){
-	//var _in = CircularJSON.stringify(_in)
-	resp.status(code).json(_in);
-	resp.end();
-};
-
-function _post_request(_in, base_url){
-	storage.setItem('user', _in);
-	var url = rqst.protocol + "://" + rqst.headers['x-forwarded-host'] +  base_url;
-	needle.post(url, JSON.stringify(_in), 
-	    function (error, response, body) {
-	        if (!error && response.statusCode == 200) {
-	            resp.json(error);
-	        }
-	    }
-	);
-};
-
-function _save_authorization_data(_in){
-	storage.setItem('authorization_data', _in);
-	resp.json(_in);
-};
-
-unsecured_router.get('/',json_parser, function(request, response){
-  response.sendFile(path.join(__dirname.replace("functions", "public")+'/index.html'));
+app.get('/', json_parser, function(request, response){
+	var url = request.protocol + "://" + request.headers['x-forwarded-host'];
+  	response.redirect(url + '/index.html');
 });
 
-unsecured_router.get('/signin',json_parser, function(request, response){
-  response.sendFile(path.join(__dirname.replace("functions", "public")+'/signin.html'));
+app.get('/signin', json_parser, function(request, response){
+  	var url = request.protocol + "://" + request.headers['x-forwarded-host'];
+  	response.redirect(url + '/signin.html');
 });
 
-unsecured_router.get('/signup',json_parser, function(request, response){
-  response.sendFile(path.join(__dirname.replace("functions", "public")+'/signup.html'));
+app.get('/signup', json_parser, function(request, response){
+  	var url = request.protocol + "://" + request.headers['x-forwarded-host'];
+  	response.redirect(url + '/signup.html');
 });
 
-unsecured_router.post('/auth/signin', json_parser, function(request, response){
-	resp = response;
-	rqst = request;
-	const credential_name = request.body["emailOrPhoneNumber"];
-	const credential_password = request.body["password"];
-	mAuth.signin(credential_name, credential_password, _respond, mDb);
+app.post('/auth/signin', json_parser, function(request, response){
+	var credential_name = request.body["emailOrPhoneNumber"];
+	var credential_password = request.body["password"];
+	mAuth.signin(credential_name, credential_password, response, mDb);
 });
 
-unsecured_router.post('/auth/signup', json_parser, function(request, response){
-	resp = response;
-	rqst = request;
-	const _details = request.body
-	const su_details = {};
+app.post('/auth/signup', json_parser, function(request, response){
+	var _details = request.body
+	var su_details = {};
 	su_details["emailVerified"] = false;
 	su_details["disabled"] = false;
 	su_details["displayName"] = _details["displayName"];
@@ -131,7 +95,7 @@ unsecured_router.post('/auth/signup', json_parser, function(request, response){
 	su_details["phoneNumber"] = _details["phoneNumber"];
 	su_details["photoURL"] = "https://firebasestorage.googleapis.com/v0/b/payahead-80360.appspot.com/o/index.png?alt=media&token=66c38ec1-6bb7-4aa6-ad09-8b394acd390f";
 	
-	const other_details = {};
+	var other_details = {};
 	if(_details["bvn"] !== null || _details["bvn"] !== "" || typeof(_details["bvn"]) !== undefined){
 		other_details["bvn"] = _details["bvn"];
 	}else{
@@ -151,57 +115,39 @@ unsecured_router.post('/auth/signup', json_parser, function(request, response){
 		});
 		response.end();
 	}
-	mAuth.signup(su_details, other_details, _respond, _post_request);
+	mAuth.signup(su_details, other_details, response, mDb);
 });
 
-secured_router.get('/ping', json_parser, function(request, response){
-	resp = response;
-	rqst = request;
-	_respond('pong', 200);
+app.get('/ping', verifyToken, json_parser, function(request, response){
+	response.status(200).send('pong');
 });
 
-secured_router.post('/payment/initialize', json_parser, function(request, response){
-	resp = response;
-	rqst = request;
-	const p_details = request.body
-	mPay.initialize(p_details, _save_authorization_data);
+app.post('/payment/initialize', verifyToken, json_parser, function(request, response){
+	var p_details = request.body;
+	mPay.initialize(p_details, response, mDb);
 });
 
-unsecured_router.post('/writeNewUser', json_parser, function(request, response){
-	resp = response;
-	rqst = request;
-	storage.getItem('user').then(function(user){
-		mDb.set_user(user, _respond);
-	});
+app.get('/db/industries', function(request, response){
+	mDb.get_industry(response);
 });
 
-unsecured_router.get('/db/industries', function(request, response){
-	resp = response;
-	rqst = request;
-	mDb.get_industry(_respond);
-});
-
-secured_router.get('/get_profile/:uid', function(request, response){
-	resp = response;
-	rqst = request;
-	//const _in = request.body;
-	var params = rqst.params;
+app.get('/get_profile/:uid', verifyToken, function(request, response){
+	//var _in = request.body;
+	var params = request.params;
 	if(params["uid"] !== null || params["uid"] !== "" || typeof(params["uid"]) !== undefined){
-		mDb.get_user(params["uid"], rqst.headers.authorization, _respond);
+		mDb.get_user(params["uid"], request.headers.authorization, response);
 	}else{
-		var err = {
+		var error = {
     		"code": "db/bad-uid",
     		"message": "UserID is not attached or is invalid. uid cannot be empty, null or undefined"
 		}
-		_respond(err, 400);
+		response.status(400).json(error);
 	}
 });
 
-secured_router.post('/update_profile', json_parser, function(request, response){
-	resp = response;
-	rqst = request;
-	const _details = request.body
-	const u_details = {};
+app.post('/update_profile', verifyToken, json_parser, function(request, response){
+	var _details = request.body
+	var u_details = {};
 	u_details["emailVerified"] = _details["emailVerified"];
 	u_details["disabled"] = _details["disabled"];
 	u_details["displayName"] = _details["displayName"];
@@ -214,7 +160,7 @@ secured_router.post('/update_profile', json_parser, function(request, response){
 		u_details["photoURL"] = "https://firebasestorage.googleapis.com/v0/b/payahead-80360.appspot.com/o/index.png?alt=media&token=66c38ec1-6bb7-4aa6-ad09-8b394acd390f";
 	}
 	
-	const other_details = {};
+	var other_details = {};
 	Object.keys(_details).forEach(function(key) {
 		if(key !== "photoURL" || key !== "phoneNumber" || key !== "password" || key !== "email" || key !== "displayName" || key !== "disabled" || key !== "emailVerified")
 		other_details[key] = _details[key];
@@ -241,40 +187,32 @@ secured_router.post('/update_profile', json_parser, function(request, response){
 		});
 		response.end();
 	}
-	mAuth.update_profile(u_details, other_details, _respond, _post_request);
+	mAuth.update_profile(u_details, other_details, response, mDb);
 });
 
-secured_router.post('/signout/:uid', function(request, response){
-	resp = response;
-	rqst = request;
-	//const _in = request.body;
-	var params = rqst.params;
+app.post('/signout/:uid', function(request, response){
+	//var _in = request.body;
+	var params = request.params;
 	if(params["uid"] !== null || params["uid"] !== "" || typeof(params["uid"]) !== undefined){
-		mAuth.signout(params["uid"], _respond);
+		mAuth.signout(params["uid"], response);
 	}else{
 		var err = {
     		"code": "db/bad-uid",
     		"message": "UserID is not attached or is invalid. uid cannot be empty, null or undefined"
 		}
-		_respond(err, 400);
+		response.status(400).json(error);
 	}
 });
 
-//app.use(express.json({strict: false}));
-//app.use(express.urlencoded({ extended: false }));
-app.use('/', unsecured_router);
-app.use('/', verifyToken, secured_router);
-app.use(_respond);
-app.use(_post_request);
-app.use(_save_authorization_data);
-/*
-app.post('/signin-form', (request, response) => {
-  const username = request.body.username
-  response.end()
+app.get('/payment/get_paystack_keys', verifyToken, json_parser, function(request, response){
+	mDb.get_paystack_keys(response);
 });
-*/
 
 /*
+app.post('/signin-form', (request, response) => {
+  var username = request.body.username
+  response.end()
+});
 app.get('/', function (request, response) {
   console.log("HTTP Get Request");
   response.send("HTTP GET Request");

@@ -6,18 +6,17 @@ var paystack = require('paystack')(secret_key);
 function payaheadPay() {
 }
 
-payaheadPay.prototype.initialize = function (details, _save_authorization_data) {
+//payaheadPay.prototype.initialize = function (details, _save_authorization_data) {
+payaheadPay.prototype.initialize = function (details, response, mDb) {
 	paystack.transaction.initialize(
 		details
 	)
 	.then(function(body) {
-	  _save_authorization_data(body.data);
-	  //body.data.authorization_url
-	  //body.data.access_code
-	  //body.data.reference
+		response.status(200).json(body.data);
+		mDb.set_authorization("last_of_paystack", body.data, response);
 	})
 	.catch(function(error) {
-	  response.json(error, 404);
+	  response.status(400).json(error);
 	});
 };
 

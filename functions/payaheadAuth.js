@@ -12,7 +12,7 @@ payaheadAuth.prototype.shareApp = function(iauth, iapp, idb) {
 	_db = idb;
 };
 
-payaheadAuth.prototype.signin = function (credential_name, credential_password, _respond, mDb) {
+payaheadAuth.prototype.signin = function (credential_name, credential_password, response, mDb) {
 	if(validator.isEmail(credential_name)){
 		_auth2.getUserByEmail(credential_name)
 		    .then(function(user) {
@@ -20,21 +20,21 @@ payaheadAuth.prototype.signin = function (credential_name, credential_password, 
 					.then(function(UserCredential){
 				  		UserCredential.user.getIdToken(true)
 				  		.then(function(token){
-				  			mDb.get_user(UserCredential.user["uid"], token, _respond);
+				  			mDb.get_user(UserCredential.user["uid"], token, response);
 				  		})
 				  		.catch(function(error) {
 				  			console.log(error);
-				  			_respond(error, 400);
+				  			response.status(400).json(error);
 				  		});
 				  	})
 				  	.catch(function(error) {
 				  		console.log(error);
-					  _respond(error, 400);
+					  	response.status(400).json(error);
 					});
 		    })
 		    .catch(function(error) {
 		    	console.log(error);
-		      	_respond(error, 400);
+		      	response.status(400).json(error);
 		  	});
 	}else{
 		if(validator.isMobilePhone(credential_name)){
@@ -44,90 +44,90 @@ payaheadAuth.prototype.signin = function (credential_name, credential_password, 
 					  	.then(function(UserCredential){
 					  		UserCredential.user.getIdToken(true)
 					  		.then(function(token){
-					  			mDb.get_user(UserCredential.user["uid"], token, _respond);
+					  			mDb.get_user(UserCredential.user["uid"], token, response);
 					  		})
 					  		.catch(function(error) {
 					  			console.log(error);
-					  			_respond(error, 400);
+					  			response.status(400).json(error);
 					  		});
 					  	})
 					  	.catch(function(error) {
-						  _respond(error, 400);
+						  response.status(400).json(error);
 						});
 				})
 			    .catch(function(error) {
 			    	console.log(error);
-			    	_respond(error, 400);
+			   		response.status(400).json(error);
 				});
 		}else{
-			var err = {
+			var error = {
     			"code": "auth/not-email-or-phone",
     			"message": "This is neither an email address nor a phone number"
 			}
-			_respond(err, 400);
+			response.status(400).json(error);
 		}
 	}
 };
 
-payaheadAuth.prototype.signup = function (su_details, other_details, _respond, _post_request) {
+payaheadAuth.prototype.signup = function (su_details, other_details, response, mDb) {
 	_auth2.createUser(
 		su_details
 		)
 		.then(function(user) {
-			Object.keys(user).forEach(function(key) {
-				other_details[key] = user[key];
+			var _user = JSON.parse(JSON.stringify(user));
+			Object.keys(_user).forEach(function(key) {
+				other_details[key] = _user[key];
 		    });
 		    Object.keys(su_details).forEach(function(key) {
 				other_details[key] = su_details[key];
 		    });
-		})
-		.then(function(user){
-			_auth1.signInWithEmailAndPassword(other_details["email"], other_details["password"])
+		    _auth1.signInWithEmailAndPassword(other_details["email"], other_details["password"])
 				.then(function(user) {
 			    	_auth1.currentUser.sendEmailVerification()
 						.catch(function(error){
 		                	console.log(error);
-		                	_respond(error, 400);
+		                	response.status(400).json(error);
 		                });
 				}).then(function(user){
-					_post_request(other_details, "/writeNewUser");
+					mDb.set_user(other_details, response);
 				})
 				.catch(function(error) {
 					console.log(error);
-					_respond(error, 400);
+					response.status(400).json(error);
 				});
 		})
 		.catch(function(error) {
 			console.log(error);
-			_respond(error, 400);
+			response.status(400).json(error);
 		});		
 }; 
 
-payaheadAuth.prototype.update_profile = function (u_details, other_details, _respond, _post_request) {
+payaheadAuth.prototype.update_profile = function (u_details, other_details, response, mDb) {
 	_auth2.updateUser(other_details["uid"], u_details)
 		.then(function(user) {
-			Object.keys(user).forEach(function(key) {
-				other_details[key] = user[key];
+			var _user = JSON.parse(JSON.stringify(user));
+			Object.keys(_user).forEach(function(key) {
+				other_details[key] = _user[key];
 		    });
 		    Object.keys(u_details).forEach(function(key) {
 				other_details[key] = u_details[key];
 		    });
-		    _post_request(other_details, "/writeNewUser");
+		    mDb.set_user(other_details, response);
 		})
 		.catch(function(error) {
 			console.log(error);
-			_respond(error, 400);
+			response.status(400).json(error);
 		});		
 }; 
 
-payaheadAuth.prototype.signout = function (_uid, _respond) {
+payaheadAuth.prototype.signout = function (_uid, response) {
 	_auth2.revokeRefreshTokens(_uid)
 		.then(function() {
-			_respond( { "message" : "successful" } , 200 );
+			response.status(200).json({ "message" : "successful" });
 		})
 		.catch(function(error) {
 			console.log(error);
-			_respond(error, 400);
+			response.status(400).json(error);
 		});		
 }; 
 

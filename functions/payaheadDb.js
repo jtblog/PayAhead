@@ -1,5 +1,5 @@
 var _db;
-var industry_ref;
+var industry_ref, paystack_ref;
 var users_ref;
 
 function payaheadDb() {
@@ -8,23 +8,51 @@ function payaheadDb() {
 payaheadDb.prototype.shareApp = function(idb) {
 	_db = idb;
   industry_ref = _db.ref('/industry/');
+  paystack_ref = _db.ref('/paystack/');
   users_ref = _db.ref('/users/');
 };
 
-payaheadDb.prototype.set_user = function(uj, _respond) {
+payaheadDb.prototype.set_user = function(uj, response) {
   _db.ref("users/" + uj["uid"]).set(
   	uj
   	, function(error) {
         if (error) {
           console.log(error);
-          _respond(error, 400);
+          response.status(400).json(error);
         } else {
-          _respond(uj, 200);
+          response.status(200).json(uj);
         }
     });
 };
 
-payaheadDb.prototype.get_industry = function(_respond){
+payaheadDb.prototype.create_user = function(uj, response) {
+  _db.ref("users/" + uj["uid"]).push(
+    uj
+    , function(error) {
+        if (error) {
+          console.log(error);
+          response.status(400).json(error);
+        } else {
+          response.status(200).json(uj);
+        }
+    });
+};
+
+payaheadDb.prototype.set_authorization = function(baseurl, _in, response){
+  _db.ref("authorization/" + baseurl).set(
+    _in
+    , function(error) {
+        if (error) {
+          console.log(error);
+          response.status(400).json(error);
+        } else {
+          response.status(200).json(_in);
+        }
+    }
+  );
+};
+
+payaheadDb.prototype.get_industry = function(response){
   var industries = [];
   industry_ref.orderByKey().once('value').then(
     function(snapshot) {
@@ -33,26 +61,43 @@ payaheadDb.prototype.get_industry = function(_respond){
           industries.push(childSnapshot.val());
         }
       )
-      _respond(industries, 200);
+      response.status(200).json(industries);
     },
     function(error) {
       console.log(error);
-      _respond(error, 400);
+      response.status(400).json(error);
     }
   );
 }
 
-payaheadDb.prototype.get_user = function(uid, authorization, _respond){
+payaheadDb.prototype.get_user = function(uid, authorization, response){
   
   _db.ref("users/" + uid).once("value", function(data) {
       if (data) {
-        _respond( {"authorization" : authorization, "user" : data }, 200 );
+        response.status(200).json({"authorization" : authorization, "user" : data });
       } else {
-         console.log(error);
-        _respond(error, 400);
+        console.log(error);
+        response.status(400).json(error);
       }
   });
+}
 
+payaheadDb.prototype.get_paystack_keys = function(response){
+  var keys = {};
+  paystack_ref.orderByKey().once('value').then(
+    function(snapshot) {
+      snapshot.forEach(
+        function(childSnapshot) {
+          keys[childSnapshot.key] = childSnapshot.val();
+        }
+      )
+      response.status(200).json(keys);
+    },
+    function(error) {
+      console.log(error);
+      response.status(400).json(error);
+    }
+  );
 }
 
 module.exports = payaheadDb;

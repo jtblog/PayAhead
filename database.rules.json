@@ -7,10 +7,6 @@
       ".read": "true",
       ".write": "true"
     },
-    "phone_users": {
-      ".read": "true",
-      ".write": "true"
-    },
     "users": {
       "$uid": {
         ".read": "true",
@@ -23,12 +19,21 @@
         ".write": "$uid === auth.uid"
       }
     },
+    "authorization": {
+      ".read": "true",
+      ".write": "true"
+    },
+    "paystack": {
+      ".read": "true",
+      ".write": "false"
+    },
     "vendors": {
       "$uid": {
         ".read": "$uid === auth.uid",
         ".write": "$uid === auth.uid"
       }
     },
+    /*
     "payments": {
       "$uid": {
         ".read": "$uid === auth.uid",
@@ -40,6 +45,6 @@
         ".read": "$uid === auth.uid",
         ".write": "$uid === auth.uid"
       }
-    }
+    }*/
   }
 }

@@ -47,8 +47,8 @@ window.prepare_firebase = function(){
         return /^\d*$/.test(value);
       });
     }
-    get_profile2();
-    $("#payment_form").submit(pay_redirect);
+    prepare_for_payment();
+    $("#payment_form").submit(pay_popup);
   }
 };
 
@@ -188,7 +188,7 @@ function get_profile(){
       });
 };
 
-function get_profile2(){
+function prepare_for_payment(){
 
   var endpoint = "/get_profile/" + localStorage["uid"];
       
@@ -211,6 +211,11 @@ function get_profile2(){
         window.user_json = data["user"];
         window.authorization = data["authorization"];
         //populate_user_view();
+        var scriptElements = document.getElementsByTagName('script');
+        var script = document.createElement("script");
+        script.setAttribute("type", "text/javascript");
+        script.setAttribute("src", "https://js.paystack.co/v1/inline.js");
+        document.getElementsByTagName("head")[0].appendChild(script);
       })
       .fail(function(jqXHR, textStatus, errorThrown) {
         window.location = "/signin.html";
@@ -230,33 +235,43 @@ function get_profile2(){
       });
 };
 
-var pay_redirect = function(e){
+var pay_popup = function(e){
   e.preventDefault();
-  var dat = {
-    "email" : window.user_json["email"],
-    "amount" : $("#amount_input").val() * 100
-  }
 
-  var endpoint = "/payment/initialize";
-
+  var config = {
+    key: 'pk_test_blablabla', 
+    email: window.user_json["email"],
+    amount: "" + ($("#amount_input").val() * 100),
+    firstname: window.user_json['displayName'].split(" ")[0],
+    lastname: window.user_json['displayName'].split(" ")[1], 
+    onClose: function(){
+      alert('Window closed.');
+    },
+    callback: function(response){
+      var message = 'Payment complete! Reference: ' + response.reference;
+      alert(message);
+    }
+  };
+  
+  var endpoint = "/payment/get_paystack_keys";
   var settings = {
     "async": true,
     "crossDomain": true,
     "url": host + endpoint,
-    "method": "POST",
+    "method": "GET",
     "headers": {
       "Content-Type": "application/json",
       "authorization": window.authorization
-    },
-    "data": JSON.stringify(dat)
+    }
   }
 
   $.ajax(settings).done(function (response) {
     var data = response;
-    localStorage["authorization_data"] = data;
-    window.location = data["authorization_url"];
-  });
-}
+    config["key"] = data["p_key"];
+    var handler = PaystackPop.setup(config);
+    handler.openIframe();
+  }); 
+};
 
 function populate_user_view(){
   $(".profile-name").html(window.user_json['displayName']);
@@ -279,7 +294,7 @@ function populate_user_view(){
       opt = document.createElement('OPTION');
       opt.textContent = window.user_json['industry'];
       document.getElementById('industry_group').appendChild(opt);
-}
+};
 
 function populate_industry(){
   var endpoint = "/db/industries";
