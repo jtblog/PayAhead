@@ -1,5 +1,5 @@
 var _db;
-var industry_ref, paystack_ref;
+var industry_ref, paystack_keys_ref;
 var users_ref;
 
 function payaheadDb() {
@@ -8,7 +8,7 @@ function payaheadDb() {
 payaheadDb.prototype.shareApp = function(idb) {
 	_db = idb;
   industry_ref = _db.ref('/industry/');
-  paystack_ref = _db.ref('/paystack/');
+  paystack_keys_ref = _db.ref('/paystack/keys/');
   users_ref = _db.ref('/users/');
 };
 
@@ -84,7 +84,7 @@ payaheadDb.prototype.get_user = function(uid, authorization, response){
 
 payaheadDb.prototype.get_paystack_keys = function(response){
   var keys = {};
-  paystack_ref.orderByKey().once('value').then(
+  paystack_keys_ref.orderByKey().once('value').then(
     function(snapshot) {
       snapshot.forEach(
         function(childSnapshot) {

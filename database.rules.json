@@ -25,7 +25,15 @@
     },
     "paystack": {
       ".read": "true",
-      ".write": "false"
+      ".write": "false",
+      "keys": {
+        ".read": "true",
+        ".write": "false"
+      },
+      "bank_list": {
+        ".read": "true",
+        ".write": "false"
+      }
     },
     "vendors": {
       "$uid": {

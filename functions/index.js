@@ -15,7 +15,6 @@ var mAuth = require('./payaheadAuth');
 var mDb = require('./payaheadDb');
 var mPay = require('./payaheadPay');
 
-
 var app = express();
 var cors = require('cors');
 app.use(cors());
@@ -39,6 +38,7 @@ var defaultApp = admin.initializeApp({
 mAuth = new mAuth();
 mDb = new mDb();
 mPay = new mPay();
+
 var payahead_auth = firebase.auth();
 //global.payahead_db = firebase.database();
 var _auth = defaultApp.auth();
@@ -118,11 +118,16 @@ app.post('/auth/signup', json_parser, function(request, response){
 	mAuth.signup(su_details, other_details, response, mDb);
 });
 
-app.get('/ping', verifyToken, json_parser, function(request, response){
+/*app.get('/ping', verifyToken, json_parser, function(request, response){
 	response.status(200).send('pong');
-});
+});*/
 
 app.post('/payment/initialize', verifyToken, json_parser, function(request, response){
+	var p_details = request.body;
+	mPay.initialize(p_details, response, mDb);
+});
+
+app.post('/payment/initialize', json_parser, function(request, response){
 	var p_details = request.body;
 	mPay.initialize(p_details, response, mDb);
 });
@@ -207,6 +212,7 @@ app.post('/signout/:uid', function(request, response){
 app.get('/payment/get_paystack_keys', verifyToken, json_parser, function(request, response){
 	mDb.get_paystack_keys(response);
 });
+  
 
 /*
 app.post('/signin-form', (request, response) => {

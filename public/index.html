@@ -5,13 +5,40 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>PayAhead</title>
-    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
-    <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
+    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/fonts/fontawesome-all.min.css">
+    <link rel="stylesheet" href="/assets/fonts/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Actor">
-    <link rel="stylesheet" href="assets/css/Profile-Card-1.css">
-    <link rel="stylesheet" href="assets/css/Profile-Card.css">
-    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="/assets/css/Profile-Card-1.css">
+    <link rel="stylesheet" href="/assets/css/Profile-Card.css">
+    <link rel="stylesheet" href="/assets/css/styles.css">
+      <!-- Added link rel manifest -->
+      <link rel="manifest" href="/manifest.json">
+
+      <!-- Description -->
+      <meta name="description" content="Pay ahead with PayAhead">
+
+      <!-- Meta tag for theme-color -->
+      <meta name="theme-color" content="#5f9ea0" />
+
+
+      <!-- iOS meta tags and icons -->
+      <meta name="apple-mobile-web-app-capable" content="yes">
+      <meta name="apple-mobile-web-app-status-bar-style" content="black">
+      <meta name="apple-mobile-web-app-title" content="PayAhead">
+      <link rel="apple-touch-icon" href="/assets/img/icons/icon-152x152.png">
+
+      <script defer >
+      // CODELAB: Register service worker.
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/service-worker.js')
+              .then((reg) => {
+                console.log('Service worker registered.', reg);
+              });
+        });
+      }
+      </script>
 </head>
 
 <body>
@@ -26,14 +53,15 @@
                         <li class="dropdown nav-item"><a class="dropdown-toggle nav-link" data-toggle="dropdown" aria-expanded="false" href="#" style="color: white;">Help</a>
                             <div class="dropdown-menu" role="menu"><a class="dropdown-item" role="presentation" href="#">First Item</a><a class="dropdown-item" role="presentation" href="#">Second Item</a><a class="dropdown-item" role="presentation" href="#">Third Item</a></div>
                         </li>
-                    </ul><span class="text-center navbar-text actions"> <a href="signin.html" class="login" style="color: white;">Sign In</a><a class="btn btn-light action-button" role="button" href="signup.html" style="color: white;">Sign Up</a></span></div>
+                    </ul><span class="text-center navbar-text actions"> <a href="/signin.html" class="login" style="color: white;">Sign In</a><a class="btn btn-light action-button" role="button" href="/signup.html" style="color: white;">Sign Up</a></span></div>
     </div>
     </nav>
     </div>
-    <script src="assets/js/jquery.min.js"></script>
-    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
-    <script src="assets/js/app.js"></script>
-    <script src="assets/js/resources.js"></script>
+    <script src="/assets/js/jquery.min.js"></script>
+    <script src="/assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/assets/js/app.js"></script>
+    <script src="/assets/js/resources.js"></script>
+    <script src="/assets/js/install.js"></script>
 </body>
 
 </html>
