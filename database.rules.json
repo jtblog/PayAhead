@@ -29,10 +29,6 @@
       "keys": {
         ".read": "true",
         ".write": "false"
-      },
-      "bank_list": {
-        ".read": "true",
-        ".write": "false"
       }
     },
     "vendors": {
@@ -40,6 +36,10 @@
         ".read": "$uid === auth.uid",
         ".write": "$uid === auth.uid"
       }
+    },
+    "logs":{
+      ".read": "true",
+      ".write": "true"
     },
     /*
     "payments": {

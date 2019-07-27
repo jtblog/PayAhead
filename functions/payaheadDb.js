@@ -68,7 +68,7 @@ payaheadDb.prototype.get_industry = function(response){
       response.status(400).json(error);
     }
   );
-}
+};
 
 payaheadDb.prototype.get_user = function(uid, authorization, response){
   
@@ -80,7 +80,7 @@ payaheadDb.prototype.get_user = function(uid, authorization, response){
         response.status(400).json(error);
       }
   });
-}
+};
 
 payaheadDb.prototype.get_paystack_keys = function(response){
   var keys = {};
@@ -98,6 +98,20 @@ payaheadDb.prototype.get_paystack_keys = function(response){
       response.status(400).json(error);
     }
   );
-}
+};
+
+payaheadDb.prototype.save_error = function(_in, response){
+
+  _db.ref("logs/" + _in["epoch"]).set(
+    _in
+    , function(error) {
+        if (error) {
+          console.log(error);
+          response.status(400).json(error);
+        } else {
+          response.status(200).json(_in);
+        }
+    });
+};
 
 module.exports = payaheadDb;

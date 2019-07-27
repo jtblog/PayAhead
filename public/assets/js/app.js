@@ -41,6 +41,8 @@ window.prepare_firebase = function(){
     window.vrfy_otp_frm = document.getElementById("verify_otp_form");
     removeElement("verify_otp_form");
     $("#create_acct_form").submit(signup);
+    var input = document.querySelector("#pno_input");
+    window.pno_input = window.intlTelInput(input);
     populate_industry();
   }
 
@@ -49,6 +51,8 @@ window.prepare_firebase = function(){
   }
 
   if(site.endsWith("user.html") || site.indexOf("user.html")>-1){
+    var input = document.querySelector("#pno_input");
+    window.pno_input = window.intlTelInput(input);
     get_profile();
     $("#signout_btn").click(signout);
   }
@@ -123,7 +127,8 @@ var signup = function(e){
     'password' : $("#password_input").val(),
     'bvn' : $("#bvn_input").val(),
     'email' : $("#email_input").val(),
-    'phoneNumber' : $("#pno_input").val(),
+    //'phoneNumber' : $("#pno_input").intlTelInput("getNumber"),
+    'phoneNumber' : pno_input.getNumber(),
     'photoURL' : ""
   }
 
@@ -144,18 +149,8 @@ var signup = function(e){
       })
       .fail(function(jqXHR, textStatus, errorThrown) {
         populate_industry();
-        console.log(jqXHR.responseText);
-        /*if (error.code != null){
-              switch(error.code) {
-                case "auth/weak-password":
-                  $("#password_span").html(error.message);
-                  break;
-                default:
-                  $("#ep_span").html(error.message);
-              } 
-            }
-            console.log(error);
-            */
+        var error = JSON.parse(jqXHR.responseText);
+        errorHandler(error);
       });
 };
 
@@ -184,19 +179,8 @@ function get_profile(){
         populate_user_view();
       })
       .fail(function(jqXHR, textStatus, errorThrown) {
-        window.location = "/signin.html";
-        console.log(jqXHR.responseText);
-        /*if (error.code != null){
-            switch(error.code) {
-              case "auth/weak-password":
-                  $("#password_span").html(error.message);
-                  break;
-                  default:
-                    $("#ep_span").html(error.message);
-              } 
-          }
-            console.log(error);
-            */
+        var error = JSON.parse(jqXHR.responseText);
+        errorHandler(error);
       });
 };
 
@@ -306,8 +290,8 @@ function checkout(key){
         window.location = data.data.authorization_url;
       })
       .fail(function(jqXHR, textStatus, errorThrown) {
-        console.log(errorThrown);
-        console.log(jqXHR.responseText);
+        var error = JSON.parse(jqXHR.responseText);
+        errorHandler(error);
       });
 }
 
@@ -324,9 +308,9 @@ function populate_user_view(){
         $("#email_input").val("");
       }
       if(window.user_json['phoneNumber'] != null && typeof(window.user_json['phoneNumber']) != undefined){
-        $("#pno_input").val(window.user_json['phoneNumber']);
+        window.pno_input.setNumber(window.user_json['phoneNumber']);
       }else{
-        $("#pno_input").val('');
+        window.pno_input.setNumber('');
       }
 
       opt = document.createElement('OPTION');
@@ -357,7 +341,8 @@ function populate_industry(){
       }
     })
     .fail(function(jqXHR, textStatus, errorThrown) {
-      console.log(jqXHR.responseText);
+      var error = JSON.parse(jqXHR.responseText);
+      errorHandler(error);
     });
 };
 
@@ -408,35 +393,46 @@ var signin = function(e){
     $.ajax(settings)
       .done(function (response) {
         var data = response;
-        console.log(data);
         localStorage["uid"] = data["user"]["uid"];
         localStorage["authorization"] = data["authorization"];
         window.location = "user.html";
       })
       .fail(function(jqXHR, textStatus, errorThrown) {
-        console.log(jqXHR.responseText);
-        /*if (error.code != null){
-            switch(error.code) {
-              case "auth/weak-password":
-                $("#password_span").html(error.message);
-                break;
-              default:
-                $("#ep_span").html(error.message);
-            } 
-          }
-          console.log(error);
-        */
+        var error = JSON.parse(jqXHR.responseText);
+        errorHandler(error);
       });
 };
 
-function isEmail(str){
+function post_error(error){
+  var endpoint = "/report_error";
+  var settings = {
+    "async": true,
+    "crossDomain": true,
+    "url": host+endpoint,
+    "contentType": "application/json",
+    "dataType": "json",
+    "method": "POST",
+    "data": JSON.stringify(error)
+  }
+
+  $.ajax(settings)
+    .done(function (response) {
+      var data = response;
+      console.log(data);
+    })
+    .fail(function(jqXHR, textStatus, errorThrown) {
+      console.log(jqXHR.responseText);
+    });
+}
+
+/*function isEmail(str){
   var format = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
   if(str.match(format)){
     return true;
   }else{
     return false;
   }
-};
+};*/
 
 function authstateobserver(user){
   /*if(user != null && user.email != null){
@@ -444,7 +440,6 @@ function authstateobserver(user){
     window.user_json = JSON.parse(JSON.stringify(window.user));
   }*/
 };
-
 
 var signout = function() {
   if(window.authorization !== null || window.authorization !== "" || typeof(window.authorization) !== undefined){
@@ -471,23 +466,6 @@ var signout = function() {
   }
 };
 
-/*
-function set_customer(uj){
-  database.ref("customers/" + window.user_json["uid"]).set(
-    window.user_json, 
-    function(error) {
-      if (error) {
-        //alert(JSON.stringify(error));
-        console.log(error);
-      } else {
-        // Data saved successfully!
-      }
-    }
-  );
-};
-function get_vendors(){
-};
-*/
 
 function addElement(parent, element) {
     parent.appendChild(element);
@@ -526,6 +504,38 @@ var geolocationCallback = function(location) {
 
 /* Handles any errors from trying to get the user's current location */
 var errorHandler = function(error) {
+  try{
+    switch(error.code) {
+      case "auth/weak-password":
+          $("#password_span").html(error.message);
+          break;
+      case "auth/wrong-password":
+          $("#password_span").html("Incorrect password");
+          break;
+      case "auth/user-disabled":
+          $("#error_span").html("Your account has been disabled contact administrator");
+          break;
+      case "auth/email-already-exists":
+          $("#email_span").html("Email Address already exists");
+          break;
+      case "auth/invalid-email":
+          $("#email_span").html("Invalid email");
+          break;
+      case "auth/user-not-found":
+          $("#ep_span").html("Account does not exist try creating an account");
+          break;
+      case "auth/phone-number-already-exists":
+          $("#pno_span").html("Phone Number already exist");
+          break;
+      case "auth/invalid-phone-number":
+          $("#pno_span").html("Phone Number is invalid.");
+          break;
+      default:
+          $("#error_span").html(error.message);
+          post_error(error);
+          break;
+    }
+  }catch(e){}
   /*
   if (error.code == 1) {
     log("Error: PERMISSION_DENIED: User denied access to their location");
@@ -557,3 +567,9 @@ function setInputFilter(textbox, inputFilter) {
     });
   });
 };
+
+/*function to_postman_JSONstringify_type(_in){
+  var strg = JSON.stringify(_in);
+  var chunks = ('"' + strg.split('"').join('\\"') + '"').split("'").join('\\"');
+  return chunks;
+}*/

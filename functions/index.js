@@ -127,10 +127,10 @@ app.post('/payment/initialize', verifyToken, json_parser, function(request, resp
 	mPay.initialize(p_details, response, mDb);
 });
 
-app.post('/payment/initialize', json_parser, function(request, response){
+/*app.post('/payment/initialize', json_parser, function(request, response){
 	var p_details = request.body;
 	mPay.initialize(p_details, response, mDb);
-});
+});*/
 
 app.get('/db/industries', function(request, response){
 	mDb.get_industry(response);
@@ -212,7 +212,12 @@ app.post('/signout/:uid', function(request, response){
 app.get('/payment/get_paystack_keys', verifyToken, json_parser, function(request, response){
 	mDb.get_paystack_keys(response);
 });
-  
+
+app.post('/report_error', json_parser, function(request, response){
+	var _in = request.body;
+	_in["epoch"] = `${Date.now()}`;
+	mDb.save_error(_in, response);
+});
 
 /*
 app.post('/signin-form', (request, response) => {

@@ -134,3 +134,14 @@ custompaystack1 {
   width: 0px;
 }
 
+.col-sm-6.col-md-5.col-lg-4.invisible.item.unused {
+  height: 0px;
+}
+
+.iti {
+  margin: 0 auto 5px auto;
+  height: 25px;
+  border-radius: 10px;
+  width: 95%;
+}
+
