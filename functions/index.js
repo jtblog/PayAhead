@@ -63,6 +63,21 @@ function verifyToken(request, response, next){
 	}
 };
 
+function isAdmin(request, response, next){
+	var idToken = request.headers.authorization;
+
+	try{
+		var _ctoken = _auth.verifyIdToken(idToken);
+		if (_ctoken.admin !== true) {
+		    response.status(401).send({"code": "auth/not-an-admin", "message" : "This Priviledge is only granted to admin users"});
+		}else{
+			return next();
+		}
+	}catch(e){
+		response.status(401).send('Unauthorized');
+	}
+};
+
 app.get('/', json_parser, function(request, response){
 	var url = request.protocol + "://" + request.headers['x-forwarded-host'];
   	response.redirect(url + '/index.html');

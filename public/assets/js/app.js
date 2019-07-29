@@ -120,6 +120,7 @@ function previewImage(input) {
 
 var signup = function(e){
   e.preventDefault();
+  reset_all_span();
   var endpoint = "/auth/signup";
   window.su_details = {
     'displayName' : $("#fn_input").val() + " " + $("#ln_input").val(),
@@ -293,7 +294,7 @@ function checkout(key){
         var error = JSON.parse(jqXHR.responseText);
         errorHandler(error);
       });
-}
+};
 
 function populate_user_view(){
   $(".profile-name").html(window.user_json['displayName']);
@@ -374,6 +375,7 @@ var verifyOTPcode = function(e){
 var signin = function(e){
   e.preventDefault();
   
+  reset_all_span();
   var endpoint = "/auth/signin"
   window.si_details = {
     'password' : $("#password_input").val(),
@@ -423,7 +425,7 @@ function post_error(error){
     .fail(function(jqXHR, textStatus, errorThrown) {
       console.log(jqXHR.responseText);
     });
-}
+};
 
 /*function isEmail(str){
   var format = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
@@ -442,6 +444,7 @@ function authstateobserver(user){
 };
 
 var signout = function() {
+  reset_all_span();
   if(window.authorization !== null || window.authorization !== "" || typeof(window.authorization) !== undefined){
     var endpoint = "/signout/" + window.user_json["uid"]
 
@@ -465,7 +468,6 @@ var signout = function() {
     window.location = "index.html";
   }
 };
-
 
 function addElement(parent, element) {
     parent.appendChild(element);
@@ -566,6 +568,13 @@ function setInputFilter(textbox, inputFilter) {
       }
     });
   });
+};
+
+function reset_all_span(){
+  var allSpans = document.getElementsByTagName('span');
+  for(var i = 0; i<allSpans.length; i++){
+    allSpans[i].innerHTML = "";
+  };
 };
 
 /*function to_postman_JSONstringify_type(_in){
