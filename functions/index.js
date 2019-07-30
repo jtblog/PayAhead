@@ -78,6 +78,21 @@ function isAdmin(request, response, next){
 	}
 };
 
+function isBusiness(request, response, next){
+	var idToken = request.headers.authorization;
+
+	try{
+		var _ctoken = _auth.verifyIdToken(idToken);
+		if (_ctoken.business !== true) {
+		    response.status(401).send({"code": "auth/not-an-business", "message" : "This Priviledge is only granted to Business Owners, Organizations or Ventures"});
+		}else{
+			return next();
+		}
+	}catch(e){
+		response.status(401).send('Unauthorized');
+	}
+};
+
 app.get('/', json_parser, function(request, response){
 	var url = request.protocol + "://" + request.headers['x-forwarded-host'];
   	response.redirect(url + '/index.html');
@@ -114,7 +129,7 @@ app.post('/auth/signup', json_parser, function(request, response){
 	if(_details["bvn"] !== null || _details["bvn"] !== "" || typeof(_details["bvn"]) !== undefined){
 		other_details["bvn"] = _details["bvn"];
 	}else{
-		response.json({
+		response.status(400).json({
 			"code" : "auth/bvn",
 			"message" : "BVN is not attached or is invalid. bvn cannot be null, empty or undefined"
 		});
@@ -124,7 +139,7 @@ app.post('/auth/signup', json_parser, function(request, response){
 	if(_details["industry"] !== null || _details["industry"] !== "" || typeof(_details["industry"]) !== undefined){
 		other_details["industry"] = _details["industry"];
 	}else{
-		response.json({
+		response.status(400).json({
 			"code" : "auth/industry",
 			"message" : "Industry is not attached or is invalid. industry cannot be null, empty or undefined"
 		});
@@ -191,7 +206,7 @@ app.post('/update_profile', verifyToken, json_parser, function(request, response
 	if(_details["bvn"] !== null || _details["bvn"] !== "" || typeof(_details["bvn"]) !== undefined){
 		other_details["bvn"] = _details["bvn"];
 	}else{
-		response.json({
+		response.status(400).json({
 			"code" : "auth/bvn",
 			"message" : "BVN is not attached or is invalid. bvn cannot be null, empty or undefined"
 		});
@@ -201,7 +216,7 @@ app.post('/update_profile', verifyToken, json_parser, function(request, response
 	if(_details["industry"] !== null || _details["industry"] !== "" || typeof(_details["industry"]) !== undefined){
 		other_details["industry"] = _details["industry"];
 	}else{
-		response.json({
+		response.status(400).json({
 			"code" : "auth/industry",
 			"message" : "Industry is not attached or is invalid. industry cannot be null, empty or undefined"
 		});
@@ -232,6 +247,75 @@ app.post('/report_error', json_parser, function(request, response){
 	var _in = request.body;
 	_in["epoch"] = `${Date.now()}`;
 	mDb.save_error(_in, response);
+});
+
+app.post('/admin/register_business', verifyToken, isAdmin, json_parser, function(request, response){
+	var _details = request.body;
+	var b_details = {};
+	b_details["emailVerified"] = false;
+	b_details["disabled"] = false;
+	b_details["displayName"] = _details["displayName"];
+	b_details["email"] = _details["email"];
+	b_details["password"] = _details["password"];
+	b_details["phoneNumber"] = _details["phoneNumber"];
+	b_details["photoURL"] = "https://firebasestorage.googleapis.com/v0/b/payahead-80360.appspot.com/o/index.png?alt=media&token=66c38ec1-6bb7-4aa6-ad09-8b394acd390f";
+	
+	var other_details = {};
+	if(_details["business_name "] !== null || _details["business_name "] !== "" || typeof(_details["business_name "]) !== undefined){
+		other_details["business_name "] = _details["business_name "];
+	}else{
+		response.status(400).json({
+			"code" : "auth/no-business-name",
+			"message" : "No business/organization/vendor name. business_name cannot be null, empty or undefined"
+		});
+		response.end();
+	}
+	
+	if(_details["settlement_bank "] !== null || _details["settlement_bank "] !== "" || typeof(_details["settlement_bank "]) !== undefined){
+		other_details["settlement_bank "] = _details["settlement_bank "];
+	}else{
+		response.status(400).json({
+			"code" : "auth/no-bank-name",
+			"message" : "No bank name. settlement_bank cannot be null, empty or undefined"
+		});
+		response.end();
+	}
+
+	if(_details["account_number "] !== null || _details["account_number "] !== "" || typeof(_details["account_number "]) !== undefined){
+		other_details["account_number "] = _details["account_number "];
+	}else{
+		response.status(400).json({
+			"code" : "auth/no-account-number",
+			"message" : "No Account Number. account_number cannot be null, empty or undefined"
+		});
+		response.end();
+	}
+
+	if(_details["percentage_charge "] !== null || _details["percentage_charge "] !== "" || typeof(_details["percentage_charge "]) !== undefined){
+		other_details["percentage_charge "] = _details["percentage_charge "];
+	}else{
+		response.status(400).json({
+			"code" : "auth/no-percentage-charge",
+			"message" : "No Percentage Charge. percentage_charge cannot be null, empty or undefined"
+		});
+		response.end();
+	}
+
+	if(_details["industry"] !== null || _details["industry"] !== "" || typeof(_details["industry"]) !== undefined){
+		other_details["industry"] = _details["industry"];
+	}else{
+		response.status(400).json({
+			"code" : "auth/industry",
+			"message" : "Industry is not attached or is invalid. industry cannot be null, empty or undefined"
+		});
+		response.end();
+	}
+	mAuth.register_business(b_details, other_details, response, mDb);
+});
+
+app.post('/admin/add_admin', verifyToken, isAdmin, json_parser, function(request, response){
+	var _details = request.body;
+	mAuth.add_admin(_details, response);
 });
 
 /*
