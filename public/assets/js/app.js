@@ -294,7 +294,7 @@ function checkout(key){
         var error = JSON.parse(jqXHR.responseText);
         errorHandler(error);
       });
-};
+}
 
 function populate_user_view(){
   $(".profile-name").html(window.user_json['displayName']);
@@ -425,7 +425,7 @@ function post_error(error){
     .fail(function(jqXHR, textStatus, errorThrown) {
       console.log(jqXHR.responseText);
     });
-};
+}
 
 /*function isEmail(str){
   var format = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
@@ -468,6 +468,7 @@ var signout = function() {
     window.location = "index.html";
   }
 };
+
 
 function addElement(parent, element) {
     parent.appendChild(element);
@@ -575,7 +576,7 @@ function reset_all_span(){
   for(var i = 0; i<allSpans.length; i++){
     allSpans[i].innerHTML = "";
   };
-};
+}
 
 /*function to_postman_JSONstringify_type(_in){
   var strg = JSON.stringify(_in);

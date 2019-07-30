@@ -192,4 +192,21 @@ payaheadAuth.prototype.add_admin = function (_details, response) {
 		});
 };
 
+payaheadAuth.prototype.remove_admin = function(_details, response){
+	_auth2.getUserByEmail(_details["email"])
+		.then(function(user) {
+		    _auth2.setCustomUserClaims(user.uid, {
+		    	admin : false,
+		    })
+		    .catch(function(error) {
+				console.log(error);
+				response.status(400).json(error);
+			});	
+		})
+		.catch(function(error) {
+		    console.log(error);
+		    response.status(400).json(error);
+		});
+};
+
 module.exports = payaheadAuth;
