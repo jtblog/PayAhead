@@ -157,7 +157,8 @@ var signup = function(e){
 
 function get_profile(){
 
-  var endpoint = "/get_profile/" + localStorage["uid"];
+  if( localStorage["uid"] != null && typeof(localStorage["uid"]) != undefined ){
+    var endpoint = "/get_profile/" + localStorage["uid"];
       
     var settings = {
       "async": true,
@@ -183,11 +184,16 @@ function get_profile(){
         var error = JSON.parse(jqXHR.responseText);
         errorHandler(error);
       });
+  }else{
+    window.location = "signin.html";
+  }
+  
 };
 
 function prepare_for_payment(){
 
-  var endpoint = "/get_profile/" + localStorage["uid"];
+  if( localStorage["uid"] != null && typeof(localStorage["uid"]) != undefined ){
+    var endpoint = "/get_profile/" + localStorage["uid"];
       
     var settings = {
       "async": true,
@@ -229,6 +235,10 @@ function prepare_for_payment(){
             console.log(error);
             */
       });
+  }else{
+    window.location = "signin.html";
+  }
+
 };
 
 var pay_popup = function(e){
