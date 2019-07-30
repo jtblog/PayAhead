@@ -13,12 +13,12 @@
         ".write": "$uid === newData.child('uid').val()"
       }
     },
-    "reports": {
+    /*"reports": {
       "$uid": {
         ".read": "$uid === auth.uid",
         ".write": "$uid === auth.uid"
       }
-    },
+    },*/
     "authorization": {
       ".read": "true",
       ".write": "true"
@@ -31,28 +31,15 @@
         ".write": "false"
       }
     },
-    "vendors": {
-      "$uid": {
-        ".read": "$uid === auth.uid",
-        ".write": "$uid === auth.uid"
-      }
-    },
     "logs":{
       ".read": "true",
       ".write": "true"
     },
-    /*
     "payments": {
-      "$uid": {
+      "$reference": {
         ".read": "$uid === auth.uid",
-        ".write": "$uid === auth.uid"
+        ".write": "newData.hasChildren(['payer_id', 'payee_id', epoch])"
       }
-    },
-    "customers": {
-      "$uid": {
-        ".read": "$uid === auth.uid",
-        ".write": "$uid === auth.uid"
-      }
-    }*/
+    }
   }
 }

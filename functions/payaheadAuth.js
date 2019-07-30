@@ -85,6 +85,7 @@ payaheadAuth.prototype.signup = function (su_details, other_details, response, m
 		    	_auth2.setCustomUserClaims(user.uid, {
 				 	admin: true,
 				});
+				other_details["isAdmin"] = true;
 		    }
 		    _auth1.signInWithEmailAndPassword(other_details["email"], other_details["password"])
 				.then(function(user) {
