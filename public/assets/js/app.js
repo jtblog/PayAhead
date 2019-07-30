@@ -187,7 +187,6 @@ function get_profile(){
   }else{
     window.location = "signin.html";
   }
-  
 };
 
 function prepare_for_payment(){
@@ -238,7 +237,6 @@ function prepare_for_payment(){
   }else{
     window.location = "signin.html";
   }
-
 };
 
 var pay_popup = function(e){

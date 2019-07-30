@@ -1,5 +1,20 @@
 {
+  "targets": {
+    "payahead-80360": {
+      "hosting": {
+        "payahead-80360": [
+          "payahead-80360"
+        ],
+        "payahead": [
+          "payahead"
+        ],
+        "target-name": [
+          "site-name"
+        ]
+      }
+    }
+  },
   "projects": {
-    "default": "payahead-80360"
+    "production": "payahead-80360"
   }
 }

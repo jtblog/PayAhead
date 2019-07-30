@@ -109,9 +109,21 @@ app.get('/signup', json_parser, function(request, response){
 });
 
 app.post('/auth/signin', json_parser, function(request, response){
-	var credential_name = request.body["emailOrPhoneNumber"];
-	var credential_password = request.body["password"];
-	mAuth.signin(credential_name, credential_password, response, mDb);
+	var _details = request.body;
+	var credential_name = _details["emailOrPhoneNumber"];
+	var credential_password = _details["password"];
+
+	if(credential_name !== null || credential_name !== "" || typeof(credential_name) !== undefined){
+		mAuth.signin(credential_name, credential_password, response, mDb);
+	}else{
+		var error = {
+    		"code": "auth/not-email-or-phone",
+    		"message": "This is neither an email address nor a phone number"
+		}
+		response.status(400).json(error);
+		response.end();
+	}
+	
 });
 
 app.post('/auth/signup', json_parser, function(request, response){
@@ -315,7 +327,40 @@ app.post('/admin/register_business', verifyToken, isAdmin, json_parser, function
 
 app.post('/admin/add_admin', verifyToken, isAdmin, json_parser, function(request, response){
 	var _details = request.body;
-	mAuth.add_admin(_details, response);
+	var credential_name = _details["emailOrPhoneNumber"];
+	var credential_password = _details["password"];
+
+	if(credential_name !== null || credential_name !== "" || typeof(credential_name) !== undefined){
+		mAuth.add_admin(credential_name, response);
+	}else{
+		var error = {
+    		"code": "auth/not-email-or-phone",
+    		"message": "This is neither an email address nor a phone number"
+		}
+		response.status(400).json(error);
+		response.end();
+	}
+});
+
+app.post('/admin/remove_admin', verifyToken, isAdmin, json_parser, function(request, response){
+	var _details = request.body;
+	var credential_name = _details["emailOrPhoneNumber"];
+	var credential_password = _details["password"];
+
+	if(credential_name !== null || credential_name !== "" || typeof(credential_name) !== undefined){
+		mAuth.remove_admin(credential_name, response);
+	}else{
+		var error = {
+    		"code": "auth/not-email-or-phone",
+    		"message": "This is neither an email address nor a phone number"
+		}
+		response.status(400).json(error);
+		response.end();
+	}
+});
+
+app.get('/admin/db/get_tranactions', verifyToken, isAdmin, json_parser, function(request, response){
+	
 });
 
 /*

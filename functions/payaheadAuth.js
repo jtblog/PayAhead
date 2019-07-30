@@ -175,38 +175,90 @@ payaheadAuth.prototype.register_business = function (b_details, other_details, r
 		});		
 }; 
 
-payaheadAuth.prototype.add_admin = function (_details, response) {
-	_auth2.getUserByEmail(_details["email"])
-		.then(function(user) {
-		    _auth2.setCustomUserClaims(user.uid, {
-		    	admin : true,
+payaheadAuth.prototype.add_admin = function (credential_name, response) {
+	if(validator.isEmail(credential_name)){
+		_auth2.getUserByEmail(credential_name)
+		    .then(function(user) {
+		    	 _auth2.setCustomUserClaims(user.uid, {
+				    	admin : true,
+				    })
+				    .catch(function(error) {
+						console.log(error);
+						response.status(400).json(error);
+					});	
 		    })
 		    .catch(function(error) {
-				console.log(error);
-				response.status(400).json(error);
-			});	
-		})
-		.catch(function(error) {
-		    console.log(error);
-		    response.status(400).json(error);
-		});
+		    	console.log(error);
+		      	response.status(400).json(error);
+		  	});
+	}else{
+		if(validator.isMobilePhone(credential_name)){
+			_auth.getUserByPhoneNumber(credential_name)
+				.then(function(user) {
+			        _auth2.setCustomUserClaims(user.uid, {
+				    	admin : true,
+				    })
+				    .catch(function(error) {
+						console.log(error);
+						response.status(400).json(error);
+					});	
+				})
+			    .catch(function(error) {
+			    	console.log(error);
+			   		response.status(400).json(error);
+				});
+		}else{
+			var error = {
+    			"code": "auth/not-email-or-phone",
+    			"message": "This is neither an email address nor a phone number"
+			}
+			response.status(400).json(error);
+		}
+	}
 };
 
-payaheadAuth.prototype.remove_admin = function(_details, response){
-	_auth2.getUserByEmail(_details["email"])
-		.then(function(user) {
-		    _auth2.setCustomUserClaims(user.uid, {
-		    	admin : false,
+payaheadAuth.prototype.remove_admin = function(credential_name, response){
+	if(validator.isEmail(credential_name)){
+		_auth2.getUserByEmail(credential_name)
+		    .then(function(user) {
+		    	 _auth2.setCustomUserClaims(user.uid, {
+				    	admin : false,
+				    })
+				    .catch(function(error) {
+						console.log(error);
+						response.status(400).json(error);
+					});	
 		    })
 		    .catch(function(error) {
-				console.log(error);
-				response.status(400).json(error);
-			});	
-		})
-		.catch(function(error) {
-		    console.log(error);
-		    response.status(400).json(error);
-		});
+		    	console.log(error);
+		      	response.status(400).json(error);
+		  	});
+	}else{
+		if(validator.isMobilePhone(credential_name)){
+			_auth.getUserByPhoneNumber(credential_name)
+				.then(function(user) {
+			        _auth2.setCustomUserClaims(user.uid, {
+				    	admin : false,
+				    })
+				    .catch(function(error) {
+						console.log(error);
+						response.status(400).json(error);
+					});	
+				})
+			    .catch(function(error) {
+			    	console.log(error);
+			   		response.status(400).json(error);
+				});
+		}else{
+			var error = {
+    			"code": "auth/not-email-or-phone",
+    			"message": "This is neither an email address nor a phone number"
+			}
+			response.status(400).json(error);
+		}
+	}
 };
+
+
 
 module.exports = payaheadAuth;

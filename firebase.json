@@ -13,18 +13,34 @@
     "ignore": [],*/
     "source": "functions"
   },
-  "hosting": {
-    "public": "public",
-    //"ignore": [
-    //  "firebase.json",
-    //  "**/.*",
-    //  "**/node_modules/**"
-    //],
-    "rewrites": [{
-      "source": "**",
-      "function": "app"
-    }]
-  },
+  "hosting": [
+    {
+      "target": "payahead-80360",
+      "public": "public",
+      //"ignore": [
+      //  "firebase.json",
+      //  "**/.*",
+      //  "**/node_modules/**"
+      //],
+      "rewrites": [{
+        "source": "**",
+        "function": "app"
+      }]
+    },
+    {
+      "target": "payahead",
+      "public": "public",
+      //"ignore": [
+      //  "firebase.json",
+      //  "**/.*",
+      //  "**/node_modules/**"
+      //],
+      "rewrites": [{
+        "source": "**",
+        "function": "app"
+      }]
+    }
+  ],
   "storage": {
     "rules": "storage.rules"
   }
