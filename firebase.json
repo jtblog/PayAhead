@@ -17,11 +17,12 @@
     {
       "target": "payahead-80360",
       "public": "public",
-      //"ignore": [
+      "ignore": [
+          "admin"
       //  "firebase.json",
       //  "**/.*",
       //  "**/node_modules/**"
-      //],
+      ],
       "rewrites": [{
         "source": "**",
         "function": "app"
@@ -30,11 +31,12 @@
     {
       "target": "payahead",
       "public": "public",
-      //"ignore": [
+      "ignore": [
+          "admin"
       //  "firebase.json",
       //  "**/.*",
       //  "**/node_modules/**"
-      //],
+      ],
       "rewrites": [{
         "source": "**",
         "function": "app"

@@ -1,76 +1,39 @@
-var host = window.location.href.slice(0, window.location.href.lastIndexOf("/"));
+/*var host = window.location.href.slice(0, window.location.href.lastIndexOf("/"));
 
 var authorization, user_json;
 var cre_ac_cntr, cre_ac_frm, vrfy_otp_frm;
 
-var organizations = {}; 
+var vendors = {}; 
 var customers = {};
-var transactions = {};
+var payments = {};
 
 window.prepare_firebase = function(){
-  
+
+  /*var script = document.createElement("script");
+  script.setAttribute("type", "text/javascript");
+  script.innerHTML = "if ('serviceWorker' in navigator) { \
+                          window.addEventListener('load', () => { \
+                            navigator.serviceWorker.register('/service-worker.js') \
+                                .then((reg) => {\
+                                  console.log('Service worker registered.', reg); \
+                                }); \
+                          }); \
+                        }";
+  document.getElementsByTagName("body")[0].appendChild(script);*
+
+  //window.auth.onAuthStateChanged(authstateobserver);
   var site = window.location.href+"";
-  switch(site){
-    case host+"/":
-      break;
-    case host:
-      break;
-    case host+"/user":
-      usr();
-      break;
-    case host+"/user.html":
-      usr();
-      break;
-    case host+"/signin":
-      $("#login_form").submit(signin);
-      break;
-    case host+"/signin.html":
-      $("#login_form").submit(signin);
-      break;
-    case host+"/signup":
-      sgup();
-      break;
-    case host+"/signup.html":
-      sgup();
-      break;
-    case host+"/pay":
-      py();
-      break;
-    case host+"/pay.html":
-      py();
-      break;
-  }
-  
-};
-
-function py(){
-  if( document.getElementById("amount_input") != undefined){
-      setInputFilter(document.getElementById("amount_input"), function(value) {
-        return /^\d*$/.test(value);
-      });
-  }
-  prepare_for_payment();
-  $("#payment_form").submit(pay_popup);
-};
-
-function usr(){
-  var input = document.querySelector("#pno_input");
-    window.pno_input = window.intlTelInput(input);
-    get_profile();
-    $("#signout_btn").click(signout);
-};
-
-function sgup(){
+  if(site.endsWith("signup.html") || site.indexOf("signup.html")>-1){
     if( document.getElementById("bvn_input") != undefined){
       setInputFilter(document.getElementById("bvn_input"), function(value) {
         return /^\d*$/.test(value);
       });
-    };
+    }
     if( document.getElementById("otp_input") != undefined){
       setInputFilter(document.getElementById("otp_input"), function(value) {
         return /^\d*$/.test(value);
       });
-    };
+    }
     
     //document.getElementById('firebaseui-auth-container').innerHTML = "";
     window.cre_ac_cntr = document.getElementById("create_acct_container");
@@ -81,6 +44,28 @@ function sgup(){
     var input = document.querySelector("#pno_input");
     window.pno_input = window.intlTelInput(input);
     populate_industry();
+  }
+
+  if(site.endsWith("signin.html") || site.indexOf("signin.html")>-1){
+    $("#login_form").submit(signin);
+  }
+
+  if(site.endsWith("user.html") || site.indexOf("user.html")>-1){
+    var input = document.querySelector("#pno_input");
+    window.pno_input = window.intlTelInput(input);
+    get_profile();
+    $("#signout_btn").click(signout);
+  }
+
+  if(site.endsWith("pay.html") || site.indexOf("pay.html")>-1){
+    if( document.getElementById("amount_input") != undefined){
+      setInputFilter(document.getElementById("amount_input"), function(value) {
+        return /^\d*$/.test(value);
+      });
+    }
+    prepare_for_payment();
+    $("#payment_form").submit(pay_popup);
+  }
 };
 
 var initApp = function() {
@@ -97,10 +82,10 @@ function prepare_dependencies(){
     script.setAttribute("type", "text/javascript");
     script.setAttribute("src", folder+libs[i]);
     document.getElementsByTagName("head")[0].appendChild(script);
-  }*/
+  }/*
   setTimeout(window.prepare_firebase, 1000);
   /*08033953050
-  08085221450*/
+  08085221450*
 };
 
 window.addEventListener('load', initApp);
@@ -121,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function previewImage(input) {
-  if (input.files || input.files[0]) {
+  if (input.files && input.files[0]) {
     var reader = new FileReader();
     reader.onload = function (e) {
       if(typeof(document.getElementById('profilepic')) != undefined){
@@ -172,9 +157,7 @@ var signup = function(e){
 
 function get_profile(){
 
-  if(isNullOrUndefinedOrEmpty(localStorage["uid"])){
-    window.location = "signin.html";
-  }else{
+  if( localStorage["uid"] != null && typeof(localStorage["uid"]) != undefined ){
     var endpoint = "/get_profile/" + localStorage["uid"];
       
     var settings = {
@@ -196,29 +179,22 @@ function get_profile(){
         window.user_json = data["user"];
         window.authorization = data["authorization"];
         populate_user_view();
-        get_organizations();
       })
       .fail(function(jqXHR, textStatus, errorThrown) {
         var error = JSON.parse(jqXHR.responseText);
         errorHandler(error);
       });
+  }else{
+    window.location = "signin.html";
   }
+  
 };
 
 function prepare_for_payment(){
 
-  if( isNullOrUndefinedOrEmpty(localStorage["uid"]) ){
-    window.location = "signin.html";
-  }else{
-    
-    if( isNullOrUndefinedOrEmpty(localStorage["sub_details0"]) ){
-      window.location = "user.html";
-    }else{
-      window.sub_details0 = JSON.parse(localStorage["sub_details0"]);
-    }
-
+  if( localStorage["uid"] != null && typeof(localStorage["uid"]) != undefined ){
     var endpoint = "/get_profile/" + localStorage["uid"];
-
+      
     var settings = {
       "async": true,
       "crossDomain": true,
@@ -237,6 +213,7 @@ function prepare_for_payment(){
         var data = response;
         window.user_json = data["user"];
         window.authorization = data["authorization"];
+        //populate_user_view();
         var script = document.createElement("script");
         script.setAttribute("type", "text/javascript");
         script.setAttribute("src", "https://js.paystack.co/v1/inline.js");
@@ -245,24 +222,36 @@ function prepare_for_payment(){
       .fail(function(jqXHR, textStatus, errorThrown) {
         window.location = "/signin.html";
         console.log(jqXHR.responseText);
-        var error = JSON.parse(jqXHR.responseText);
-        errorHandler(error);
+        
+        /*if (error.code != null){
+            switch(error.code) {
+              case "auth/weak-password":
+                  $("#password_span").html(error.message);
+                  break;
+                  default:
+                    $("#ep_span").html(error.message);
+              } 
+          }
+            console.log(error);
+            *
       });
+  }else{
+    window.location = "signin.html";
   }
+
 };
 
 var pay_popup = function(e){
   e.preventDefault();
 
-  var secret = {};
-
   var config = {
-    "email" : window.user_json["email"],
-    " amount" : "" + ($("#amount_input").val() * 100),
-    //"bearer": "account" or "subaccount",
-    "subaccount": window.sub_details0["subaccount"],
+    key: 'pk_test_448800889e222223b1407c1bae6e57b612aeb8f0', 
+    email: window.user_json["email"],
+    amount: "" + ($("#amount_input").val() * 100),
+    firstname: window.user_json['displayName'].split(" ")[0],
+    lastname: window.user_json['displayName'].split(" ")[1], 
     onClose: function(){
-      //alert('Window closed.');
+      alert('Window closed.');
     },
     callback: function(response){
       var message = 'Payment complete! Reference: ' + response.reference;
@@ -284,13 +273,15 @@ var pay_popup = function(e){
 
   $.ajax(settings).done(function (response) {
     var data = response;
-    secret["p_key"] = data["p_key"];
-    secret["s_key"] = data["s_key"];
-    checkout(secret["s_key"], config);
+    config["p_key"] = data["p_key"];
+    config["s_key"] = data["s_key"];
+    checkout(config["s_key"]);
+    // paystackPopup = new Popup(config);
+    //paystackPopup.open();
   }); 
 };
 
-function checkout(key, config){
+function checkout(key){
   var settings = {
       "async": true,
       "crossDomain": true,
@@ -301,7 +292,7 @@ function checkout(key, config){
       "headers" : {
         "Authorization" : "Bearer " + key
       },
-      "data": JSON.stringify(config)
+      "data": JSON.stringify({"email" : window.user_json["email"], "amount" : "" + ($("#amount_input").val() * 100) })
     }
 
     $.ajax(settings)
@@ -322,12 +313,12 @@ function populate_user_view(){
       $("#password_input").val(window.user_json['password']);
       $("#bvn_input").val(window.user_json['bvn']);
 
-      if( isNullOrUndefinedOrEmpty(window.user_json['email'])){
-       $("#email_input").val(""); 
-      }else{
+      if(window.user_json['email'] != null && typeof(window.user_json['email']) != undefined){
         $("#email_input").val(window.user_json['email']);
+      }else{
+        $("#email_input").val("");
       }
-      if(isNullOrUndefinedOrEmpty(window.user_json['phoneNumber'])){
+      if(window.user_json['phoneNumber'] != null && typeof(window.user_json['phoneNumber']) != undefined){
         window.pno_input.setNumber(window.user_json['phoneNumber']);
       }else{
         window.pno_input.setNumber('');
@@ -388,7 +379,7 @@ var verifyOTPcode = function(e){
     }
     console.log(error);
   });
-  */
+  *
 };
 
 var signin = function(e){
@@ -424,104 +415,6 @@ var signin = function(e){
       });
 };
 
-function get_organizations(){
-
-  if( isNullOrUndefinedOrEmpty(localStorage["authorization"]) ){
-    window.location = "signin.html";
-  }else{
-    var endpoint = "/db/get_organizations/";
-      
-    var settings = {
-      "async": true,
-      "crossDomain": true,
-      "url": host+endpoint,
-      "method": "GET",
-      //"contentType": "application/json",
-      //"dataType": "json",
-      "headers" : {
-        "authorization" : localStorage["authorization"],
-      },
-      "data": ""
-    }
-
-    $.ajax(settings)
-      .done(function (response) {
-        var data = response;
-        window.organizations = data;
-        populate_organizations_view();
-      })
-      .fail(function(jqXHR, textStatus, errorThrown) {
-        var error = JSON.parse(jqXHR.responseText);
-        errorHandler(error);
-      });
-  }
-};
-
-function populate_organizations_view(){
-  document.getElementById("organizations").innerHTML = window.company1 + "<br> No registered vendors /organization for now. Try again later"
-  Object.keys(window.organizations).forEach(function(key) {
-    var o_view = window.company1 + window.company3 + window.organizations[key]["business_name"] + window.company5 +
-      window.organizations[key]["description"] + window.company7 + window.organizations[key]["industry"] + window.company9;
-    o_view.replace("business_uid", key);
-    document.getElementById("organizations").innerHTML = o_view;
-    $('#' + key + "_ahref").click(go_to_paymentpage);
-  });
-};
-
-var go_to_paymentpage = function(e){
-  var id = $(this).attr('id');
-  id = id.replace("_ahref", "");
-  Object.keys(window.organizations).forEach(function(key) {
-    if(key == id){
-      localStorage["sub_details0"] = window.organizations[key];
-    }
-  })
-}
-
-function get_transactions(){
-  if( isNullOrUndefinedOrEmpty(localStorage["authorization"])){
-    window.location = "signin.html";
-  }else{
-    var endpoint = "/payment/get_transactions/";
-      
-    var settings = {
-      "async": true,
-      "crossDomain": true,
-      "url": host+endpoint,
-      "method": "GET",
-      //"contentType": "application/json",
-      //"dataType": "json",
-      "headers" : {
-        "authorization" : localStorage["authorization"],
-      },
-      "data": ""
-    }
-
-    $.ajax(settings)
-      .done(function (response) {
-        var data = response;
-        window.transactions = data;
-        populate_transactions_view();
-      })
-      .fail(function(jqXHR, textStatus, errorThrown) {
-        var error = JSON.parse(jqXHR.responseText);
-        errorHandler(error);
-      });
-  }
-};
-
-function populate_transactions_view(){
-  document.getElementById("transactions").innerHTML = window.trans1 + "<br> No transactions"
-  Object.keys(window.transactions).forEach(function(key) {
-    var t_view = window.trans1 + window.trans3 + window.transactions[key]["payment_id"] + window.trans5 +
-      window.transactions[key]["payee"] + window.trans7 + window.transactions[key]["payer"] + window.trans9 + 
-      window.transactions[key]["datePayed"] + window.trans11 + window.transactions[key]["dateVerified"] + window.trans13;
-    t_view.replace("payment_id", key);
-    document.getElementById("transactions").innerHTML = t_view;
-    $('#' + key + "_ahref").click(go_to_refundpage);
-  });
-};
-
 function post_error(error){
   var endpoint = "/report_error";
   var settings = {
@@ -551,14 +444,18 @@ function post_error(error){
   }else{
     return false;
   }
-};*/
+};*
+
+function authstateobserver(user){
+  /*if(user != null && user.email != null){
+    window.user = user;
+    window.user_json = JSON.parse(JSON.stringify(window.user));
+  }*
+};
 
 var signout = function() {
   reset_all_span();
-  if(isNullOrUndefinedOrEmpty(window.authorization)){
-    window.location = "index.html";
-  }else{
-    
+  if(window.authorization !== null || window.authorization !== "" || typeof(window.authorization) !== undefined){
     var endpoint = "/signout/" + window.user_json["uid"]
 
     var settings = {
@@ -577,8 +474,11 @@ var signout = function() {
       window.location = "index.html";
       console.log(response);
     });
+  }else{
+    window.location = "index.html";
   }
 };
+
 
 function addElement(parent, element) {
     parent.appendChild(element);
@@ -590,7 +490,7 @@ function removeElement(elementId) {
 };
 
 function get_current_location(){
-  if (typeof navigator !== "undefined" || typeof navigator.geolocation !== "undefined") {
+  if (typeof navigator !== "undefined" && typeof navigator.geolocation !== "undefined") {
     //log("Asking user to get their location");
     navigator.geolocation.getCurrentPosition(geolocationCallback, errorHandler);
   } else {
@@ -608,14 +508,14 @@ function get_current_location(){
 // Create a new GeoFire instance at the random Firebase location
 //var geoFire = new GeoFire(firebaseRef);
 
-/* Callback method from the geolocation API which receives the current user's location */
+/* Callback method from the geolocation API which receives the current user's location *
 var geolocationCallback = function(location) {
   var latitude = location.coords.latitude;
   var longitude = location.coords.longitude;
   //firebaseRef.child(username).onDisconnect().remove();
 };
 
-/* Handles any errors from trying to get the user's current location */
+/* Handles any errors from trying to get the user's current location *
 var errorHandler = function(error) {
   try{
     switch(error.code) {
@@ -663,7 +563,7 @@ var errorHandler = function(error) {
     log("Unexpected error code");
     alert("Unexpected error code");
   }
-  */
+  *
 };
 
 function setInputFilter(textbox, inputFilter) {
@@ -687,34 +587,6 @@ function reset_all_span(){
     allSpans[i].innerHTML = "";
   };
 }
-
-function isNullOrUndefinedOrEmpty(_in){
-  switch(_in){
-    case null:
-      return true;
-      break;
-    case undefined:
-      return true;
-      break;
-    case "null":
-      return true;
-      break;
-    case "undefined":
-      return true;
-      break;
-    default:
-      return false;
-      break;
-  };
-
-  if(typeof _in == "string"){
-    if(_in.trim() == ""){
-      return true;
-    }
-  }else if(typeof _in == "undefined"){
-    return true;
-  }
-};
 
 /*function to_postman_JSONstringify_type(_in){
   var strg = JSON.stringify(_in);

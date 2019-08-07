@@ -5,18 +5,20 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>PayAhead</title>
-    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/assets/fonts/fontawesome-all.min.css">
-    <link rel="stylesheet" href="/assets/fonts/font-awesome.min.css">
-    <link rel="stylesheet" href="/assets/fonts/ionicons.min.css">
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
+    <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
+    <link rel="stylesheet" href="assets/fonts/ionicons.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Actor">
-    <link rel="stylesheet" href="/assets/css/Features-Boxed.css">
-    <link rel="stylesheet" href="/assets/css/Features-Clean.css">
-    <link rel="stylesheet" href="/assets/css/Footer-Dark.css">
-    <link rel="stylesheet" href="/assets/css/intlTelInput.css">
-    <link rel="stylesheet" href="/assets/css/Profile-Card-1.css">
-    <link rel="stylesheet" href="/assets/css/Profile-Card.css">
-    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/Features-Boxed.css">
+    <link rel="stylesheet" href="assets/css/Features-Clean.css">
+    <link rel="stylesheet" href="assets/css/Footer-Dark.css">
+    <link rel="stylesheet" href="assets/css/intlTelInput.css">
+    <link rel="stylesheet" href="assets/css/Profile-Card-1.css">
+    <link rel="stylesheet" href="assets/css/Profile-Card.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+      <script src="assets/js/resources.js"></script>
+
       <!-- Added link rel manifest -->
       <link rel="manifest" href="/manifest.json">
 
@@ -57,19 +59,20 @@
                     <li class="dropdown nav-item"><a class="dropdown-toggle nav-link" data-toggle="dropdown" aria-expanded="false" href="#" style="color: white;">Help</a>
                         <div class="dropdown-menu" role="menu"><a class="dropdown-item" role="presentation" href="#">First Item</a><a class="dropdown-item" role="presentation" href="#">Second Item</a><a class="dropdown-item" role="presentation" href="#">Third Item</a></div>
                     </li>
-                </ul><span class="text-center visible navbar-text actions"> <a class="invisible login" href="/signin.html" style="color: white;">Sign In</a><a class="btn btn-light action-button" role="button" href="/pay.html" style="color: white;">Test Pay</a></span></div>
+                </ul><span class="text-center visible navbar-text actions"> <a class="invisible login" href="signin.html" style="color: white;">Sign In</a><a class="btn btn-light action-button" role="button" href="pay.html" style="color: white;">Test Pay</a></span></div>
         </div>
     </nav>
     <div style="max-height: 550px;margin: 0 auto;max-width: 360px;">
         <ul class="nav nav-tabs">
-            <li class="nav-item"><a class="nav-link active" role="tab" data-toggle="tab" href="#tab-1"><i class="fa fa-user" style="font-size: larger;"></i><span style="font-size: smaller;">&nbsp;Profile</span></a></li>
-            <li class="nav-item"><a class="nav-link" role="tab" data-toggle="tab" href="#tab-2"><i class="fa fa-money"></i><span style="font-size: smaller;">&nbsp;Reports</span></a></li>
-            <li class="nav-item"><a class="nav-link" role="tab" data-toggle="tab" href="#tab-3"><i class="far fa-building"></i>&nbsp;<span style="font-size: smaller;">Vendors</span></a></li>
+            <li class="nav-item"><a class="nav-link active" role="tab" data-toggle="tab" href="#tab-1" style="padding: 5px;"><i class="fa fa-user" style="font-size: larger;"></i><span style="font-size: smaller;">&nbsp;Profile</span></a></li>
+            <li class="nav-item"><a class="nav-link" role="tab" data-toggle="tab" href="#tab-2" style="padding: 5px;"><i class="fa fa-money"></i><span style="font-size: 14px;">&nbsp;Payments</span></a></li>
+            <li class="nav-item"><a class="nav-link" role="tab" data-toggle="tab" href="#tab-3" style="padding: 5px;"><i class="far fa-building"></i>&nbsp;<span style="font-size: smaller;">Vendors</span></a></li>
+            <li class="nav-item"><a class="nav-link visible" role="tab" data-toggle="tab" href="#tab-4" style="font-size: 14px;padding: 5px;height: 100%;"><i class="fas fa-users"></i>&nbsp;Users</a></li>
         </ul>
-        <div class="tab-content" style="-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;max-width: 360px;max-height: 550px;margin-bottom: 10px;">
+        <div class="tab-content" style="-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;max-width: 360px;max-height: 550px;margin-bottom: 30px;">
             <div class="tab-pane active" role="tabpanel" id="tab-1">
                 <div class="profile-card">
-                    <div class="profile-back"></div><img class="rounded-circle profile-pic" src="/assets/img/2.jpg">
+                    <div class="profile-back"></div><img class="rounded-circle profile-pic" src="assets/img/2.jpg">
                     <h3 class="profile-name">FirstName LastName</h3>
                     <form id="update_form">
                         <div class="form-group"><input class="form-control" type="text" name="firstname" required="" placeholder="First Name" autocomplete="on" id="fn_input"></div>
@@ -93,15 +96,62 @@
     </div>
     </div>
     <div class="tab-pane" role="tabpanel" id="tab-2">
-        <p>Content for tab 2.</p>
+        <div class="card" id="transactions">
+            <div class="input-group">
+                <div class="input-group-prepend"></div><input class="form-control" type="text">
+                <div class="input-group-append"><button class="btn btn-primary" type="button" style="padding: 0px;">Query</button></div>
+            </div>
+            <div class="card-body invisible" style="padding: 10px;">
+                <h6 class="text-muted card-subtitle mb-2" style="font-size: 12px;">Payment ID</h6>
+                <h6 class="text-muted card-subtitle mb-2" style="font-size: 12px;">Payed to</h6>
+                <h6 class="text-muted card-subtitle mb-2" style="font-size: 12px;">Payed by</h6>
+                <h6 class="text-muted card-subtitle mb-2" style="font-size: 12px;">Time of pay</h6>
+                <div><a class="btn btn-primary" data-toggle="collapse" aria-expanded="true" aria-controls="collapse-1" role="button" href="#collapse-1" style="width: 100%;padding: 0px;height: 15px;margin: 0px;font-size: 11px;"><i class="fa fa-angle-down"></i></a>
+                    <div
+                        class="collapse show" id="collapse-1">
+                        <div><a href="#" style="font-size: 14px;margin: 5px;">Request refund</a></div><label style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;margin-bottom: 0px;height: 34px;">Verified on :&nbsp;<br></label></div>
+            </div>
+        </div>
+    </div>
     </div>
     <div class="tab-pane" role="tabpanel" id="tab-3">
-        <p>Content for tab 3.</p>
+        <div class="card" id="organizations">
+            <div class="input-group">
+                <div class="input-group-prepend"></div><input class="form-control" type="text">
+                <div class="input-group-append"><button class="btn btn-primary" type="button" style="padding: 0px;">Query</button></div>
+            </div>
+            <div class="card-body invisible" style="padding: 10px;">
+                <h6 class="text-muted card-subtitle mb-2" style="margin: 0px;">Company Name</h6>
+                <p class="card-text" style="font-size: 13px;margin: 0px;">Nullam id dolor id nibh ultricies vehicula ut id elit. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Donec id elit non mi porta gravida at eget metus.</p>
+                <h6 class="text-muted card-subtitle mb-2" style="font-size: 12px;margin: 0px;"></h6>
+                <div><a class="btn btn-primary" data-toggle="collapse" aria-expanded="true" aria-controls="collapse-1" role="button" href="#collapse-1" style="width: 100%;padding: 0px;height: 15px;margin: 0px;font-size: 11px;"><i class="fa fa-angle-down"></i></a>
+                    <div
+                        class="collapse show" id="collapse-1">
+                        <div><a href="#" style="font-size: 14px;margin: 5px;">Pay</a></div><label style="font-size: 14px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;margin-bottom: 0px;">Industry :<br></label></div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <div class="tab-pane" role="tabpanel" id="tab-4">
+        <div class="card">
+            <div class="input-group">
+                <div class="input-group-prepend"></div><input class="form-control" type="text">
+                <div class="input-group-append"><button class="btn btn-primary" type="button" style="padding: 0px;">Query</button></div>
+            </div>
+            <div class="card-body" style="padding: 10px;">
+                <h6 class="text-muted card-subtitle mb-2" style="margin: 0px;">displayName</h6><label style="font-size: 14px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;margin-bottom: 0px;">Email : abc@example.com<br></label><label style="font-size: 14px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;/*overflow: scroll;*/overflow: -moz-scrollbars-none;margin-bottom: 0px;">Phone : 07000000000<br></label>
+                <div><a class="btn btn-primary" data-toggle="collapse" aria-expanded="false" aria-controls="collapse-1" role="button" href="#collapse-1" style="width: 100%;padding: 0px;height: 15px;margin: 0px;font-size: 11px;"><i class="fa fa-angle-down"></i></a>
+                    <div
+                        class="collapse" id="collapse-1">
+                        <div><a href="#" style="font-size: 14px;margin: 5px;">Send displayName a message</a></div><label style="font-size: 14px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;margin-bottom: 0px;">Industry : Banking and Finance<br></label></div>
+            </div>
+        </div>
+    </div>
     </div>
     </div>
     </div>
     <div class="features-boxed">
-        <div class="container">
+        <div class="container" style="padding-right: 15px;">
             <div class="intro">
                 <h2 class="text-center">Features </h2>
             </div>
@@ -178,14 +228,14 @@
             </div>
         </footer>
     </div>
-    <script src="/assets/js/jquery.min.js"></script>
-    <script src="/assets/bootstrap/js/bootstrap.min.js"></script>
-    <script src="/assets/js/app.js"></script>
-    <script src="/assets/js/resources.js"></script>
-    <script src="/assets/js/install.js"></script>
-    <script src="/assets/js/intlTelInput-jquery.min.js"></script>
-    <script src="/assets/js/intlTelInput.js"></script>
-    <script src="/assets/js/utils.js"></script>
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="assets/js/app.js"></script>
+    <script src="assets/js/resources.js"></script>
+    <script src="assets/js/install.js"></script>
+    <script src="assets/js/intlTelInput-jquery.min.js"></script>
+    <script src="assets/js/intlTelInput.js"></script>
+    <script src="assets/js/utils.js"></script>
 </body>
 
 </html>

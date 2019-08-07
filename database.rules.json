@@ -35,11 +35,19 @@
       ".read": "true",
       ".write": "true"
     },
-    "payments": {
-      "$reference": {
-        ".read": "$uid === auth.uid",
-        ".write": "newData.hasChildren(['payer_id', 'payee_id', epoch])"
+    /*"payments": {
+      "$uid": {
+        ".read": "$uid === newData.child('uid').val()",
+        ".write": "true",
+        "$reference": {
+          ".read": "$uid === newData.child('uid').val()",
+          ".write": "newData.hasChildren(['payer_id', 'payee_id', 'epoch', 'reference'])",
+        }
       }
+    },*/
+
+    "transactions":{
+
     }
   }
 }

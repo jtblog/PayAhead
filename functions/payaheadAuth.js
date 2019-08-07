@@ -176,10 +176,17 @@ payaheadAuth.prototype.register_business = function (b_details, other_details, r
 		});		
 }; 
 
-payaheadAuth.prototype.add_admin = function (credential_name, response) {
+payaheadAuth.prototype.add_admin = function (credential_name, mDb, response) {
 	if(validator.isEmail(credential_name)){
 		_auth2.getUserByEmail(credential_name)
 		    .then(function(user) {
+		    	var _user = JSON.parse(JSON.stringify(user));
+		    	var other_details = {};
+				Object.keys(_user).forEach(function(key) {
+					other_details[key] = _user[key];
+			    });
+			    other_details["isAdmin"] = true;
+			    mDb.set_user(other_details, response);
 		    	 _auth2.setCustomUserClaims(user.uid, {
 				    	admin : true,
 				    })
@@ -196,6 +203,12 @@ payaheadAuth.prototype.add_admin = function (credential_name, response) {
 		if(validator.isMobilePhone(credential_name)){
 			_auth.getUserByPhoneNumber(credential_name)
 				.then(function(user) {
+					var _user = JSON.parse(JSON.stringify(user));
+			    	var other_details = {};
+					Object.keys(_user).forEach(function(key) {
+						other_details[key] = _user[key];
+				    });
+				    other_details["isAdmin"] = true;
 			        _auth2.setCustomUserClaims(user.uid, {
 				    	admin : true,
 				    })
@@ -218,10 +231,16 @@ payaheadAuth.prototype.add_admin = function (credential_name, response) {
 	}
 };
 
-payaheadAuth.prototype.remove_admin = function(credential_name, response){
+payaheadAuth.prototype.remove_admin = function(credential_name, mDb, response){
 	if(validator.isEmail(credential_name)){
 		_auth2.getUserByEmail(credential_name)
 		    .then(function(user) {
+		    	var _user = JSON.parse(JSON.stringify(user));
+		    	var other_details = {};
+				Object.keys(_user).forEach(function(key) {
+					other_details[key] = _user[key];
+			    });
+			    other_details["isAdmin"] = false;
 		    	 _auth2.setCustomUserClaims(user.uid, {
 				    	admin : false,
 				    })
@@ -238,6 +257,12 @@ payaheadAuth.prototype.remove_admin = function(credential_name, response){
 		if(validator.isMobilePhone(credential_name)){
 			_auth.getUserByPhoneNumber(credential_name)
 				.then(function(user) {
+					var _user = JSON.parse(JSON.stringify(user));
+			    	var other_details = {};
+					Object.keys(_user).forEach(function(key) {
+						other_details[key] = _user[key];
+				    });
+				    other_details["isAdmin"] = false;
 			        _auth2.setCustomUserClaims(user.uid, {
 				    	admin : false,
 				    })

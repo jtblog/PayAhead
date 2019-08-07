@@ -6,19 +6,18 @@ function payaheadPay() {
 }
 
 payaheadPay.prototype.initialize = function (details, _response, mDb) {
-	/*paystack.transaction.initialize(
+	paystack.transaction.initialize(
 		details
 	)
 	.then(function(body) {
 		response.status(200).json(body.data);
-		mDb.set_authorization("last_of_paystack", body.data, response);
+		//mDb.set_authorization("last_of_paystack", body.data, response);
 	})
 	.catch(function(error) {
 	  response.status(400).json(error);
 	});
-	*/
 
-	_request.post({
+	/*_request.post({
 	   url: 'https://api.paystack.co/transaction/initialize',
 	   form: details,
 	   headers: { 
@@ -40,7 +39,7 @@ payaheadPay.prototype.initialize = function (details, _response, mDb) {
 		  }
 		  
 		});
-
+	*/
 };
 
 module.exports = payaheadPay;

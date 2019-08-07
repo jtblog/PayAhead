@@ -68,7 +68,7 @@ function isAdmin(request, response, next){
 
 	try{
 		var _ctoken = _auth.verifyIdToken(idToken);
-		if (_ctoken.admin !== true) {
+		if (_ctoken.admin != true) {
 		    response.status(401).send({"code": "auth/not-an-admin", "message" : "This Priviledge is only granted to admin users"});
 		}else{
 			return next();
@@ -83,8 +83,12 @@ function isBusiness(request, response, next){
 
 	try{
 		var _ctoken = _auth.verifyIdToken(idToken);
-		if (_ctoken.business !== true) {
-		    response.status(401).send({"code": "auth/not-an-business", "message" : "This Priviledge is only granted to Business Owners, Organizations or Ventures"});
+		if (_ctoken.business != true) {
+			if(_ctoken.admin != true){
+				response.status(401).send({"code": "auth/not-an-business", "message" : "This Priviledge is only granted to Business Owners, Organizations or Ventures"});
+			}else{
+				return next();
+			}
 		}else{
 			return next();
 		}
@@ -108,12 +112,27 @@ app.get('/signup', json_parser, function(request, response){
   	response.redirect(url + '/signup.html');
 });
 
+app.get('/user', json_parser, function(request, response){
+  	var url = request.protocol + "://" + request.headers['x-forwarded-host'];
+  	response.redirect(url + '/user.html');
+});
+
+app.get('/admin', json_parser, function(request, response){
+  	var url = request.protocol + "://" + request.headers['x-forwarded-host'];
+  	response.redirect(url + '/admin/index.html');
+});
+
+app.get('/admin_user', verifyToken, isBusiness, function(request, response){
+  	var url = request.protocol + "://" + request.headers['x-forwarded-host'];
+  	response.redirect(url + '/admin/user.html');
+});
+
 app.post('/auth/signin', json_parser, function(request, response){
 	var _details = request.body;
 	var credential_name = _details["emailOrPhoneNumber"];
 	var credential_password = _details["password"];
 
-	if(credential_name !== null || credential_name !== "" || typeof(credential_name) !== undefined){
+	if(credential_name != null && credential_name != "" && typeof(credential_name) != undefined){
 		mAuth.signin(credential_name, credential_password, response, mDb);
 	}else{
 		var error = {
@@ -122,8 +141,7 @@ app.post('/auth/signin', json_parser, function(request, response){
 		}
 		response.status(400).json(error);
 		response.end();
-	}
-	
+	}	
 });
 
 app.post('/auth/signup', json_parser, function(request, response){
@@ -138,7 +156,7 @@ app.post('/auth/signup', json_parser, function(request, response){
 	su_details["photoURL"] = "https://firebasestorage.googleapis.com/v0/b/payahead-80360.appspot.com/o/index.png?alt=media&token=66c38ec1-6bb7-4aa6-ad09-8b394acd390f";
 	
 	var other_details = {};
-	if(_details["bvn"] !== null || _details["bvn"] !== "" || typeof(_details["bvn"]) !== undefined){
+	if(_details["bvn"] != null && _details["bvn"] != "" && typeof(_details["bvn"]) != undefined){
 		other_details["bvn"] = _details["bvn"];
 	}else{
 		response.status(400).json({
@@ -148,7 +166,7 @@ app.post('/auth/signup', json_parser, function(request, response){
 		response.end();
 	}
 
-	if(_details["industry"] !== null || _details["industry"] !== "" || typeof(_details["industry"]) !== undefined){
+	if(_details["industry"] != null && _details["industry"] != "" && typeof(_details["industry"]) != undefined){
 		other_details["industry"] = _details["industry"];
 	}else{
 		response.status(400).json({
@@ -160,19 +178,19 @@ app.post('/auth/signup', json_parser, function(request, response){
 	mAuth.signup(su_details, other_details, response, mDb);
 });
 
-/*app.get('/ping', verifyToken, json_parser, function(request, response){
+app.get('/ping', verifyToken, json_parser, function(request, response){
 	response.status(200).send('pong');
-});*/
+});
 
 app.post('/payment/initialize', verifyToken, json_parser, function(request, response){
 	var p_details = request.body;
 	mPay.initialize(p_details, response, mDb);
 });
 
-/*app.post('/payment/initialize', json_parser, function(request, response){
+app.post('/payment/initialize', json_parser, function(request, response){
 	var p_details = request.body;
 	mPay.initialize(p_details, response, mDb);
-});*/
+});
 
 app.get('/db/industries', function(request, response){
 	mDb.get_industry(response);
@@ -181,7 +199,7 @@ app.get('/db/industries', function(request, response){
 app.get('/get_profile/:uid', verifyToken, function(request, response){
 	//var _in = request.body;
 	var params = request.params;
-	if(params["uid"] !== null || params["uid"] !== "" || typeof(params["uid"]) !== undefined){
+	if(params["uid"] != null && params["uid"] != "" && typeof(params["uid"]) != undefined){
 		mDb.get_user(params["uid"], request.headers.authorization, response);
 	}else{
 		var error = {
@@ -201,7 +219,7 @@ app.post('/update_profile', verifyToken, json_parser, function(request, response
 	u_details["email"] = _details["email"];
 	u_details["password"] = _details["password"];
 	u_details["phoneNumber"] = _details["phoneNumber"];
-	if(_details["photoURL"] !== "" || _details["photoURL"] !== null || typeof(_details["photoURL"]) !== undefined){
+	if(_details["photoURL"] != "" && _details["photoURL"] != null && typeof(_details["photoURL"]) != undefined){
 		u_details["photoURL"] = _details["photoURL"];
 	}else{
 		u_details["photoURL"] = "https://firebasestorage.googleapis.com/v0/b/payahead-80360.appspot.com/o/index.png?alt=media&token=66c38ec1-6bb7-4aa6-ad09-8b394acd390f";
@@ -209,13 +227,13 @@ app.post('/update_profile', verifyToken, json_parser, function(request, response
 	
 	var other_details = {};
 	Object.keys(_details).forEach(function(key) {
-		if(key !== "photoURL" || key !== "phoneNumber" || key !== "password" || key !== "email" || key !== "displayName" || key !== "disabled" || key !== "emailVerified")
+		if(key != "photoURL" || key != "phoneNumber" || key != "password" || key != "email" || key != "displayName" || key != "disabled" || key != "emailVerified")
 		other_details[key] = _details[key];
 	});
 
 	other_details["uid"] = _details["uid"];
 
-	if(_details["bvn"] !== null || _details["bvn"] !== "" || typeof(_details["bvn"]) !== undefined){
+	if(_details["bvn"] != null && _details["bvn"] != "" && typeof(_details["bvn"]) != undefined){
 		other_details["bvn"] = _details["bvn"];
 	}else{
 		response.status(400).json({
@@ -225,7 +243,7 @@ app.post('/update_profile', verifyToken, json_parser, function(request, response
 		response.end();
 	}
 
-	if(_details["industry"] !== null || _details["industry"] !== "" || typeof(_details["industry"]) !== undefined){
+	if(_details["industry"] != null && _details["industry"] != "" && typeof(_details["industry"]) != undefined){
 		other_details["industry"] = _details["industry"];
 	}else{
 		response.status(400).json({
@@ -240,7 +258,7 @@ app.post('/update_profile', verifyToken, json_parser, function(request, response
 app.post('/signout/:uid', function(request, response){
 	//var _in = request.body;
 	var params = request.params;
-	if(params["uid"] !== null || params["uid"] !== "" || typeof(params["uid"]) !== undefined){
+	if(params["uid"] != null && params["uid"] != "" && typeof(params["uid"]) != undefined){
 		mAuth.signout(params["uid"], response);
 	}else{
 		var err = {
@@ -255,12 +273,25 @@ app.get('/payment/get_paystack_keys', verifyToken, json_parser, function(request
 	mDb.get_paystack_keys(response);
 });
 
+app.get('/db/get_organizations', verifyToken, function(request, response){
+	mDb.get_organizations(response);
+})
+
+app.get('/payment/get_tranactions', verifyToken, json_parser, function(request, response){
+	mDb.get_tranactions(response);
+});
+
+app.post('payment/save_transaction', verifyToken, json_parser, function(request, response){
+	//mDb.save_tranactions();
+});
+
 app.post('/report_error', json_parser, function(request, response){
 	var _in = request.body;
 	_in["epoch"] = `${Date.now()}`;
 	mDb.save_error(_in, response);
 });
 
+/*
 app.post('/admin/register_business', verifyToken, isAdmin, json_parser, function(request, response){
 	var _details = request.body;
 	var b_details = {};
@@ -273,7 +304,7 @@ app.post('/admin/register_business', verifyToken, isAdmin, json_parser, function
 	b_details["photoURL"] = "https://firebasestorage.googleapis.com/v0/b/payahead-80360.appspot.com/o/index.png?alt=media&token=66c38ec1-6bb7-4aa6-ad09-8b394acd390f";
 	
 	var other_details = {};
-	if(_details["business_name "] !== null || _details["business_name "] !== "" || typeof(_details["business_name "]) !== undefined){
+	if(_details["business_name "] != null && _details["business_name "] != "" && typeof(_details["business_name "]) != undefined){
 		other_details["business_name "] = _details["business_name "];
 	}else{
 		response.status(400).json({
@@ -283,7 +314,7 @@ app.post('/admin/register_business', verifyToken, isAdmin, json_parser, function
 		response.end();
 	}
 	
-	if(_details["settlement_bank "] !== null || _details["settlement_bank "] !== "" || typeof(_details["settlement_bank "]) !== undefined){
+	if(_details["settlement_bank "] != null && _details["settlement_bank "] != "" && typeof(_details["settlement_bank "]) != undefined){
 		other_details["settlement_bank "] = _details["settlement_bank "];
 	}else{
 		response.status(400).json({
@@ -293,7 +324,7 @@ app.post('/admin/register_business', verifyToken, isAdmin, json_parser, function
 		response.end();
 	}
 
-	if(_details["account_number "] !== null || _details["account_number "] !== "" || typeof(_details["account_number "]) !== undefined){
+	if(_details["account_number "] != null && _details["account_number "] != "" && typeof(_details["account_number "]) != undefined){
 		other_details["account_number "] = _details["account_number "];
 	}else{
 		response.status(400).json({
@@ -303,7 +334,7 @@ app.post('/admin/register_business', verifyToken, isAdmin, json_parser, function
 		response.end();
 	}
 
-	if(_details["percentage_charge "] !== null || _details["percentage_charge "] !== "" || typeof(_details["percentage_charge "]) !== undefined){
+	if(_details["percentage_charge "] != null && _details["percentage_charge "] != "" && typeof(_details["percentage_charge "]) != undefined){
 		other_details["percentage_charge "] = _details["percentage_charge "];
 	}else{
 		response.status(400).json({
@@ -313,7 +344,7 @@ app.post('/admin/register_business', verifyToken, isAdmin, json_parser, function
 		response.end();
 	}
 
-	if(_details["industry"] !== null || _details["industry"] !== "" || typeof(_details["industry"]) !== undefined){
+	if(_details["industry"] != null && _details["industry"] != "" && typeof(_details["industry"]) != undefined){
 		other_details["industry"] = _details["industry"];
 	}else{
 		response.status(400).json({
@@ -330,8 +361,8 @@ app.post('/admin/add_admin', verifyToken, isAdmin, json_parser, function(request
 	var credential_name = _details["emailOrPhoneNumber"];
 	var credential_password = _details["password"];
 
-	if(credential_name !== null || credential_name !== "" || typeof(credential_name) !== undefined){
-		mAuth.add_admin(credential_name, response);
+	if(credential_name != null && credential_name != "" && typeof(credential_name) != undefined){
+		mAuth.add_admin(credential_name, mDb, response);
 	}else{
 		var error = {
     		"code": "auth/not-email-or-phone",
@@ -347,8 +378,8 @@ app.post('/admin/remove_admin', verifyToken, isAdmin, json_parser, function(requ
 	var credential_name = _details["emailOrPhoneNumber"];
 	var credential_password = _details["password"];
 
-	if(credential_name !== null || credential_name !== "" || typeof(credential_name) !== undefined){
-		mAuth.remove_admin(credential_name, response);
+	if(credential_name != null && credential_name != "" && typeof(credential_name) != undefined){
+		mAuth.remove_admin(credential_name, mDb, response);
 	}else{
 		var error = {
     		"code": "auth/not-email-or-phone",
@@ -360,8 +391,12 @@ app.post('/admin/remove_admin', verifyToken, isAdmin, json_parser, function(requ
 });
 
 app.get('/admin/db/get_tranactions', verifyToken, isAdmin, json_parser, function(request, response){
-	
-});
+	//mDb.admin_get_tranactions();
+});*/
+
+
+
+
 
 /*
 app.post('/signin-form', (request, response) => {
