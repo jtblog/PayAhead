@@ -18,7 +18,7 @@
       "target": "payahead-80360",
       "public": "public",
       "ignore": [
-          "admin"
+          "public/admin"
       //  "firebase.json",
       //  "**/.*",
       //  "**/node_modules/**"
@@ -29,10 +29,18 @@
       }]
     },
     {
+      "target": "payahead-admin",
+      "public": "public/admin",
+      "rewrites": [{
+        "source": "**",
+        "function": "app"
+      }]
+    },
+    {
       "target": "payahead",
       "public": "public",
       "ignore": [
-          "admin"
+          "public/admin"
       //  "firebase.json",
       //  "**/.*",
       //  "**/node_modules/**"

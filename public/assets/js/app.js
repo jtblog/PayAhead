@@ -7,9 +7,9 @@ var organizations = {};
 var customers = {};
 var transactions = {};
 
-window.prepare_firebase = function(){
+window._prepare = function(){
   
-  var site = window.location.href+"";
+  var site = window.location.href + "";
   switch(site){
     case host+"/":
       break;
@@ -40,7 +40,6 @@ window.prepare_firebase = function(){
       py();
       break;
   }
-  
 };
 
 function py(){
@@ -98,7 +97,7 @@ function prepare_dependencies(){
     script.setAttribute("src", folder+libs[i]);
     document.getElementsByTagName("head")[0].appendChild(script);
   }*/
-  setTimeout(window.prepare_firebase, 1000);
+  setTimeout(window._prepare, 1000);
   /*08033953050
   08085221450*/
 };
@@ -155,6 +154,9 @@ var signup = function(e){
       "method": "POST",
       "contentType": "application/json",
       "dataType": "json",
+      "headers": {
+            "Content-Type": "application/json"
+      },
       "data": JSON.stringify(window.su_details)
     }
 
@@ -182,12 +184,9 @@ function get_profile(){
       "crossDomain": true,
       "url": host+endpoint,
       "method": "GET",
-      //"contentType": "application/json",
-      //"dataType": "json",
       "headers" : {
         "authorization" : localStorage["authorization"],
-      },
-      "data": ""
+      }
     }
 
     $.ajax(settings)
@@ -196,6 +195,7 @@ function get_profile(){
         window.user_json = data["user"];
         window.authorization = data["authorization"];
         populate_user_view();
+        get_transactions();
         get_organizations();
       })
       .fail(function(jqXHR, textStatus, errorThrown) {
@@ -224,12 +224,9 @@ function prepare_for_payment(){
       "crossDomain": true,
       "url": host+endpoint,
       "method": "GET",
-      //"contentType": "application/json",
-      //"dataType": "json",
       "headers" : {
-        "authorization" : localStorage["authorization"],
-      },
-      "data": ""
+        "authorization" : localStorage["authorization"]
+      }
     }
 
     $.ajax(settings)
@@ -253,42 +250,88 @@ function prepare_for_payment(){
 
 var pay_popup = function(e){
   e.preventDefault();
+  try{
+    if(!isNullOrUndefinedOrEmpty(JSON.stringify(window.sub_details0))){
+        var secret = {};
 
-  var secret = {};
+        var config = {
+          "email" : window.user_json["email"],
+          " amount" : "" + ($("#amount_input").val() * 100),
+          //"bearer": "account" or "subaccount",
+          "subaccount": window.sub_details0["subaccount"],
+          onClose: function(){
+            //alert('Window closed.');
+          },
+          callback: function(response){
+            save_t(response);
+          }
+        };
+        
+        var endpoint = "/payment/get_paystack_keys";
+        var settings = {
+          "async": true,
+          "crossDomain": true,
+          "url": host + endpoint,
+          "method": "GET",
+          "headers": {
+            "authorization": window.authorization
+          }
+        }
 
-  var config = {
-    "email" : window.user_json["email"],
-    " amount" : "" + ($("#amount_input").val() * 100),
-    //"bearer": "account" or "subaccount",
-    "subaccount": window.sub_details0["subaccount"],
-    onClose: function(){
-      //alert('Window closed.');
-    },
-    callback: function(response){
-      var message = 'Payment complete! Reference: ' + response.reference;
-      alert(message);
-    }
-  };
-  
-  var endpoint = "/payment/get_paystack_keys";
-  var settings = {
-    "async": true,
-    "crossDomain": true,
-    "url": host + endpoint,
-    "method": "GET",
-    "headers": {
-      "Content-Type": "application/json",
-      "authorization": window.authorization
-    }
+        $.ajax(settings).done(function (response) {
+          var data = response;
+          secret["p_key"] = data["p_key"];
+          secret["s_key"] = data["s_key"];
+          checkout(secret["s_key"], config);
+        }); 
+      }
+  }catch(e){
+    console.log(e);
+  }
+};
+
+function save_t(_res){
+  var endpoint = "/payment/save_transaction";
+  var _p = {
+    "reference" : _res.reference,
+    "payeeId" : window.sub_details0["uid"],
+    "payee" : window.sub_details0["business_name"],
+    "payerId" : window.user_json["uid"],
+    "payer" : window.user_json["displayName"],
+    "amount" : _res.amount,
+    "epochPayed" : toEpoch(_res.paid_at)
   }
 
-  $.ajax(settings).done(function (response) {
-    var data = response;
-    secret["p_key"] = data["p_key"];
-    secret["s_key"] = data["s_key"];
-    checkout(secret["s_key"], config);
-  }); 
-};
+  var settings = {
+      "async": true,
+      "crossDomain": true,
+      "url": host+endpoint,
+      "method": "POST",
+      "contentType": "application/json",
+      "dataType": "json",
+      "headers" : {
+        "Content-Type": "application/json",
+        "authorization" : localStorage["authorization"],
+      },
+      "data": JSON.stringify(_p)
+    }
+
+    $.ajax(settings)
+      .done(function (response) {
+        var data = response;
+        console.log(data);
+        window.location = "user.html";
+      })
+      .fail(function(jqXHR, textStatus, errorThrown) {
+        var error = JSON.parse(jqXHR.responseText);
+        errorHandler(error);
+      });
+}
+
+function toEpoch(strDate){
+  var datum = Date.parse(strDate);
+  return datum/1000;
+}
 
 function checkout(key, config){
   var settings = {
@@ -299,6 +342,7 @@ function checkout(key, config){
       "contentType": "application/json",
       "dataType": "json",
       "headers" : {
+        "Content-Type": "application/json",
         "Authorization" : "Bearer " + key
       },
       "data": JSON.stringify(config)
@@ -327,7 +371,7 @@ function populate_user_view(){
       }else{
         $("#email_input").val(window.user_json['email']);
       }
-      if(isNullOrUndefinedOrEmpty(window.user_json['phoneNumber'])){
+      if(!isNullOrUndefinedOrEmpty(window.user_json['phoneNumber'])){
         window.pno_input.setNumber(window.user_json['phoneNumber']);
       }else{
         window.pno_input.setNumber('');
@@ -408,6 +452,9 @@ var signin = function(e){
       "method": "POST",
       "contentType": "application/json",
       "dataType": "json",
+      "headers" : {
+        "Content-Type": "application/json"
+      },
       "data": JSON.stringify(window.si_details)
     }
 
@@ -436,12 +483,9 @@ function get_organizations(){
       "crossDomain": true,
       "url": host+endpoint,
       "method": "GET",
-      //"contentType": "application/json",
-      //"dataType": "json",
       "headers" : {
         "authorization" : localStorage["authorization"],
-      },
-      "data": ""
+      }
     }
 
     $.ajax(settings)
@@ -458,19 +502,23 @@ function get_organizations(){
 };
 
 function populate_organizations_view(){
-  document.getElementById("organizations").innerHTML = window.company1 + "<br> No registered vendors /organization for now. Try again later"
+  document.getElementById("organizations_card").innerHTML = "<br> No registered vendors /organization for now. </br><br>Try again later";
+  var doc = "";
   Object.keys(window.organizations).forEach(function(key) {
-    var o_view = window.company1 + window.company3 + window.organizations[key]["business_name"] + window.company5 +
-      window.organizations[key]["description"] + window.company7 + window.organizations[key]["industry"] + window.company9;
+    var o_view = window.company1 + window.organizations[key]["business_name"] + window.company3 +
+      window.organizations[key]["description"] + window.company5 + window.organizations[key]["industry"] + window.company7;
     o_view.replace("business_uid", key);
-    document.getElementById("organizations").innerHTML = o_view;
-    $('#' + key + "_ahref").click(go_to_paymentpage);
+    $('#' + key + "_phref").click(go_to_paymentpage);
+    doc =  doc + o_view;
   });
+  if(doc != ""){
+    document.getElementById("organizations_card").innerHTML = doc;
+  }
 };
 
 var go_to_paymentpage = function(e){
   var id = $(this).attr('id');
-  id = id.replace("_ahref", "");
+  id = id.replace("_phref", "");
   Object.keys(window.organizations).forEach(function(key) {
     if(key == id){
       localStorage["sub_details0"] = window.organizations[key];
@@ -478,23 +526,24 @@ var go_to_paymentpage = function(e){
   })
 }
 
+var chat = function(e){
+  
+}
+
 function get_transactions(){
   if( isNullOrUndefinedOrEmpty(localStorage["authorization"])){
     window.location = "signin.html";
   }else{
-    var endpoint = "/payment/get_transactions/";
+    var endpoint = "/payment/get_transactions/" + window.user_json["uid"];
       
     var settings = {
       "async": true,
       "crossDomain": true,
       "url": host+endpoint,
       "method": "GET",
-      //"contentType": "application/json",
-      //"dataType": "json",
       "headers" : {
         "authorization" : localStorage["authorization"],
-      },
-      "data": ""
+      }
     }
 
     $.ajax(settings)
@@ -511,15 +560,19 @@ function get_transactions(){
 };
 
 function populate_transactions_view(){
-  document.getElementById("transactions").innerHTML = window.trans1 + "<br> No transactions"
+  document.getElementById("transactions_card").innerHTML = "<br> No transactions";
+  var doc = "";
   Object.keys(window.transactions).forEach(function(key) {
-    var t_view = window.trans1 + window.trans3 + window.transactions[key]["payment_id"] + window.trans5 +
-      window.transactions[key]["payee"] + window.trans7 + window.transactions[key]["payer"] + window.trans9 + 
-      window.transactions[key]["datePayed"] + window.trans11 + window.transactions[key]["dateVerified"] + window.trans13;
+    var t_view = window.trans1 + window.transactions[key]["paymentId"] + window.trans3 +
+      window.transactions[key]["payee"] + window.trans5 + window.transactions[key]["payer"] + window.trans7 + 
+      window.transactions[key]["epochPayed"] + window.trans9 + window.transactions[key]["epochVerified"] + window.trans11;
     t_view.replace("payment_id", key);
-    document.getElementById("transactions").innerHTML = t_view;
-    $('#' + key + "_ahref").click(go_to_refundpage);
+    //$('#' + key + "_rfhref").click(go_to_refundpage);
+    doc = doc + t_view;
   });
+  if(doc != ""){
+    document.getElementById("transactions_card").innerHTML = doc;
+  }
 };
 
 function post_error(error){
@@ -530,6 +583,9 @@ function post_error(error){
     "url": host+endpoint,
     "contentType": "application/json",
     "dataType": "json",
+    "headers" : {
+      "Content-Type": "application/json"
+    },
     "method": "POST",
     "data": JSON.stringify(error)
   }
@@ -573,7 +629,9 @@ var signout = function() {
 
     $.ajax(settings).done(function (response) {
       localStorage["uid"] = "";
+      localStorage["uid"]  = null;
       localStorage["authorization"] = "";
+      localStorage["authorization"] = null;
       window.location = "index.html";
       console.log(response);
     });

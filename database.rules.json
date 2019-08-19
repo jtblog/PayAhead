@@ -10,7 +10,15 @@
     "users": {
       "$uid": {
         ".read": "true",
-        ".write": "$uid === newData.child('uid').val()"
+        ".write": "$uid === newData.child('uid').val()",
+        "activities": {
+          ".read": "true",
+          ".write": "true"
+        },
+        "transactions": {
+          ".read": "true",
+          ".write": "true"
+        }
       }
     },
     /*"reports": {
@@ -35,19 +43,11 @@
       ".read": "true",
       ".write": "true"
     },
-    /*"payments": {
-      "$uid": {
-        ".read": "$uid === newData.child('uid').val()",
-        ".write": "true",
-        "$reference": {
-          ".read": "$uid === newData.child('uid').val()",
-          ".write": "newData.hasChildren(['payer_id', 'payee_id', 'epoch', 'reference'])",
-        }
-      }
-    },*/
-
     "transactions":{
-
+      "$uid": {
+        ".read": "true",
+        ".write": "$uid === newData.child('payerId').val()"
+      }
     }
   }
 }

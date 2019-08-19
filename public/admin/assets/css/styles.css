@@ -145,3 +145,7 @@ custompaystack1 {
   width: 95%;
 }
 
+.rounded-circle.profile-pic {
+  height: 150px;
+}
+

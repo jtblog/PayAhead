@@ -8,6 +8,9 @@
         "payahead": [
           "payahead"
         ],
+        "payahead-admin": [
+          "payahead-admin"
+        ],
         "target-name": [
           "site-name"
         ]

@@ -1,9 +1,65 @@
 var _db;
 var industry_ref, paystack_keys_ref, transactions_ref;
 var users_ref;
+var isNullOrUndefinedOrEmpty;
 
 function payaheadDb() {
+  isNullOrUndefinedOrEmpty = function(_in){
+    switch(_in){
+      case null:
+        return true;
+        break;
+      case undefined:
+        return true;
+        break;
+      case "null":
+        return true;
+        break;
+      case "undefined":
+        return true;
+        break;
+      default:
+        return false;
+        break;
+    };
+
+    if(typeof _in == "string"){
+      if(_in.trim() == ""){
+        return true;
+      }
+    }else if(typeof _in == "undefined"){
+      return true;
+    };
+  };
 }
+
+/*payaheadDb.prototype.isNullOrUndefinedOrEmpty = function(_in){
+  switch(_in){
+    case null:
+      return true;
+      break;
+    case undefined:
+      return true;
+      break;
+    case "null":
+      return true;
+      break;
+    case "undefined":
+      return true;
+      break;
+    default:
+      return false;
+      break;
+  };
+
+  if(typeof _in == "string"){
+    if(_in.trim() == ""){
+      return true;
+    }
+  }else if(typeof _in == "undefined"){
+    return true;
+  };
+};*/
 
 payaheadDb.prototype.shareApp = function(idb) {
 	_db = idb;
@@ -121,7 +177,7 @@ payaheadDb.prototype.get_organizations = function(response){
     function(snapshot) {
       snapshot.forEach(
         function(childSnapshot) {
-          if(childSnapshot.val()["business_name"] != null && childSnapshot.val()["business_name"] != "" && typeof(childSnapshot.val()["business_name"]) != undefined){
+          if(!isNullOrUndefinedOrEmpty(childSnapshot.val()["business_name"])){
             var company = {
               "uid" : childSnapshot.val()["uid"],
               "business_name" : childSnapshot.val()["business_name"],
@@ -141,24 +197,88 @@ payaheadDb.prototype.get_organizations = function(response){
   );
 };
 
-payaheadDb.prototype.get_tranactions = function(response){
+payaheadDb.prototype.get_transactions = function(_uid, response){
   var transactions = {};
-  transactions.orderByKey().once('value').then(
+  transactions_ref.orderByKey().once('value').then(
     function(snapshot) {
       snapshot.forEach(
         function(childSnapshot) {
-          if(childSnapshot.val()["business_name"] != null && childSnapshot.val()["business_name"] != "" && typeof(childSnapshot.val()["business_name"]) != undefined){
-            var company = {
-              "uid" : childSnapshot.val()["uid"],
-              "business_name" : childSnapshot.val()["business_name"],
-              "industry" : childSnapshot.val()["industry"],
-              "subaccount_code" : childSnapshot.val()["subaccount_code"]
-            }
-            companies[childSnapshot.key] = company;
+          if(!isNullOrUndefinedOrEmpty(childSnapshot.val()["payerId"]) && childSnapshot.val()["payerId"] == _uid){
+            var transaction = childSnapshot.val();
+            transactions[childSnapshot.key] = transaction;
           }
         }
       )
-      response.status(200).json(companies);
+      response.status(200).json(transactions);
+    },
+    function(error) {
+      console.log(error);
+      response.status(400).json(error);
+    }
+  );
+};
+
+payaheadDb.prototype.save_tranactions = function(uid, _details, response, mDb){
+  _db.ref("transactions/" + _details["payerId"]).set(
+    _details
+    , function(error) {
+        if (error) {
+          console.log(error);
+          response.status(400).json(error);
+          response.end();
+        } else {
+          response.status(200).json(_details);
+        }
+    });
+
+  _db.ref("users/" + uid + "/transactions/" + _details["epoch"]).set(
+    _details
+    , function(error) {
+        if (error) {
+          console.log(error);
+          response.status(400).json(error);
+          response.end();
+        } else {
+          //response.status(200).json(_details);
+        }
+    });
+};
+
+payaheadDb.prototype.write_activity = function(_details, response){
+  _details["id"] = '' + Math.floor((Math.random() * 1111111111) + 1);
+  _db.ref("users/" + _details["uid"] + "/activities/" + _details["epoch"]).set(
+    _details
+    , function(error) {
+        if (error) {
+          console.log(error);
+          response.status(400).json(error);
+        } else {
+          //response.status(200).json(_details);
+        }
+    });
+};
+
+payaheadDb.prototype.get_company_users = function(email, response){
+  var domain = email.split('@')[1];
+  var users = {};
+  users_ref.orderByKey().once('value').then(
+    function(snapshot) {
+      snapshot.forEach(
+        function(childSnapshot) {
+          if(childSnapshot.val()["email"].endsWith(domain)){
+            var user = {
+              "uid" : childSnapshot.val()["uid"],
+              "displayName" : childSnapshot.val()["displayName"],
+              "email" : childSnapshot.val()["email"],
+              "PhoneNumber" : childSnapshot.val()["PhoneNumber"],
+              "industry" : childSnapshot.val()["industry"],
+              "activities" : childSnapshot.val()["activities"]
+            }
+            users[childSnapshot.key] = user;
+          }
+        }
+      )
+      response.status(200).json(users);
     },
     function(error) {
       console.log(error);

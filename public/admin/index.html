@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>PayAhead-Admin</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
+    <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
+    <link rel="stylesheet" href="assets/fonts/ionicons.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Actor">
+    <link rel="stylesheet" href="assets/css/Features-Boxed-1.css">
+    <link rel="stylesheet" href="assets/css/Features-Boxed.css">
+    <link rel="stylesheet" href="assets/css/Footer-Dark.css">
+    <link rel="stylesheet" href="assets/css/intlTelInput.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+      <!-- Added link rel manifest -->
+      <link rel="manifest" href="/manifest.json">
+
+      <!-- Description -->
+      <meta name="description" content="Pay ahead with PayAhead">
+
+      <!-- Meta tag for theme-color -->
+      <meta name="theme-color" content="#5f9ea0" />
+
+
+      <!-- iOS meta tags and icons -->
+      <meta name="apple-mobile-web-app-capable" content="yes">
+      <meta name="apple-mobile-web-app-status-bar-style" content="black">
+      <meta name="apple-mobile-web-app-title" content="PayAhead">
+      <link rel="apple-touch-icon" href="/assets/img/icons/icon-152x152.png">
+
+      <script defer >
+      // CODELAB: Register service worker.
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/service-worker.js')
+              .then((reg) => {
+                console.log('Service worker registered.', reg);
+              });
+        });
+      }
+      </script>
+</head>
+
+<body>
+    <nav class="navbar navbar-light navbar-expand-md navigation-clean-button">
+        <div class="container"><a class="navbar-brand" href="#" style="color: white;">PayAhead</a><button class="navbar-toggler" data-toggle="collapse" data-target="#navcol-1"><span class="sr-only">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+            <div
+                class="collapse navbar-collapse" id="navcol-1">
+                <ul class="nav navbar-nav mr-auto">
+                    <li class="nav-item" role="presentation"><a class="nav-link active" href="#" style="color: white;">Features</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="#" style="color: white;">FAQ</a></li>
+                    <li class="dropdown nav-item"><a class="dropdown-toggle nav-link" data-toggle="dropdown" aria-expanded="false" href="#" style="color: white;">Help</a>
+                        <div class="dropdown-menu" role="menu"><a class="dropdown-item" role="presentation" href="#">First Item</a><a class="dropdown-item" role="presentation" href="#">Second Item</a><a class="dropdown-item" role="presentation" href="#">Third Item</a></div>
+                    </li>
+                </ul><span class="text-center navbar-text actions"> <a href="/signin" class="login" style="color: white;">Sign In</a><a class="btn btn-light action-button" role="button" href="/signup" style="color: white;">Sign Up</a></span></div>
+        </div>
+    </nav>
+    <div class="container" style="background: #ffffff;-ms-overflow-style: none;scrollbar-width: none;overflow-y: scroll;overflow: -moz-scrollbars-none;/*display: inline;*/max-width: 360px;margin: 0 auto;max-height: 550px;padding-top: 50px;border: none;">
+        <h2 class="text-center"><strong>Admin</strong>&nbsp;Sign In.</h2>
+        <form id="login_form">
+            <div class="form-group" style="margin-bottom: 0px;"><input class="form-control" type="text" required="" placeholder="Email address or Phone number" id="ep_input" style="margin-bottom: 0px;"><span id="ep_span" style="margin-left: 2.5%;font-size: smaller;color: red;"></span></div>
+            <div class="form-group"
+                style="margin-top: 0px;margin-bottom: 0px;"><input class="form-control" type="password" name="password" required="" placeholder="password" id="password_input" style="margin-bottom: 0px;"><span id="password_span" style="margin-left: 2.5%;font-size: smaller;color: red;"></span></div>
+            <div
+                class="form-group" style="margin-top: 0px;margin-bottom: 0px;"><span id="error_span" style="margin-left: 5%;font-size: smaller;color: red;"></span></div>
+    <div class="form-group" style="margin-top: 0px;"><button class="btn btn-primary" type="submit" id="admin_signin_btn" style="width: 95%;">Sign In</button></div>
+    <div class="form-group"><a href="#" class="already"></a></div>
+    </form>
+    </div>
+    <div class="features-boxed">
+        <div class="container">
+            <div class="intro">
+                <h2 class="text-center">Features </h2>
+            </div>
+            <div class="row justify-content-center features">
+                <div class="col-sm-6 col-md-5 col-lg-4 item">
+                    <div class="box">
+                        <h3 class="name" style="/*font-size: 18px;*/"><br><strong>What is PayAhead?</strong><br></h3>
+                        <p class="description"><br>PayAhead is a product designed to solve the problem of long queues in shopping malls, at filling stations etc thereby drive transparency, accuracy and accountability while taking away the bottleneck around reconciliation.&nbsp;<br></p>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-5 col-lg-4 item">
+                    <div class="box">
+                        <h3 class="name"><br><strong>Who is the product designed for?</strong><br></h3>
+                        <p class="description"><br>The product is actually designed for those with retail stores, filling stations, shopping malls etc. &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+                            &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+                            &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+                            &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<br></p>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-5 col-lg-4 item">
+                    <div class="box">
+                        <h3 class="name"><br><strong>Who developed PayAhead?</strong><br></h3>
+                        <p class="description"><br>PayAhead is created/developed and maintained by Uridium Technologies Ltd &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+                            &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+                            &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+                            &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<br></p>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-5 col-lg-4 invisible item" style="height: 0px;">
+                    <div class="box">
+                        <h3 class="name">Organic </h3>
+                        <p class="description">Aenean tortor est, vulputate quis leo in, vehicula rhoncus lacus. Praesent aliquam in tellus eu.</p>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-5 col-lg-4 invisible item" style="height: 0px;">
+                    <div class="box">
+                        <h3 class="name">Fast </h3>
+                        <p class="description">Aenean tortor est, vulputate quis leo in, vehicula rhoncus lacus. Praesent aliquam in tellus eu.</p>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-5 col-lg-4 invisible item" style="height: 0px;">
+                    <div class="box">
+                        <h3 class="name">Mobile-first</h3>
+                        <p class="description">Aenean tortor est, vulputate quis leo in, vehicula rhoncus lacus. Praesent aliquam in tellus eu.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer-dark" style="background-color: #5f9ea0;">
+        <footer>
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-6 col-md-3 item">
+                        <h3>Services</h3>
+                        <ul>
+                            <li><a href="#">Web design</a></li>
+                            <li><a href="#">Development</a></li>
+                            <li><a href="#">Hosting</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-sm-6 col-md-3 item">
+                        <h3>About</h3>
+                        <ul>
+                            <li><a href="#">Company</a></li>
+                            <li><a href="#">Team</a></li>
+                            <li><a href="#">Careers</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6 item text">
+                        <h3>PayAhead</h3>
+                        <p class="invisible">Praesent sed lobortis mi. Suspendisse vel placerat ligula. Vivamus ac sem lacus. Ut vehicula rhoncus elementum. Etiam quis tristique lectus. Aliquam in arcu eget velit pulvinar dictum vel in justo.</p>
+                    </div>
+                    <div class="col item social"><a href="#"><i class="icon ion-social-facebook"></i></a><a href="#"><i class="icon ion-social-twitter"></i></a><a href="#"><i class="icon ion-social-snapchat"></i></a><a href="#"><i class="icon ion-social-instagram"></i></a></div>
+                </div>
+                <p class="copyright">PayAhead © 2019</p>
+            </div>
+        </footer>
+    </div>
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="assets/js/app.js"></script>
+    <script src="assets/js/resources.js"></script>
+    <script src="assets/js/install.js"></script>
+    <script src="assets/js/intlTelInput-jquery.min.js"></script>
+    <script src="assets/js/intlTelInput.js"></script>
+    <script src="assets/js/utils.js"></script>
+</body>
+
+</html>
