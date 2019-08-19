@@ -65,13 +65,13 @@
                 <div class="col-sm-6 col-md-5 col-lg-4 item" style="background: #ffffff;-ms-overflow-style: none;scrollbar-width: none;overflow-y: scroll;overflow: -moz-scrollbars-none;max-width: 360px;margin: 0 auto;max-height: 550px;border: none;">
                     <div>
                         <ul class="nav nav-tabs">
-                            <li class="nav-item"><a class="nav-link" role="tab" data-toggle="tab" href="#tab-5" id="my_profile_tab" style="font-size: 14px;padding: 6px;padding-right: 6px;padding-left: 6px;"><i class="fa fa-user"></i>&nbsp;My Profile</a></li>
-                            <li class="nav-item"><a class="nav-link active" role="tab" data-toggle="tab" href="#my_report_tab" style="font-size: 14px;padding-right: 6px;padding-left: 6px;padding-top: 6px;padding-bottom: 6px;"><i class="fa fa-bars"></i>&nbsp;My Report</a></li>
+                            <li class="nav-item"><a class="nav-link active" role="tab" data-toggle="tab" href="#tab-5" id="my_profile_tab" style="font-size: 14px;padding: 6px;padding-right: 6px;padding-left: 6px;"><i class="fa fa-user"></i>&nbsp;My Profile</a></li>
+                            <li class="nav-item"><a class="nav-link" role="tab" data-toggle="tab" href="#my_report_tab" style="font-size: 14px;padding-right: 6px;padding-left: 6px;padding-top: 6px;padding-bottom: 6px;"><i class="fa fa-bars"></i>&nbsp;My Report</a></li>
                             <li
                                 class="nav-item" style="padding-top: 0px;padding-right: 0px;padding-bottom: 0px;padding-left: 0px;"><a class="nav-link invisible" role="tab" data-toggle="tab" href="#tab-7" id="add_biz_tab" style="font-size: 14px;padding-right: 6px;padding-left: 6px;padding-top: 6px;padding-bottom: 6px;"><i class="fa fa-plus"></i>&nbsp;Add business</a></li>
                         </ul>
                         <div class="tab-content">
-                            <div class="tab-pane" role="tabpanel" id="tab-5">
+                            <div class="tab-pane active" role="tabpanel" id="tab-5">
                                 <div class="profile-card">
                                     <div class="profile-back"></div><img class="rounded-circle profile-pic" src="assets/img/2.jpg">
                                     <h3 class="profile-name" style="font-size: medium;">FirstName LastName</h3>
@@ -91,7 +91,7 @@
                     </div>
                 </div>
                 <div class="tab-pane" role="tabpanel" id="my_report_tab">
-                    <div><a class="btn btn-primary btn-block btn-sm bg-light border rounded" data-toggle="collapse" aria-expanded="true" aria-controls="collapse-2" role="button" href="#collapse-2" style="color: rgb(0,0,0);margin: 0px;">Activity</a>
+                    <div class="invisible"><a class="btn btn-primary btn-block btn-sm bg-light border rounded" data-toggle="collapse" aria-expanded="true" aria-controls="collapse-2" role="button" href="#collapse-2" style="color: rgb(0,0,0);margin: 0px;">Activity</a>
                         <div class="collapse show"
                             id="collapse-2">
                             <p>Collapse content.</p>
@@ -120,11 +120,11 @@
     <div class="col-sm-6 col-md-5 col-lg-4 item" style="background: #ffffff;-ms-overflow-style: none;scrollbar-width: none;overflow-y: scroll;overflow: -moz-scrollbars-none;max-width: 360px;margin: 0 auto;max-height: 550px;border: none;">
         <div>
             <ul class="nav nav-tabs">
-                <li class="nav-item"><a class="nav-link" role="tab" data-toggle="tab" href="#tab-4" style="font-size: 14px;padding: 6px 6px;"><i class="fa fa-users"></i>&nbsp;Users</a></li>
-                <li class="nav-item"><a class="nav-link active" role="tab" data-toggle="tab" href="#tab-8" style="padding: 6px 6px;font-size: 14px;"><i class="fas fa-user-edit"></i>&nbsp;Create/Update</a></li>
+                <li class="nav-item"><a class="nav-link active" role="tab" data-toggle="tab" href="#tab-4" style="font-size: 14px;padding: 6px 6px;"><i class="fa fa-users"></i>&nbsp;Users</a></li>
+                <li class="nav-item"><a class="nav-link" role="tab" data-toggle="tab" href="#tab-8" style="padding: 6px 6px;font-size: 14px;"><i class="fas fa-user-edit"></i>&nbsp;Create/Update</a></li>
             </ul>
             <div class="tab-content">
-                <div class="tab-pane" role="tabpanel" id="tab-4">
+                <div class="tab-pane active" role="tabpanel" id="tab-4">
                     <div class="input-group">
                         <div class="input-group-prepend"></div><input class="form-control" type="text">
                         <div class="input-group-append"><button class="btn btn-primary" type="button" style="padding: 0px;">Query</button></div>
@@ -140,7 +140,7 @@
                     </div>
                 </div>
             </div>
-            <div class="tab-pane active" role="tabpanel" id="tab-8">
+            <div class="tab-pane" role="tabpanel" id="tab-8">
                 <form id="create_acct_form">
                     <h2 class="text-center"><strong>Create/Update&nbsp;</strong>User.</h2><img class="rounded-circle profile-pic" src="assets/img/2.jpg">
                     <div class="form-group"><input class="form-control" type="text" name="firstname" required="" placeholder="First Name" autocomplete="on" id="usr_fn_input"></div>
