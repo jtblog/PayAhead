@@ -553,6 +553,7 @@ function populate_organizations_view(){
 };
 
 var go_to_paymentpage = function(e){
+  e.preventDefault();
   var id = $(this).attr('id');
   id = id.replaceAll("_phref", "");
   Object.keys(window.organizations).forEach(function(key) {
@@ -563,6 +564,7 @@ var go_to_paymentpage = function(e){
 }
 
 var org_dropdown = function(e){
+  e.preventDefault();
   var href = $(this).attr('href');
   if($(href).hasClass("show")){
     $(href).removeClass("show");
@@ -596,6 +598,7 @@ function populate_users_view(){
 
 
 var user_dropdown = function(e){
+  e.preventDefault();
   var href = $(this).attr('href');
   if($(href).hasClass("show")){
     $(href).removeClass("show");
@@ -661,6 +664,7 @@ function populate_transactions_view(){
 };
 
 var trans_dropdown = function(e){
+  e.preventDefault();
   var href = $(this).attr('href');
   if($(href).hasClass("show")){
     $(href).removeClass("show");

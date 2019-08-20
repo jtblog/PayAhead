@@ -270,7 +270,7 @@ payaheadDb.prototype.get_company_users = function(email, response){
               "uid" : childSnapshot.val()["uid"],
               "displayName" : childSnapshot.val()["displayName"],
               "email" : childSnapshot.val()["email"],
-              "PhoneNumber" : childSnapshot.val()["PhoneNumber"],
+              "phoneNumber" : childSnapshot.val()["phoneNumber"],
               "industry" : childSnapshot.val()["industry"],
               "activities" : childSnapshot.val()["activities"]
             }
@@ -297,7 +297,7 @@ payaheadDb.prototype.get_users = function(response){
               "uid" : childSnapshot.val()["uid"],
               "displayName" : childSnapshot.val()["displayName"],
               "email" : childSnapshot.val()["email"],
-              "PhoneNumber" : childSnapshot.val()["PhoneNumber"],
+              "phoneNumber" : childSnapshot.val()["phoneNumber"],
               "industry" : childSnapshot.val()["industry"],
               "activities" : childSnapshot.val()["activities"]
             }

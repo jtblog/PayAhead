@@ -271,6 +271,7 @@ function populate_user_view(){
 };
 
 var activity_dropdown = function(e){
+  e.preventDefault();
   var href = $(this).attr('href');
   if($(href).hasClass("show")){
     $(href).removeClass("show");
@@ -437,6 +438,7 @@ function populate_users_view(){
 
 
 var user_dropdown = function(e){
+  e.preventDefault();
   var href = $(this).attr('href');
   if($(href).hasClass("show")){
     $(href).removeClass("show");
@@ -446,6 +448,7 @@ var user_dropdown = function(e){
 }
 
 var clicked_user = function(e){
+  e.preventDefault();
   var id = $(this).attr('id');
   id = id.replaceAll("_cbdiv", "");
   Object.keys(window.users).forEach(function(key) {
