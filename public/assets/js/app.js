@@ -538,12 +538,12 @@ function populate_organizations_view(){
       window.organizations[key]["description"] + window.company5 + window.organizations[key]["industry"] + window.company7;
     o_view = o_view.replaceAll("business_uid", key);
     document.getElementById("organizations_card").innerHTML = document.getElementById("organizations_card").innerHTML + o_view;
-
-    
   });
 
   Object.keys(window.organizations).forEach(function(key) {
+    $("#" + key + "_btn").off('click');
     $("#" + key + "_btn").click(org_dropdown);
+    $("#" + key + "_phref").off('click');
     $('#' + key + "_phref").click(go_to_paymentpage);
   });
 
@@ -563,6 +563,39 @@ var go_to_paymentpage = function(e){
 }
 
 var org_dropdown = function(e){
+  var href = $(this).attr('href');
+  if($(href).hasClass("show")){
+    $(href).removeClass("show");
+  }else{
+    $(href).addClass("show");
+  }
+}
+
+function populate_users_view(){
+  
+  document.getElementById("users_card").innerHTML = "";
+  Object.keys(window.users).forEach(function(key) {
+    var u_view = window.user1 + window.users[key]["displayName"] + window.user3 +
+      window.users[key]["email"] + window.user5 + window.users[key]["phoneNumber"] + window.user7 + 
+      window.users[key]["industry"] + window.user9;
+      u_view = u_view.replaceAll("user_id", key);
+    document.getElementById("users_card").innerHTML = document.getElementById("users_card").innerHTML + u_view;
+  });
+
+  Object.keys(window.users).forEach(function(key) {
+    $("#" + key + "_btn").off('click');
+    $("#" + key + "_btn").click(user_dropdown);
+    $("#" + key + "_chref").off('click');
+    //$('#' + key + "_chref").click(chat);
+  });
+
+  if(document.getElementById("users_card").innerHTML == ""){
+    $("#users_card").append("<br> No record for user");
+  }
+};
+
+
+var user_dropdown = function(e){
   var href = $(this).attr('href');
   if($(href).hasClass("show")){
     $(href).removeClass("show");
@@ -615,8 +648,10 @@ function populate_transactions_view(){
     
   });
 
-   Object.keys(window.transactions).forEach(function(key) {
+  Object.keys(window.transactions).forEach(function(key) {
+    $("#" + key + "_btn").off('click');
     $("#" + key + "_btn").click(trans_dropdown);
+    $("#" + key + "_rfhref").off('click');
     //$('#' + key + "_rfhref").click(go_to_refundpage);
   });
 

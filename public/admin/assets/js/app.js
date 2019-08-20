@@ -258,6 +258,7 @@ function populate_user_view(){
       });
 
       Object.keys(acts).forEach(function(key) {
+        $("#" + acts[key]["id"] + "_btn").off('click');
         $("#" + acts[key]["id"] + "_btn").click(activity_dropdown);
       });
 
@@ -408,39 +409,6 @@ function get_company_staffs(){
   }
 };
 
-
-/*document.getElementById("my_report_tab").innerHTML = "";
-    var acts = window.user_json["activities"];
-    if(!isNullOrUndefinedOrEmpty(acts)){
-      Object.keys(acts).forEach(function(key) {
-        var a_view = window.report1 + acts[key]["description"] + window.report3 +
-          acts[key]["epoch"] + window.report5;
-          a_view = a_view.replaceAll("activity_id", acts[key]["id"]);
-        document.getElementById("my_report_tab").innerHTML = document.getElementById("my_report_tab").innerHTML + a_view
-        //$("#" + acts[key]["id"] + "_btn").click(activity_dropdown);
-      });
-
-      Object.keys(acts).forEach(function(key) {
-        $("#" + acts[key]["id"] + "_btn").click(activity_dropdown);
-      });
-
-      if(document.getElementById("my_report_tab").innerHTML == ""){
-        $("#my_report_tab").append("<br> No record for user");
-      }
-    }
-    
-    
-};
-
-var activity_dropdown = function(e){
-  var href = $(this).attr('href');
-  if($(href).hasClass("show")){
-    $(href).removeClass("show");
-  }else{
-    $(href).addClass("show");
-  }
-}*/
-
 function populate_users_view(){
   
   document.getElementById("users_card").innerHTML = "";
@@ -453,7 +421,9 @@ function populate_users_view(){
   });
 
   Object.keys(window.users).forEach(function(key) {
+    $("#" + key + "_btn").off('click');
     $("#" + key + "_btn").click(user_dropdown);
+    $("#" + key + "_cbdiv").off('click');
     $('#' + key + "_cbdiv").click(clicked_user);
     //$('#' + key + "_chref").click(chat);
     //$('#' + key + "_dhref").click(disable_user);
