@@ -55,7 +55,7 @@
                     <li class="dropdown nav-item"><a class="dropdown-toggle nav-link invisible" data-toggle="dropdown" aria-expanded="false" href="#" style="color: white;">Help</a>
                         <div class="dropdown-menu" role="menu"><a class="dropdown-item" role="presentation" href="#">First Item</a><a class="dropdown-item" role="presentation" href="#">Second Item</a><a class="dropdown-item" role="presentation" href="#">Third Item</a></div>
                     </li>
-                </ul><span class="text-center navbar-text actions"> <a class="btn btn-light action-button" role="button" href="/signup" id="signout_btn" style="color: white;">Sign Out</a></span></div>
+                </ul><span class="text-center navbar-text actions"> <button class="btn btn-light btn-sm action-button" type="button" id="signout_btn" style="color: white;">Sign Out</button></span></div>
         </div>
     </nav>
     <div class="features-boxed">
@@ -86,7 +86,7 @@
                             <div class="form-group" style="margin-bottom: 0px;"><input class="form-control" type="password" name="password" disabled="" required="" placeholder="password" id="password_input" style="margin-bottom: 0px;"><span id="password_span" style="margin-left: 2.5%;color: red;font-size: smaller;height: 15px;"></span></div>
                             <div
                                 class="form-group" style="margin-top: 0px;"><input class="form-control" type="text" name="bvn" placeholder="BVN" autocomplete="on" id="bvn_input"></div>
-                        <div class="form-group"><button class="btn btn-primary" type="submit" id="update_btn" style="width: 95%;">Update</button></div>
+                        <div class="form-group"><button class="btn btn-primary btn-sm" type="submit" id="update_btn" style="width: 95%;font-size: 13px;">Update</button></div>
                         </form>
                     </div>
                 </div>
@@ -100,7 +100,7 @@
                 </div>
                 <div class="tab-pane" role="tabpanel" id="tab-7">
                     <form id="create_biz_form">
-                        <h2 class="text-center">Add business</h2>
+                        <h2 class="text-center" style="font-size: 25px;padding: 0px;margin-top: 20px;margin-bottom: 0px;">Add business</h2>
                         <div class="form-group"><input class="form-control" type="text" name="firstname" required="" placeholder="First Name" autocomplete="on" id="biz_fn_input"></div>
                         <div class="form-group"><input class="form-control" type="text" name="lastname" required="" placeholder="Last Name" autocomplete="on" id="biz_ln_input"></div>
                         <div class="form-group" style="margin-bottom: 0px;"><input class="form-control" type="text" required="" placeholder="Email address" autocomplete="on" inputmode="email" id="biz_email_input" style="margin-bottom: 0px;"><span id="usr_email_span" style="margin-left: 2.5%;color: red;font-size: smaller;"></span></div>
@@ -111,7 +111,7 @@
             <div
                 class="form-group" style="margin-top: 0px;"><select class="form-control" id="biz_industry_input" style="padding: 0px;"><optgroup label="Industry" id="industry_group"></optgroup></select></div>
         <div class="form-group" style="margin-top: 0px;"><span id="biz_error_span" style="margin-left: 2.5%;color: red;font-size: smaller;height: 15px;"></span></div>
-        <div class="form-group"><button class="btn btn-primary" type="submit" id="create_biz_btn" style="width: 95%;">Add</button></div>
+        <div class="form-group"><button class="btn btn-primary btn-sm" type="submit" id="create_biz_btn" style="width: 95%;font-size: 13px;">Add</button></div>
         </form>
     </div>
     </div>
@@ -127,14 +127,14 @@
                 <div class="tab-pane active" role="tabpanel" id="tab-4">
                     <div class="input-group">
                         <div class="input-group-prepend"></div><input class="form-control" type="text">
-                        <div class="input-group-append"><button class="btn btn-primary" type="button" style="padding: 0px;">Query</button></div>
+                        <div class="input-group-append"><button class="btn btn-primary" type="button" style="padding: 0px;font-size: 13px;">Query</button></div>
                     </div>
                     <div class="card border-white" id="users_card">
                         <div class="card-body border-white invisible" id="user_id_cb" style="padding: 10px;">
                             <h6 class="text-muted card-subtitle mb-2" style="margin: 0px;">displayName</h6><label style="font-size: 14px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;margin-bottom: 0px;">Email : abc@example.com<br></label><label style="font-size: 14px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;/*overflow: scroll;*/overflow: -moz-scrollbars-none;margin-bottom: 0px;">Phone : 07000000000<br></label>
-                            <div><a class="btn btn-primary" data-toggle="collapse" aria-expanded="true" aria-controls="collapse-1" role="button" href="#collapse-1" style="width: 100%;padding: 0px;height: 15px;margin: 0px;font-size: 11px;"><i class="fa fa-angle-down"></i></a>
+                            <div><a class="btn btn-primary" data-toggle="collapse" aria-expanded="false" aria-controls="collapse-1" role="button" href="#collapse-1" style="width: 100%;padding: 0px;height: 15px;margin: 0px;font-size: 11px;"><i class="fa fa-angle-down"></i></a>
                                 <div
-                                    class="collapse show" id="collapse-1">
+                                    class="collapse" id="collapse-1">
                                     <div><a href="#" style="font-size: 14px;margin: 5px;">Chat</a><a href="#" style="font-size: 14px;margin: 5px;">Reset Password</a><a href="#" style="font-size: 14px;margin: 5px;">Disable User</a></div><label style="font-size: 14px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;margin-bottom: 0px;">Industry : Banking and Finance<br></label></div>
                         </div>
                     </div>
@@ -142,7 +142,7 @@
             </div>
             <div class="tab-pane" role="tabpanel" id="tab-8">
                 <form id="create_acct_form">
-                    <h2 class="text-center"><strong>Create/Update&nbsp;</strong>User.</h2><img class="rounded-circle profile-pic" src="assets/img/2.jpg">
+                    <h2 class="text-center" style="font-size: 25px;padding-top: 0px;margin: 0px;margin-top: 20px;"><strong>Create/Update&nbsp;</strong>User.</h2><img class="rounded-circle profile-pic" src="assets/img/2.jpg">
                     <div class="form-group"><input class="form-control" type="text" name="firstname" required="" placeholder="First Name" autocomplete="on" id="usr_fn_input"></div>
                     <div class="form-group"><input class="form-control" type="text" name="lastname" required="" placeholder="Last Name" autocomplete="on" id="usr_ln_input"></div>
                     <div class="form-group" style="margin-bottom: 0px;"><input class="form-control" type="text" required="" placeholder="Email address" autocomplete="on" inputmode="email" id="usr_email_input" style="margin-bottom: 0px;"><span id="usr_email_span" style="margin-left: 2.5%;color: red;font-size: smaller;"></span></div>
@@ -155,7 +155,7 @@
             class="form-group" style="margin-top: 0px;margin-bottom: 0px;"><input class="form-control" type="text" name="bvn" required="" placeholder="BVN" autocomplete="on" id="usr_bvn_input"><span id="usr_bvn_span" style="margin-left: 2.5%;color: red;font-size: smaller;height: 15px;"></span></div>
     <div class="form-group"
         style="margin-top: 0px;"><span id="usr_error_span" style="margin-left: 2.5%;color: red;font-size: smaller;height: 15px;"></span></div>
-    <div class="form-group"><button class="btn btn-primary" type="submit" id="create_user_btn" style="width: 95%;">Create/Update</button></div>
+    <div class="form-group"><button class="btn btn-primary btn-sm" type="submit" id="create_user_btn" style="width: 95%;font-size: 13px;">Create/Update</button></div>
     </form>
     </div>
     </div>
@@ -165,13 +165,17 @@
         <div>
             <div>
                 <ul class="nav nav-tabs">
-                    <li class="nav-item"><a class="nav-link active" role="tab" data-toggle="tab" href="#tab-1" style="font-size: 14px;padding: 6px 6px;padding-right: 8px;padding-left: 8px;">&nbsp;<i class="fa fa-bars"></i>&nbsp; Report</a></li>
-                    <li class="nav-item"><a class="nav-link" role="tab" data-toggle="tab" href="#tab-2" style="font-size: 14px;padding: 6px 6px;padding-right: 8px;padding-left: 8px;">&nbsp;<i class="fa fa-credit-card"></i>&nbsp;Payments</a></li>
+                    <li class="nav-item"><a class="nav-link" role="tab" data-toggle="tab" href="#tab-1" style="font-size: 14px;padding: 6px 6px;padding-right: 8px;padding-left: 8px;">&nbsp;<i class="fa fa-bars"></i>&nbsp; Report</a></li>
+                    <li class="nav-item"><a class="nav-link active" role="tab" data-toggle="tab" href="#tab-2" style="font-size: 14px;padding: 6px 6px;padding-right: 8px;padding-left: 8px;">&nbsp;<i class="fa fa-credit-card"></i>&nbsp;Payments</a></li>
                     <li class="nav-item"><a class="nav-link" role="tab" data-toggle="tab" href="#tab-3" style="font-size: 14px;padding: 6px 6px;padding-right: 8px;padding-left: 8px;"><i class="far fa-comment-alt"></i>&nbsp;Conversations</a></li>
                 </ul>
                 <div class="tab-content">
-                    <div class="tab-pane active" role="tabpanel" id="tab-1"></div>
-                    <div class="tab-pane" role="tabpanel" id="tab-2">
+                    <div class="tab-pane" role="tabpanel" id="tab-1"></div>
+                    <div class="tab-pane active" role="tabpanel" id="tab-2">
+                        <div class="input-group">
+                            <div class="input-group-prepend"></div><input class="form-control" type="text">
+                            <div class="input-group-append"><button class="btn btn-primary" type="button" style="padding: 0px;font-size: 13px;">Query</button></div>
+                        </div>
                         <div class="card visible" id="transactions_card">
                             <div class="card-body visible" style="padding: 10px;">
                                 <h6 class="text-muted card-subtitle mb-2" style="font-size: 12px;">Payment ID :</h6>
@@ -189,7 +193,7 @@
                 <div class="tab-pane" role="tabpanel" id="tab-3">
                     <div class="input-group">
                         <div class="input-group-prepend"></div><input class="form-control" type="text">
-                        <div class="input-group-append"><button class="btn btn-primary" type="button" style="padding: 0px;">Query</button></div>
+                        <div class="input-group-append"><button class="btn btn-primary btn-sm" type="button" style="padding: 0px;font-size: 13px;">Query</button></div>
                     </div>
                 </div>
             </div>

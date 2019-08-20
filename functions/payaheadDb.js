@@ -287,4 +287,30 @@ payaheadDb.prototype.get_company_users = function(email, response){
   );
 };
 
+payaheadDb.prototype.get_users = function(response){
+  var users = {};
+  users_ref.orderByKey().once('value').then(
+    function(snapshot) {
+      snapshot.forEach(
+        function(childSnapshot) {
+          var user = {
+              "uid" : childSnapshot.val()["uid"],
+              "displayName" : childSnapshot.val()["displayName"],
+              "email" : childSnapshot.val()["email"],
+              "PhoneNumber" : childSnapshot.val()["PhoneNumber"],
+              "industry" : childSnapshot.val()["industry"],
+              "activities" : childSnapshot.val()["activities"]
+            }
+            users[childSnapshot.key] = user;
+        }
+      )
+      response.status(200).json(users);
+    },
+    function(error) {
+      console.log(error);
+      response.status(400).json(error);
+    }
+  );
+};
+
 module.exports = payaheadDb;

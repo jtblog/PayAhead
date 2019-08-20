@@ -21,7 +21,7 @@ payaheadAuth.prototype.signin = function (credential_name, credential_password, 
 				  		UserCredential.user.getIdToken(true)
 				  		.then(function(token){
 				  			mDb.get_user(UserCredential.user["uid"], token, response);
-				  			mDb.write_activity( {"epoch": `${Date.now()}`, "uid": UserCredential.user["uid"], "description": "Signed in to PayAhead" });
+				  			mDb.write_activity( {"epoch": `${Date.now()}`, "uid": UserCredential.user["uid"], "description": "Signed in to PayAhead" }, response);
 				  		})
 				  		.catch(function(error) {
 				  			console.log(error);
@@ -46,7 +46,7 @@ payaheadAuth.prototype.signin = function (credential_name, credential_password, 
 					  		UserCredential.user.getIdToken(true)
 					  		.then(function(token){
 					  			mDb.get_user(UserCredential.user["uid"], token, response);
-					  			mDb.write_activity( {"epoch": `${Date.now()}`, "uid": UserCredential.user["uid"], "description": "Signed in to PayAhead" } );
+					  			mDb.write_activity( {"epoch": `${Date.now()}`, "uid": UserCredential.user["uid"], "description": "Signed in to PayAhead" }, response );
 					  		})
 					  		.catch(function(error) {
 					  			console.log(error);
@@ -120,8 +120,8 @@ payaheadAuth.prototype.update_profile = function (uid, u_details, other_details,
 		    Object.keys(u_details).forEach(function(key) {
 				other_details[key] = u_details[key];
 		    });
+		    mDb.write_activity( {"epoch": `${Date.now()}`, "uid": uid, "description": "Updated his/her profile on PayAhead" }, response );
 		    mDb.set_user(other_details, response);
-		    mDb.write_activity( {"epoch": `${Date.now()}`, "uid": uid, "description": "Updated his/her profile on PayAhead" } );
 		})
 		.catch(function(error) {
 			console.log(error);
@@ -129,10 +129,10 @@ payaheadAuth.prototype.update_profile = function (uid, u_details, other_details,
 		});		
 }; 
 
-payaheadAuth.prototype.signout = function (_uid, response) {
+payaheadAuth.prototype.signout = function (_uid, response, mDb) {
+	mDb.write_activity( {"epoch": `${Date.now()}`, "uid": _uid, "description": "Signed out of PayAhead"}, response);
 	_auth2.revokeRefreshTokens(_uid)
 		.then(function() {
-			mDb.write_activity( {"epoch": `${Date.now()}`, "uid": _uid, "description": "Signed out of PayAhead"} );
 			response.status(200).json({ "message" : "successful" });
 		})
 		.catch(function(error) {
@@ -157,7 +157,7 @@ payaheadAuth.prototype.register_business = function (uid, b_details, other_detai
 			_auth2.setCustomUserClaims(user.uid, {
 			 	business: true,
 			});
-			mDb.write_activity( {"epoch": `${Date.now()}`, "uid": uid, "description": "Registered" + other_details["business_name"] + "as a business entity on PayAhead" });
+			mDb.write_activity( {"epoch": `${Date.now()}`, "uid": uid, "description": "Registered" + other_details["business_name"] + "as a business entity on PayAhead" }, response);
 		    _auth1.signInWithEmailAndPassword(other_details["email"], other_details["password"])
 				.then(function(user) {
 			    	_auth1.currentUser.sendEmailVerification()
@@ -179,7 +179,7 @@ payaheadAuth.prototype.register_business = function (uid, b_details, other_detai
 		});		
 }; 
 
-payaheadAuth.prototype.add_admin = function (credential_name, mDb, response) {
+/*payaheadAuth.prototype.add_admin = function (credential_name, mDb, response) {
 	if(validator.isEmail(credential_name)){
 		_auth2.getUserByEmail(credential_name)
 		    .then(function(user) {
@@ -286,7 +286,7 @@ payaheadAuth.prototype.remove_admin = function(credential_name, mDb, response){
 			response.status(400).json(error);
 		}
 	}
-};
+};*/
 
 
 

@@ -195,7 +195,7 @@ function get_profile(){
         populate_user_view();
         if(window.user_json["isAdmin"] || window.user_json["isAdmin"] == "true"){
           get_users();
-        }else{
+        }else if(window.user_json["isStaff"] || window.user_json["isStaff"] == "true"){
           get_company_staffs();
         }
       })
@@ -245,7 +245,38 @@ function populate_user_view(){
           $("#my_profile_tab").click();
         }
       }
+
+    document.getElementById("my_report_tab").innerHTML = "";
+    var acts = window.user_json["activities"];
+    if(!isNullOrUndefinedOrEmpty(acts)){
+      Object.keys(acts).forEach(function(key) {
+        var a_view = window.report1 + acts[key]["description"] + window.report3 +
+          acts[key]["epoch"] + window.report5;
+          a_view = a_view.replaceAll("activity_id", acts[key]["id"]);
+        document.getElementById("my_report_tab").innerHTML = document.getElementById("my_report_tab").innerHTML + a_view
+        //$("#" + acts[key]["id"] + "_btn").click(activity_dropdown);
+      });
+
+      Object.keys(acts).forEach(function(key) {
+        $("#" + acts[key]["id"] + "_btn").click(activity_dropdown);
+      });
+
+      if(document.getElementById("my_report_tab").innerHTML == ""){
+        $("#my_report_tab").append("<br> No record for user");
+      }
+    }
+    
+    
 };
+
+var activity_dropdown = function(e){
+  var href = $(this).attr('href');
+  if($(href).hasClass("show")){
+    $(href).removeClass("show");
+  }else{
+    $(href).addClass("show");
+  }
+}
 
 /*function populate_industry(){
   var endpoint = "/db/industries";
@@ -377,26 +408,76 @@ function get_company_staffs(){
   }
 };
 
+
+/*document.getElementById("my_report_tab").innerHTML = "";
+    var acts = window.user_json["activities"];
+    if(!isNullOrUndefinedOrEmpty(acts)){
+      Object.keys(acts).forEach(function(key) {
+        var a_view = window.report1 + acts[key]["description"] + window.report3 +
+          acts[key]["epoch"] + window.report5;
+          a_view = a_view.replaceAll("activity_id", acts[key]["id"]);
+        document.getElementById("my_report_tab").innerHTML = document.getElementById("my_report_tab").innerHTML + a_view
+        //$("#" + acts[key]["id"] + "_btn").click(activity_dropdown);
+      });
+
+      Object.keys(acts).forEach(function(key) {
+        $("#" + acts[key]["id"] + "_btn").click(activity_dropdown);
+      });
+
+      if(document.getElementById("my_report_tab").innerHTML == ""){
+        $("#my_report_tab").append("<br> No record for user");
+      }
+    }
+    
+    
+};
+
+var activity_dropdown = function(e){
+  var href = $(this).attr('href');
+  if($(href).hasClass("show")){
+    $(href).removeClass("show");
+  }else{
+    $(href).addClass("show");
+  }
+}*/
+
 function populate_users_view(){
-  document.getElementById("users_card").innerHTML = "<br> Couldn't find a user/staff";
-  var doc = "";
+  
+  document.getElementById("users_card").innerHTML = "";
   Object.keys(window.users).forEach(function(key) {
     var u_view = window.user1 + window.users[key]["displayName"] + window.user3 +
       window.users[key]["email"] + window.user5 + window.users[key]["phoneNumber"] + window.user7 + 
       window.users[key]["industry"] + window.user9;
-      u_view.replace("user_id", key);
-    //$('#' + key + "_cbdiv").click(clicked_user);
+      u_view = u_view.replaceAll("user_id", key);
+    document.getElementById("users_card").innerHTML = document.getElementById("users_card").innerHTML + u_view;
+  });
+
+  Object.keys(window.users).forEach(function(key) {
+    $("#" + key + "_btn").click(user_dropdown);
+    $('#' + key + "_cbdiv").click(clicked_user);
     //$('#' + key + "_chref").click(chat);
     //$('#' + key + "_dhref").click(disable_user);
     //$('#' + key + "_rshref").click(reset_password);
-    doc = doc + u_view;
   });
-  document.getElementById("users_card").innerHTML = doc;
+
+  if(document.getElementById("users_card").innerHTML == ""){
+    $("#users_card").append("<br> No record for user");
+  }
 };
+
+
+var user_dropdown = function(e){
+  var href = $(this).attr('href');
+  if($(href).hasClass("show")){
+    $(href).removeClass("show");
+  }else{
+    $(href).addClass("show");
+  }
+}
 
 var clicked_user = function(e){
   var id = $(this).attr('id');
-  id = id.replace("_cbdiv", "");
+  id = id.replaceAll("_cbdiv", "");
   Object.keys(window.users).forEach(function(key) {
     if(key == id){
       //localStorage["sub_details0"] = window.organizations[key];
@@ -686,6 +767,12 @@ function isNullOrUndefinedOrEmpty(_in){
   }else if(typeof _in == "undefined"){
     return true;
   }
+};
+
+
+String.prototype.replaceAll = function(search, replaceAllment) {
+    var target = this;
+    return target.split(search).join(replaceAllment);
 };
 
 /*function to_postman_JSONstringify_type(_in){

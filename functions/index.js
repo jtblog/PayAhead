@@ -312,7 +312,7 @@ app.post('/signout/:uid', function(request, response){
 		}
 		response.status(400).json(error);
 	}else{
-		mAuth.signout(params["uid"], response);
+		mAuth.signout(params["uid"], response, mDb);
 	}
 });
 
@@ -347,6 +347,10 @@ app.post('/report_error', json_parser, function(request, response){
 	var _in = request.body;
 	_in["epoch"] = `${Date.now()}`;
 	mDb.save_error(_in, response);
+});
+
+app.get('/get_users', verifyToken, function(request, response){
+	mDb.get_users(response);
 });
 
 //mDb.write_activity( {"epoch": `${Date.now()}`, "uid": uid, "description": "Registered" + other_details["business_name"] + "as a business entity on PayAhead" });
@@ -401,7 +405,7 @@ app.get('/admin/company/get_users', isBusinessOrStaff, function(request, respons
 });
 
 app.get('/admin/get_users', isAdmin, function(request, response){
-
+	mDb.get_users(response);
 });
 
 app.post('/admin/auth/signin', json_parser, function(request, response){
@@ -442,7 +446,7 @@ app.post('/admin/signout/:uid', function(request, response){
 		}
 		response.status(400).json(error);
 	}else{
-		mAuth.signout(params["uid"], response);
+		mAuth.signout(params["uid"], response, mDb);
 	}
 });
 

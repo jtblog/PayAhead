@@ -197,6 +197,7 @@ function get_profile(){
         populate_user_view();
         get_transactions();
         get_organizations();
+        get_users();
       })
       .fail(function(jqXHR, textStatus, errorThrown) {
         var error = JSON.parse(jqXHR.responseText);
@@ -298,7 +299,6 @@ function save_t(_res){
     "payee" : window.sub_details0["business_name"],
     "payerId" : window.user_json["uid"],
     "payer" : window.user_json["displayName"],
-    "amount" : _res.amount,
     "epochPayed" : toEpoch(_res.paid_at)
   }
 
@@ -471,6 +471,35 @@ var signin = function(e){
       });
 };
 
+function get_users(){
+  if( isNullOrUndefinedOrEmpty(localStorage["authorization"])){
+    window.location = "signin.html";
+  }else{
+    var endpoint = "/get_users";
+    
+    var settings = {
+      "async": true,
+      "crossDomain": true,
+      "url": host+endpoint,
+      "method": "GET",
+      "headers" : {
+        "authorization" : localStorage["authorization"],
+      }
+    }
+
+    $.ajax(settings)
+      .done(function (response) {
+        var data = response;
+        window.users = data;
+        populate_users_view();
+      })
+      .fail(function(jqXHR, textStatus, errorThrown) {
+        var error = JSON.parse(jqXHR.responseText);
+        errorHandler(error);
+      });
+  }
+};
+
 function get_organizations(){
 
   if( isNullOrUndefinedOrEmpty(localStorage["authorization"]) ){
@@ -502,28 +531,44 @@ function get_organizations(){
 };
 
 function populate_organizations_view(){
-  document.getElementById("organizations_card").innerHTML = "<br> No registered vendors /organization for now. </br><br>Try again later";
-  var doc = "";
+  document.getElementById("organizations_card").innerHTML = "";
+
   Object.keys(window.organizations).forEach(function(key) {
     var o_view = window.company1 + window.organizations[key]["business_name"] + window.company3 +
       window.organizations[key]["description"] + window.company5 + window.organizations[key]["industry"] + window.company7;
-    o_view.replace("business_uid", key);
-    $('#' + key + "_phref").click(go_to_paymentpage);
-    doc =  doc + o_view;
+    o_view = o_view.replaceAll("business_uid", key);
+    document.getElementById("organizations_card").innerHTML = document.getElementById("organizations_card").innerHTML + o_view;
+
+    
   });
-  if(doc != ""){
-    document.getElementById("organizations_card").innerHTML = doc;
+
+  Object.keys(window.organizations).forEach(function(key) {
+    $("#" + key + "_btn").click(org_dropdown);
+    $('#' + key + "_phref").click(go_to_paymentpage);
+  });
+
+  if(document.getElementById("organizations_card").innerHTML == ""){
+    $("#organizations_card").append("<br> No registered vendors /organization for now. </br><br>Try again later");
   }
 };
 
 var go_to_paymentpage = function(e){
   var id = $(this).attr('id');
-  id = id.replace("_phref", "");
+  id = id.replaceAll("_phref", "");
   Object.keys(window.organizations).forEach(function(key) {
     if(key == id){
       localStorage["sub_details0"] = window.organizations[key];
     }
   })
+}
+
+var org_dropdown = function(e){
+  var href = $(this).attr('href');
+  if($(href).hasClass("show")){
+    $(href).removeClass("show");
+  }else{
+    $(href).addClass("show");
+  }
 }
 
 var chat = function(e){
@@ -560,20 +605,34 @@ function get_transactions(){
 };
 
 function populate_transactions_view(){
-  document.getElementById("transactions_card").innerHTML = "<br> No transactions";
-  var doc = "";
+  document.getElementById("transactions_card").innerHTML = "";
   Object.keys(window.transactions).forEach(function(key) {
     var t_view = window.trans1 + window.transactions[key]["paymentId"] + window.trans3 +
       window.transactions[key]["payee"] + window.trans5 + window.transactions[key]["payer"] + window.trans7 + 
       window.transactions[key]["epochPayed"] + window.trans9 + window.transactions[key]["epochVerified"] + window.trans11;
-    t_view.replace("payment_id", key);
-    //$('#' + key + "_rfhref").click(go_to_refundpage);
-    doc = doc + t_view;
+    t_view = t_view.replaceAll("payment_id", key);
+    document.getElementById("transactions_card").innerHTML = document.getElementById("transactions_card").innerHTML + t_view;
+    
   });
-  if(doc != ""){
-    document.getElementById("transactions_card").innerHTML = doc;
+
+   Object.keys(window.transactions).forEach(function(key) {
+    $("#" + key + "_btn").click(trans_dropdown);
+    //$('#' + key + "_rfhref").click(go_to_refundpage);
+  });
+
+  if(document.getElementById("transactions_card").innerHTML == ""){
+    $("#transactions_card").append("<br> No transactions");
   }
 };
+
+var trans_dropdown = function(e){
+  var href = $(this).attr('href');
+  if($(href).hasClass("show")){
+    $(href).removeClass("show");
+  }else{
+    $(href).addClass("show");
+  }
+}
 
 function post_error(error){
   var endpoint = "/report_error";
@@ -772,6 +831,11 @@ function isNullOrUndefinedOrEmpty(_in){
   }else if(typeof _in == "undefined"){
     return true;
   }
+};
+
+String.prototype.replaceAll = function(search, replaceAllment) {
+    var target = this;
+    return target.split(search).join(replaceAllment);
 };
 
 /*function to_postman_JSONstringify_type(_in){
