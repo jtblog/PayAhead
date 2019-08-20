@@ -158,20 +158,29 @@ payaheadAuth.prototype.register_business = function (uid, b_details, other_detai
 			 	business: true,
 			});
 			mDb.write_activity( {"epoch": `${Date.now()}`, "uid": uid, "description": "Registered" + other_details["business_name"] + "as a business entity on PayAhead" }, response);
-		    _auth1.signInWithEmailAndPassword(other_details["email"], other_details["password"])
+		    
+		    _auth1.sendPasswordResetEmail(other_details["email"]).then(function() {
+				
+			}).catch(function(error) {
+				console.log(error);
+		        response.status(400).json(error);
+			});
+
+		    /*_auth1.signInWithEmailAndPassword(other_details["email"], other_details["password"])
 				.then(function(user) {
 			    	_auth1.currentUser.sendEmailVerification()
 						.catch(function(error){
 		                	console.log(error);
 		                	response.status(400).json(error);
 		                });
+
 				}).then(function(user){
 					mDb.set_user(other_details, response);
 				})
 				.catch(function(error) {
 					console.log(error);
 					response.status(400).json(error);
-				});
+				});*/
 		})
 		.catch(function(error) {
 			console.log(error);
