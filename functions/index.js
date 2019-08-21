@@ -353,6 +353,51 @@ app.get('/get_users', verifyToken, function(request, response){
 	mDb.get_users(response);
 });
 
+app.post('/verify_actioncode', json_parser, function(request, response){
+	var _in = request.body;
+	var actionCode = _in["actionCode"];
+	var mode = _in["mode"];
+	if(!isNullOrUndefinedOrEmpty(mode)){
+		switch(mode){
+	        case 'resetPassword':
+	        	mAuth.verify_passwordresetcode(actionCode, response);
+	          break;
+	        case 'recoverEmail':
+	          break;
+	        case 'verifyEmail':
+	        	mAuth.verify_email(actionCode, response, mDb);
+	          break;
+	        default:
+	          // Error: invalid mode.
+	      }
+	  }else{
+	  	response.status(400).json({
+			"code" : "auth/no-mode",
+			"message" : "No action attached"
+		});
+		response.end();
+	  }
+	
+});
+
+app.post('/confirm_password_reset', json_parser, function(request, response){
+	var _in = request.body;
+	var actionCode = _in["actionCode"];
+	var password = _in["newPassword"];
+	var email = _in["email"];
+	if(!isNullOrUndefinedOrEmpty(email)){
+		mAuth.confirm_password_reset(actionCode, password, email, response, mDb);
+	}else{
+		response.status(400).json({
+			"code" : "auth/invalid-email",
+			"message" : "Email cannot be null, empty or undefined"
+		});
+		response.end();
+	}
+});
+
+
+
 //mDb.write_activity( {"epoch": `${Date.now()}`, "uid": uid, "description": "Registered" + other_details["business_name"] + "as a business entity on PayAhead" });
 
 /*

@@ -428,7 +428,7 @@ function populate_users_view(){
     $('#' + key + "_cbdiv").click(clicked_user);
     //$('#' + key + "_chref").click(chat);
     //$('#' + key + "_dhref").click(disable_user);
-    //$('#' + key + "_rshref").click(reset_password);
+    //$('#' + key + "_rshref").click(forgot_password);
   });
 
   if(document.getElementById("users_card").innerHTML == ""){
@@ -436,7 +436,7 @@ function populate_users_view(){
   }
 };
 
-var reset_password = function(e){
+var forgot_password = function(e){
   
 }
 

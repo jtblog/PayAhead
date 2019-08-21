@@ -190,6 +190,45 @@ payaheadAuth.prototype.register_business = function (uid, b_details, other_detai
 		});		
 }; 
 
+payaheadAuth.prototype.verify_passwordresetcode = function (code, response) {
+	 _auth1.verifyPasswordResetCode(code)
+		 .then(function(email) {
+		    var accountEmail = email;
+		    response.status(200).json({"email" : accountEmail});
+		  }).catch(function(error) {
+		    console.log(error);
+		    response.status(400).json(error);
+		  });
+}; 
+
+payaheadAuth.prototype.confirm_password_reset = function (code, newPassword, email, response, mDb) {
+	 _auth1.confirmPasswordReset(code, newPassword)
+	 	.then(function(resp) {
+	 		_auth2.getUserByEmail(email)
+		    .then(function(user) {
+		    	mDb.write_activity( {"epoch": `${Date.now()}`, "uid": user.uid, "description": "Set/Reset password on PayAhead" }, response );
+		    })
+		    .catch(function(error) {
+		    	console.log(error);
+		      	response.status(400).json(error);
+		  	});
+	 		response.status(200).json({"code" : code});
+		}).catch(function(error) {
+			console.log(error);
+		    response.status(400).json(error);
+		});
+}; 
+
+payaheadAuth.prototype.verify_email = function (code, response, mDb) {
+	 _auth1.applyActionCode(code)
+		 .then(function(resp) {
+		 	response.status(200).json({"code" : code});
+		  }).catch(function(error) {
+		    console.log(error);
+		    response.status(400).json(error);
+		  });
+}; 
+
 /*payaheadAuth.prototype.add_admin = function (credential_name, mDb, response) {
 	if(validator.isEmail(credential_name)){
 		_auth2.getUserByEmail(credential_name)

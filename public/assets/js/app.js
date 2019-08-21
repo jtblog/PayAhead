@@ -92,33 +92,101 @@ function sgup(){
 };
 
 function landing(){
+  setInputFilter(document.getElementById("accnum_input"), function(value) {
+        return /^\d*$/.test(value);
+      });
+  $("#npass_form").submit(function(e){e.preventDefault();});
+  $("#reset_btn").click(reset_password);
+
   var urlParams = new URLSearchParams(window.location.search);
   if(urlParams.has('oobCode')){
-    window.oobCode = urlParams.get('oobCode');
+    window.actionCode = urlParams.get('oobCode');
   }
   if(urlParams.has('mode')){
     window.mode = urlParams.get('mode');
   }
-  switch(window.mode){
-    case 'resetPassword':
-      // Display reset password handler and UI.
-      $("#rp_tab").click();
-      $("#landing_tabs").removeClass("invisible");
-      break;
-    case 'recoverEmail':
-      // Display email recovery handler and UI.
-      break;
-    case 'verifyEmail':
-      // Display email verification handler and UI.
-      $("#ev_tab").click();
-      $("#landing_tabs").removeClass("invisible");
-      break;
-    default:
-      // Error: invalid mode.
 
+  var endpoint = "/verify_actioncode";
+  var settings = {
+    "async": true,
+    "crossDomain": true,
+    "url": host+endpoint,
+    "contentType": "application/json",
+    "dataType": "json",
+    "headers" : {
+      "Content-Type": "application/json"
+    },
+    "method": "POST",
+    "data": JSON.stringify({ "actionCode" : window.actionCode, "mode" : window.mode })
   }
 
+  $.ajax(settings)
+    .done(function (response) {
+      var data = response;
+      switch(window.mode){
+        case 'resetPassword':
+          // Display reset password handler and UI.
+          $("#rp_tab").click();
+          $("#landing_tabs").removeClass("invisible");
+          window.sub_details2 = data["email"];
+          break;
+        case 'recoverEmail':
+          // Display email recovery handler and UI.
+          break;
+        case 'verifyEmail':
+          // Display email verification handler and UI.
+          $("#ev_tab").click();
+          $("#landing_tabs").removeClass("invisible");
+          break;
+        default:
+          // Error: invalid mode.
+      }
+    })
+    .fail(function(jqXHR, textStatus, errorThrown) {
+      console.log(jqXHR.responseText);
+      var error = JSON.parse(jqXHR.responseText);
+      errorHandler(error);
+      if(mode == 'resetPassword'){
+        alert("Link is either invalid or expired. Reset password again or contact administrator");
+      }
+    });
 };
+
+var reset_password = function(e){
+  e.preventDefault();
+  reset_all_span();
+  if($("#npass_input").val()  == $("#cnpass_input").val() ){
+    var endpoint = "/confirm_password_reset";
+    var settings = {
+      "async": true,
+      "crossDomain": true,
+      "url": host+endpoint,
+      "contentType": "application/json",
+      "dataType": "json",
+      "headers" : {
+        "Content-Type": "application/json"
+      },
+      "method": "POST",
+      "data": JSON.stringify({ "actionCode" : window.actionCode, "email" : window.sub_details2, "newPassword" : $("#npass_input").val() })
+    }
+
+    $.ajax(settings)
+      .done(function (response) {
+        var data = response;
+        document.getElementById('special_message').innerHTML = "Your password has just been set";
+        $("#ev_tab").click();
+      })
+      .fail(function(jqXHR, textStatus, errorThrown) {
+        console.log(jqXHR.responseText);
+        var error = JSON.parse(jqXHR.responseText);
+        errorHandler(error);
+      });
+  }else{
+    try{
+      $("#cnpass_span").html("Password do not match");
+    }catch(e){}
+  }
+}
 
 var initApp = function() {
   prepare_dependencies();
@@ -815,6 +883,8 @@ var errorHandler = function(error) {
     switch(error.code) {
       case "auth/weak-password":
           $("#password_span").html(error.message);
+          $("#npass_span").html(error.message);
+          $("#cnpass_span").html(error.message);
           break;
       case "auth/wrong-password":
           $("#password_span").html("Incorrect password");
