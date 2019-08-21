@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Page Not Found</title>
+    <title>PayAhead</title>
     <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
     <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
@@ -49,27 +49,64 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-light navbar-expand-md navigation-clean-button">
-        <div class="container"><a class="navbar-brand" href="#" style="color: white;">PayAhead</a><button class="navbar-toggler" data-toggle="collapse" data-target="#navcol-1"><span class="sr-only">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
-            <div
-                class="collapse navbar-collapse" id="navcol-1">
-                <ul class="nav navbar-nav mr-auto">
-                    <li class="nav-item" role="presentation"><a class="nav-link active" href="#" style="color: white;">Features</a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="#" style="color: white;">FAQ</a></li>
-                    <li class="dropdown nav-item"><a class="dropdown-toggle nav-link" data-toggle="dropdown" aria-expanded="false" href="#" style="color: white;">Help</a>
-                        <div class="dropdown-menu" role="menu"><a class="dropdown-item" role="presentation" href="#">First Item</a><a class="dropdown-item" role="presentation" href="#">Second Item</a><a class="dropdown-item" role="presentation" href="#">Third Item</a></div>
-                    </li>
-                </ul><span class="text-center navbar-text actions"> <a href="signin.html" class="login" style="color: white;visibility: hidden;">Sign In</a><a class="btn btn-light action-button" role="button" href="signup.html" style="color: white;visibility: hidden;">Sign Up</a></span></div>
-        </div>
+    <div>
+        <nav class="navbar navbar-light navbar-expand-md navigation-clean-button">
+            <div class="container"><a class="navbar-brand" href="#" style="color: white;">PayAhead</a><button class="navbar-toggler" data-toggle="collapse" data-target="#navcol-1"><span class="sr-only">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+                <div
+                    class="collapse navbar-collapse" id="navcol-1">
+                    <ul class="nav navbar-nav mr-auto">
+                        <li class="nav-item" role="presentation"><a class="nav-link active" href="#" style="color: white;">Features</a></li>
+                        <li class="nav-item" role="presentation"><a class="nav-link" href="#" style="color: white;">FAQ</a></li>
+                        <li class="dropdown nav-item"><a class="dropdown-toggle nav-link" data-toggle="dropdown" aria-expanded="false" href="#" style="color: white;">Help</a>
+                            <div class="dropdown-menu" role="menu"><a class="dropdown-item" role="presentation" href="#">First Item</a><a class="dropdown-item" role="presentation" href="#">Second Item</a><a class="dropdown-item" role="presentation" href="#">Third Item</a></div>
+                        </li>
+                    </ul><span class="text-center navbar-text actions"> <a href="/signin" class="login" style="color: white;font-size: 13px;">Sign In</a><a class="btn btn-light btn-sm action-button" role="button" href="/signup" style="color: white;font-size: 13px;">Sign Up</a></span></div>
+    </div>
     </nav>
-    <div class="container" style="-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;max-width: 360px;max-height: 550px;margin: 0 auto;margin-top: 20px;">
-        <div class="card" style="border: none;">
-            <div class="card-body" style="padding: 0px;border: none;">
-                <h2 class="visible card-title">404</h2>
-                <h1 class="text-muted visible card-subtitle mb-2">Page Not Found</h1>
-                <p class="card-text">This page or URL definitely do not exist.</p>
+    </div>
+    <div style="max-height: 550px;margin: 0 auto;max-width: 360px;">
+        <ul class="nav nav-tabs">
+            <li class="nav-item"><a class="nav-link active" role="tab" data-toggle="tab" href="#tab-1" style="padding: 5px;"><span style="font-size: smaller;">&nbsp;Reset Password</span></a></li>
+            <li class="nav-item"><a class="nav-link" role="tab" data-toggle="tab" href="#tab-2" style="padding: 5px;"><span style="font-size: 14px;">&nbsp;Email Verification</span></a></li>
+            <li class="nav-item"><a class="nav-link" role="tab" data-toggle="tab" href="#tab-3" style="padding: 5px;">&nbsp;<span style="font-size: smaller;">Business Setup</span></a></li>
+        </ul>
+        <div class="tab-content" style="-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;max-width: 360px;max-height: 550px;margin-bottom: 30px;">
+            <div class="tab-pane active" role="tabpanel" id="tab-1">
+                <div class="container" style="background: #ffffff;-ms-overflow-style: none;scrollbar-width: none;overflow-y: scroll;overflow: -moz-scrollbars-none;/*display: inline;*/max-width: 360px;margin: 0 auto;max-height: 550px;padding-top: 50px;border: none;">
+                    <form id="npass_form">
+                        <div class="form-group" style="margin-bottom: 0px;"><input class="form-control" type="password" name="password" required="" placeholder="Enter New Password" id="npass_input" style="margin-bottom: 0px;"><span id="npass_span" style="margin-left: 2.5%;font-size: smaller;color: red;"></span></div>
+                        <div
+                            class="form-group" style="margin-top: 0px;margin-bottom: 0px;"><input class="form-control" type="password" name="password" required="" placeholder="Confirm New Password" id="cnpass_input" style="margin-bottom: 0px;"><span id="cnpass_span" style="margin-left: 2.5%;font-size: smaller;color: red;"></span></div>
+                <div
+                    class="form-group" style="margin-top: 0px;margin-bottom: 0px;"><span id="error_span" style="margin-left: 5%;font-size: smaller;color: red;"></span></div>
+            <div class="form-group" style="margin-top: 0px;"><button class="btn btn-primary btn-sm" type="submit" id="reset_btn" style="width: 95%;font-size: 13px;">Submit Password</button></div>
+            <div class="form-group"><a href="#" class="already"></a></div>
+            </form>
+        </div>
+    </div>
+    <div class="tab-pane" role="tabpanel" id="tab-2">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="text-center card-title">Welcome to PayAhead</h4>
+                <h6 class="text-center text-muted card-subtitle mb-2"><br>Your email address has just been verified<br></h6>
+                <p class="text-center card-text"></p>
             </div>
         </div>
+    </div>
+    <div class="tab-pane" role="tabpanel" id="tab-3">
+        <div class="container" style="background: #ffffff;-ms-overflow-style: none;scrollbar-width: none;overflow-y: scroll;overflow: -moz-scrollbars-none;/*display: inline;*/max-width: 360px;margin: 0 auto;max-height: 550px;padding-top: 50px;border: none;">
+            <form id="bdetails_form">
+                <div class="form-group" style="margin-bottom: 0px;margin-top: 0px;"><input class="form-control" type="text" required="" placeholder="Bank Name" autocomplete="on" inputmode="tel" id="bkname_input" style="margin-bottom: 0px;"><span id="bkname_span" style="margin-left: 2.5%;color: red;font-size: smaller;"></span></div>
+                <div
+                    class="form-group" style="margin-bottom: 0px;margin-top: 0px;"><input class="form-control" type="text" required="" placeholder="Bank Account Number" autocomplete="on" id="accnum_input" style="margin-bottom: 0px;"><span id="accnum_span" style="margin-left: 2.5%;color: red;font-size: smaller;"></span></div>
+        <div
+            class="form-group" style="margin-top: 0px;margin-bottom: 0px;"><span id="error_span" style="margin-left: 5%;font-size: smaller;color: red;"></span></div>
+    <div class="form-group" style="margin-top: 0px;"><button class="btn btn-primary btn-sm" type="submit" id="reset_btn" style="width: 95%;font-size: 13px;">Submit Password</button></div>
+    <div class="form-group"><a href="#" class="already"></a></div>
+    </form>
+    </div>
+    </div>
+    </div>
     </div>
     <div class="features-boxed">
         <div class="container">

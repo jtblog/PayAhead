@@ -15,9 +15,11 @@
           ".read": "true",
           ".write": "true"
         },
-        "transactions": {
-          ".read": "true",
-          ".write": "true"
+        "transactions":{
+          "$uid": {
+            ".read": "true",
+            ".write": "$uid === newData.child('payerId').val() || $uid === newData.child('payerId').val()"
+          }
         }
       }
     },
@@ -46,7 +48,7 @@
     "transactions":{
       "$uid": {
         ".read": "true",
-        ".write": "$uid === newData.child('payerId').val()"
+        ".write": "$uid === newData.child('payerId').val() || $uid === newData.child('payerId').val()"
       }
     }
   }

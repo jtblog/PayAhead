@@ -436,6 +436,18 @@ function populate_users_view(){
   }
 };
 
+var reset_password = function(e){
+  
+}
+
+var disable_user = function(e){
+  
+}
+
+var chat = function(e){
+  
+}
+
 
 var user_dropdown = function(e){
   e.preventDefault();
@@ -474,19 +486,67 @@ var clicked_user = function(e){
       opt = document.createElement('OPTION');
       opt.textContent = user['industry'];
       document.getElementById('usr_industry_group').appendChild(opt);
+
+      /* User reports */
+      document.getElementById("tab-1").innerHTML = "";
+      var acts = user["activities"];
+      if(!isNullOrUndefinedOrEmpty(acts)){
+        Object.keys(acts).forEach(function(key) {
+          var a_view = window.report1 + acts[key]["description"] + window.report3 +
+            acts[key]["epoch"] + window.report5;
+            a_view = a_view.replaceAll("activity_id", acts[key]["id"]);
+          document.getElementById("tab-1").innerHTML = document.getElementById("tab-1").innerHTML + a_view;
+        });
+
+        Object.keys(acts).forEach(function(key) {
+          $("#" + acts[key]["id"] + "_btn").off('click');
+          $("#" + acts[key]["id"] + "_btn").click(activity_dropdown);
+        });
+
+        if(document.getElementById("tab-1").innerHTML == ""){
+          $("#tab-1").append("<br> No record for user");
+        }
+      }
+
+      /* User transactions */
+      document.getElementById("usr_transactions_card").innerHTML = "";
+      var trans = user["transactions"];
+
+      Object.keys(trans).forEach(function(key) {
+        var t_view = window.trans1 + trans[key]["paymentId"] + window.trans3 +
+          trans[key]["payee"] + window.trans5 + trans[key]["payer"] + window.trans7 + 
+          trans[key]["epochPayed"] + window.trans9 + trans[key]["epochVerified"] + window.trans11;
+        t_view = t_view.replaceAll("payment_id", key);
+        document.getElementById("usr_transactions_card").innerHTML = document.getElementById("usr_transactions_card").innerHTML + t_view;
+      });
+
+      Object.keys(trans).forEach(function(key) {
+        $("#" + key + "_btn").off('click');
+        $("#" + key + "_btn").click(trans_dropdown);
+        $("#" + key + "_rfhref").off('click');
+        //$('#' + key + "_rfhref").click(go_to_refundpage);
+        $("#" + key + "_vhref").off('click');
+        //$('#' + key + "_vhref").click(verify);
+      });
+
+      if(document.getElementById("transactions_card").innerHTML == ""){
+        $("#transactions_card").append("<br> No transactions");
+      }
     }
-  })
+  });
 }
 
-var reset_password = function(e){
-  
+var trans_dropdown = function(e){
+  e.preventDefault();
+  var href = $(this).attr('href');
+  if($(href).hasClass("show")){
+    $(href).removeClass("show");
+  }else{
+    $(href).addClass("show");
+  }
 }
 
-var disable_user = function(e){
-  
-}
-
-var chat = function(e){
+var verify = function(e){
   
 }
 

@@ -77,7 +77,7 @@ payaheadDb.prototype.set_user = function(uj, response) {
           console.log(error);
           response.status(400).json(error);
         } else {
-          response.status(200).json(uj);
+          //response.status(200).json(uj);
         }
     });
 };
@@ -127,11 +127,18 @@ payaheadDb.prototype.get_industry = function(response){
   );
 };
 
-payaheadDb.prototype.get_user = function(uid, authorization, response){
+payaheadDb.prototype.get_user = function(uid, authorization, usr, response, mDb){
   
   _db.ref("users/" + uid).once("value", function(data) {
       if (data) {
-        response.status(200).json({"authorization" : authorization, "user" : data });
+        var dt = data;
+        if(!usr == null){
+          Object.keys(usr).forEach(function(key) {
+            dt[key] = usr[key];
+          });
+          mDb.set_user(dt, response);
+        }
+        response.status(200).json({"authorization" : authorization, "user" : dt });
       } else {
         console.log(error);
         response.status(400).json(error);

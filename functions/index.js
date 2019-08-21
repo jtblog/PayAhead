@@ -252,7 +252,7 @@ app.get('/get_profile/:uid', verifyToken, function(request, response){
 		}
 		response.status(400).json(error);
 	}else{
-		mDb.get_user(params["uid"], request.headers.authorization, response);
+		mDb.get_user(params["uid"], request.headers.authorization, null, response);
 	}
 });
 
@@ -432,7 +432,7 @@ app.get('/admin/get_profile/:uid', verifyToken, function(request, response){
 		}
 		response.status(400).json(error);
 	}else{
-		mDb.get_user(params["uid"], request.headers.authorization, response);
+		mDb.get_user(params["uid"], request.headers.authorization, null, response, mDb);
 	}
 });
 

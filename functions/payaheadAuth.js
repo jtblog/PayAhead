@@ -18,9 +18,10 @@ payaheadAuth.prototype.signin = function (credential_name, credential_password, 
 		    .then(function(user) {
 		    	_auth1.signInWithEmailAndPassword(credential_name, credential_password)
 					.then(function(UserCredential){
+						var _cuser = _auth1.currentUser;
 				  		UserCredential.user.getIdToken(true)
 				  		.then(function(token){
-				  			mDb.get_user(UserCredential.user["uid"], token, response);
+				  			mDb.get_user(UserCredential.user["uid"], token, _cuser, response, mDb);
 				  			mDb.write_activity( {"epoch": `${Date.now()}`, "uid": UserCredential.user["uid"], "description": "Signed in to PayAhead" }, response);
 				  		})
 				  		.catch(function(error) {
@@ -43,9 +44,10 @@ payaheadAuth.prototype.signin = function (credential_name, credential_password, 
 				.then(function(user) {
 			        _auth1.signInWithEmailAndPassword(user.email, credential_password)
 					  	.then(function(UserCredential){
+					  		var _cuser = _auth1.currentUser;
 					  		UserCredential.user.getIdToken(true)
 					  		.then(function(token){
-					  			mDb.get_user(UserCredential.user["uid"], token, response);
+					  			mDb.get_user(UserCredential.user["uid"], token, _cuser, response, mDb);
 					  			mDb.write_activity( {"epoch": `${Date.now()}`, "uid": UserCredential.user["uid"], "description": "Signed in to PayAhead" }, response );
 					  		})
 					  		.catch(function(error) {
