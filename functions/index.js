@@ -377,7 +377,6 @@ app.post('/verify_actioncode', json_parser, function(request, response){
 		});
 		response.end();
 	  }
-	
 });
 
 app.post('/confirm_password_reset', json_parser, function(request, response){
@@ -395,8 +394,6 @@ app.post('/confirm_password_reset', json_parser, function(request, response){
 		response.end();
 	}
 });
-
-
 
 //mDb.write_activity( {"epoch": `${Date.now()}`, "uid": uid, "description": "Registered" + other_details["business_name"] + "as a business entity on PayAhead" });
 

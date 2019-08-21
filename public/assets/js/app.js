@@ -106,50 +106,56 @@ function landing(){
     window.mode = urlParams.get('mode');
   }
 
-  var endpoint = "/verify_actioncode";
-  var settings = {
-    "async": true,
-    "crossDomain": true,
-    "url": host+endpoint,
-    "contentType": "application/json",
-    "dataType": "json",
-    "headers" : {
-      "Content-Type": "application/json"
-    },
-    "method": "POST",
-    "data": JSON.stringify({ "actionCode" : window.actionCode, "mode" : window.mode })
-  }
+  if(!isNullOrUndefinedOrEmpty(window.actionCode)){
+    var endpoint = "/verify_actioncode";
+      var settings = {
+        "async": true,
+        "crossDomain": true,
+        "url": host+endpoint,
+        "contentType": "application/json",
+        "dataType": "json",
+        "headers" : {
+          "Content-Type": "application/json"
+        },
+        "method": "POST",
+        "data": JSON.stringify({ "actionCode" : window.actionCode, "mode" : window.mode })
+      }
 
-  $.ajax(settings)
-    .done(function (response) {
-      var data = response;
-      switch(window.mode){
-        case 'resetPassword':
-          // Display reset password handler and UI.
-          $("#rp_tab").click();
-          $("#landing_tabs").removeClass("invisible");
-          window.sub_details2 = data["email"];
-          break;
-        case 'recoverEmail':
-          // Display email recovery handler and UI.
-          break;
-        case 'verifyEmail':
-          // Display email verification handler and UI.
-          $("#ev_tab").click();
-          $("#landing_tabs").removeClass("invisible");
-          break;
-        default:
-          // Error: invalid mode.
-      }
-    })
-    .fail(function(jqXHR, textStatus, errorThrown) {
-      console.log(jqXHR.responseText);
-      var error = JSON.parse(jqXHR.responseText);
-      errorHandler(error);
-      if(mode == 'resetPassword'){
-        alert("Link is either invalid or expired. Reset password again or contact administrator");
-      }
-    });
+      $.ajax(settings)
+        .done(function (response) {
+          var data = response;
+          switch(window.mode){
+            case 'resetPassword':
+              // Display reset password handler and UI.
+              $("#rp_tab").click();
+              $("#landing_tabs").removeClass("invisible");
+              window.sub_details2 = data["email"];
+              break;
+            case 'recoverEmail':
+              // Display email recovery handler and UI.
+              break;
+            case 'verifyEmail':
+              // Display email verification handler and UI.
+              $("#ev_tab").click();
+              $("#landing_tabs").removeClass("invisible");
+              break;
+            default:
+              // Error: invalid mode.
+          }
+        })
+        .fail(function(jqXHR, textStatus, errorThrown) {
+          console.log(jqXHR.responseText);
+          var error = JSON.parse(jqXHR.responseText);
+          errorHandler(error);
+          if(mode == 'resetPassword'){
+            alert("Link is either invalid or expired. Reset password again or contact administrator");
+          }
+        });
+  }else{
+      //$("#rp_tab").click();
+      //$("#landing_tabs").removeClass("invisible");
+  }
+  
 };
 
 var reset_password = function(e){
