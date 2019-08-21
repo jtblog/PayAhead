@@ -10,6 +10,9 @@ var transactions = {};
 window._prepare = function(){
   
   var site = window.location.href + "";
+  if(site.includes("landing")){
+    landing();
+  }
   switch(site){
     case host+"/":
       break;
@@ -33,6 +36,12 @@ window._prepare = function(){
     case host+"/signup.html":
       sgup();
       break;
+    /*case host+"/landing":
+      
+      break;
+    case host+"/landing.html":
+      landing();
+      break;*/
     case host+"/pay":
       py();
       break;
@@ -80,6 +89,35 @@ function sgup(){
     var input = document.querySelector("#pno_input");
     window.pno_input = window.intlTelInput(input);
     populate_industry();
+};
+
+function landing(){
+  var urlParams = new URLSearchParams(window.location.search);
+  if(urlParams.has('oobCode')){
+    window.oobCode = urlParams.get('oobCode');
+  }
+  if(urlParams.has('mode')){
+    window.mode = urlParams.get('mode');
+  }
+  switch(window.mode){
+    case 'resetPassword':
+      // Display reset password handler and UI.
+      $("#rp_tab").click();
+      $("#landing_tabs").removeClass("invisible");
+      break;
+    case 'recoverEmail':
+      // Display email recovery handler and UI.
+      break;
+    case 'verifyEmail':
+      // Display email verification handler and UI.
+      $("#ev_tab").click();
+      $("#landing_tabs").removeClass("invisible");
+      break;
+    default:
+      // Error: invalid mode.
+
+  }
+
 };
 
 var initApp = function() {
