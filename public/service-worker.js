@@ -29,7 +29,6 @@ const FILES_TO_CACHE = [
   '/assets/js/install.js',
   '/assets/js/intlTelInput-jquery.min.js',
   '/assets/js/intlTelInput.js',
-  '/assets/js/resources.js',
   '/assets/js/script.min.js',
   '/assets/js/utils.js',
   '/assets/js/jquery.min.js',

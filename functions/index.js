@@ -12,6 +12,7 @@ var json_parser = parser.json( { type: "application/*+json" } );
 var express = require('express');
 
 var serviceAccount  = require('./payahead-firebase-adminsdk-credentials.json');
+var config  = require('./payahead-firebase-javascriptsdk-credentials.json');
 var mAuth = require('./payaheadAuth');
 var mDb = require('./payaheadDb');
 var mPay = require('./payaheadPay');
@@ -20,14 +21,6 @@ var app = express();
 var cors = require('cors');
 app.use(cors());
 
-var config = {
-    "apiKey": "AIzaSyCYLDTKAfXBgAdF6hqF3qsSYo1o-2WHo7s",
-    "databaseURL": "https://payahead-80360.firebaseio.com",
-    "storageBucket": "payahead-80360.appspot.com",
-    "authDomain": "payahead-80360.firebaseapp.com",
-    "messagingSenderId": "392417005472",
-    "projectId": "payahead-80360"
-};
 firebase.initializeApp(config);
 
 // Initialize the default app
@@ -79,87 +72,103 @@ var isNullOrUndefinedOrEmpty = function(_in){
 function verifyToken(request, response, next){
 	var idToken = request.headers.authorization;
 
-	try{
-		var _ctoken = _auth.verifyIdToken(idToken);
-		if(_ctoken){
+	_auth.verifyIdToken(idToken).then(function(decodedToken) {
+		if(decodedToken){
 			//request.body["uid"] = _ctoken.uid;
-			request.uid = _ctoken.uid;
-			request.email = _ctoken.email;
+			request.uid = decodedToken["uid"];
+			request.email = decodedToken["email"];
 			return next();
 		}else{
-			response.status(401).send('Unauthorized');
+			response.status(401).send({"code": "auth/not-logged-in", "message" : "This Priviledge is only granted to PayAhead's logged in users"});
 		}
-	}catch(e){
-		response.status(401).send('Unauthorized');
-	}
+	  }).catch(function(error) {
+	    response.status(401).send(error);
+	  });
 };
 
 function isAdmin(request, response, next){
 	var idToken = request.headers.authorization;
 
-	try{
-		var _ctoken = _auth.verifyIdToken(idToken);
-		if (_ctoken.admin != true) {
-		    response.status(401).send({"code": "auth/not-an-admin", "message" : "This Priviledge is only granted to admin users"});
-		}else{
-			request.uid = _ctoken.uid;
-			request.email = _ctoken.email;
+	_auth.verifyIdToken(idToken).then(function(decodedToken) {
+		if(decodedToken["admin"]){
+			//request.body["uid"] = _ctoken.uid;
+			request.uid = decodedToken["uid"];
+			request.email = decodedToken["email"];
 			return next();
+		}else{
+			response.status(401).send({"code": "auth/not-logged-in", "message" : "This Priviledge is only granted to PayAhead's logged in users"});
 		}
-	}catch(e){
-		response.status(401).send('Unauthorized');
-	}
+	  }).catch(function(error) {
+	    response.status(401).send(error);
+	  });
 };
 
 function isBusiness(request, response, next){
 	var idToken = request.headers.authorization;
 
-	try{
-		var _ctoken = _auth.verifyIdToken(idToken);
-		if (_ctoken.business != true) {
-			response.status(401).send({"code": "auth/not-a-business", "message" : "This priviledge is only granted to Business Owners, Organizations, Ventures or Company Manager's"});
-		}else{
-			request.uid = _ctoken.uid;
-			request.email = _ctoken.email;
+	_auth.verifyIdToken(idToken).then(function(decodedToken) {
+		if(decodedToken["business"]){
+			//request.body["uid"] = _ctoken.uid;
+			request.uid = decodedToken["uid"];
+			request.email = decodedToken["email"];
 			return next();
+		}else{
+			response.status(401).send({"code": "auth/not-logged-in", "message" : "This Priviledge is only granted to PayAhead's logged in users"});
 		}
-	}catch(e){
-		response.status(401).send('Unauthorized');
-	}
+	  }).catch(function(error) {
+	    response.status(401).send(error);
+	  });
 };
 
 function isStaff(request, response, next){
 	var idToken = request.headers.authorization;
 
-	try{
-		var _ctoken = _auth.verifyIdToken(idToken);
-		if (_ctoken.staff != true) {
-			response.status(401).send({"code": "auth/not-a-staff", "message" : "This priviledge is only granted to company Staffs"});
-		}else{
-			request.uid = _ctoken.uid;
-			request.email = _ctoken.email;
+	_auth.verifyIdToken(idToken).then(function(decodedToken) {
+		if(decodedToken["staff"]){
+			//request.body["uid"] = _ctoken.uid;
+			request.uid = decodedToken["uid"];
+			request.email = decodedToken["email"];
 			return next();
+		}else{
+			response.status(401).send({"code": "auth/not-logged-in", "message" : "This Priviledge is only granted to PayAhead's logged in users"});
 		}
-	}catch(e){
-		response.status(401).send('Unauthorized');
-	}
+	  }).catch(function(error) {
+	    response.status(401).send(error);
+	  });
 };
 
 function isBusinessOrStaff(request, response, next){
 	var idToken = request.headers.authorization;
 
-	try{
-		var _ctoken = _auth.verifyIdToken(idToken);
-		if (_ctoken.business == true || _ctoken.staff == true) {
-			request.uid = _ctoken.uid;
-			request.email = _ctoken.email;
+	_auth.verifyIdToken(idToken).then(function(decodedToken) {
+		if(decodedToken["business"] || decodedToken["staff"]){
+			//request.body["uid"] = _ctoken.uid;
+			request.uid = decodedToken["uid"];
+			request.email = decodedToken["email"];
 			return next();
 		}else{
-			response.status(401).send({"code": "auth/not-a-business/staff", "message" : "This priviledge is only granted to Business Owners, Organizations, Ventures or Company Manager's or Staffs"});
+			response.status(401).send({"code": "auth/not-logged-in", "message" : "This Priviledge is only granted to PayAhead's logged in users"});
 		}
-	}catch(e){
-		response.status(401).send('Unauthorized');
-	}
+	  }).catch(function(error) {
+	    response.status(401).send(error);
+	  });
+};
+
+function isAdminOrBusiness(request, response, next){
+	var idToken = request.headers.authorization;
+
+	_auth.verifyIdToken(idToken).then(function(decodedToken) {
+		if(decodedToken["admin"] || decodedToken["business"]){
+			//request.body["uid"] = _ctoken.uid;
+			request.uid = decodedToken["uid"];
+			request.email = decodedToken["email"];
+			return next();
+		}else{
+			response.status(401).send({"code": "auth/not-logged-in", "message" : "This Priviledge is only granted to PayAhead's logged in users"});
+		}
+	  }).catch(function(error) {
+	    response.status(401).send(error);
+	  });
 };
 
 app.get('/', json_parser, function(request, response){
@@ -192,7 +201,36 @@ app.post('/auth/signin', json_parser, function(request, response){
 		response.status(400).json(error);
 		response.end();
 	}else{
-		mAuth.signin(credential_name, credential_password, response, mDb);
+		mAuth.signin(credential_name, credential_password, response, request, mDb);
+	}
+});
+
+app.post('/auth/resend_email_verification', json_parser, function(request, response){
+	var _details = request.body;
+	var credential_name = _details["emailOrPhoneNumber"];
+	//var credential_password = _details["password"];
+
+	if(isNullOrUndefinedOrEmpty(credential_name)){
+		var error = { "code": "auth/not-email-or-phone", "message": "This is neither an email address nor a phone number" }
+		response.status(400).json(error);
+		response.end();
+	}else{
+		mAuth.resend_email_verification(credential_name, response, mDb);
+		//mAuth.resend_email_verification(credential_name, config["apiKey"], response, mDb);
+	}
+});
+
+app.post('/auth/reset_password', json_parser, function(request, response){
+	var _details = request.body;
+	var credential_name = _details["emailOrPhoneNumber"];
+	//var credential_password = _details["password"];
+
+	if(isNullOrUndefinedOrEmpty(credential_name)){
+		var error = { "code": "auth/not-email-or-phone", "message": "This is neither an email address nor a phone number" }
+		response.status(400).json(error);
+		response.end();
+	}else{
+		mAuth.reset_password(credential_name, response, mDb);
 	}
 });
 
@@ -252,9 +290,23 @@ app.get('/get_profile/:uid', verifyToken, function(request, response){
 		}
 		response.status(400).json(error);
 	}else{
-		mDb.get_user(params["uid"], request.headers.authorization, null, response);
+		mDb.get_user(params["uid"], null, request.headers.authorization, response, request, mDb, _auth.verifyIdToken(request.headers.authorization)["business"]);
 	}
 });
+
+/*app.get('/get_user_claims/:uid', verifyToken, function(request, response){
+	//var _in = request.body;
+	var params = request.params;
+	if(isNullOrUndefinedOrEmpty(params["uid"])){
+		var error = {
+    		"code": "db/bad-uid",
+    		"message": "UserID is not attached or is invalid. uid cannot be empty, null or undefined"
+		}
+		response.status(400).json(error);
+	}else{
+		mAuth.get_user_claims(request.headers.authorization, response);
+	}
+});*/
 
 app.post('/update_profile', verifyToken, json_parser, function(request, response){
 	var _details = request.body
@@ -275,7 +327,7 @@ app.post('/update_profile', verifyToken, json_parser, function(request, response
 	
 	var other_details = {};
 	Object.keys(_details).forEach(function(key) {
-		if(key != "photoURL" || key != "phoneNumber" || key != "password" || key != "email" || key != "displayName" || key != "disabled" || key != "emailVerified")
+		if(!(key == "photoURL" || key == "phoneNumber" || key == "password" || key == "email" || key == "displayName" || key == "disabled" || key == "emailVerified"))
 		other_details[key] = _details[key];
 	});
 
@@ -395,43 +447,13 @@ app.post('/confirm_password_reset', json_parser, function(request, response){
 	}
 });
 
-//mDb.write_activity( {"epoch": `${Date.now()}`, "uid": uid, "description": "Registered" + other_details["business_name"] + "as a business entity on PayAhead" });
+app.post('/save_business_account', verifyToken, json_parser, function(request, response){
+	var _in = request.body;
+	var uid = request.uid;
+	mDb.save_businessuser_details(uid, _in, response, mDb);
+});
 
 /*
-app.post('/admin/add_admin', verifyToken, isAdmin, json_parser, function(request, response){
-	var _details = request.body;
-	var credential_name = _details["emailOrPhoneNumber"];
-	var credential_password = _details["password"];
-
-	if(credential_name != null && credential_name != "" && typeof(credential_name) != undefined){
-		mAuth.add_admin(credential_name, mDb, response);
-	}else{
-		var error = {
-    		"code": "auth/not-email-or-phone",
-    		"message": "This is neither an email address nor a phone number"
-		}
-		response.status(400).json(error);
-		response.end();
-	}
-});
-
-app.post('/admin/remove_admin', verifyToken, isAdmin, json_parser, function(request, response){
-	var _details = request.body;
-	var credential_name = _details["emailOrPhoneNumber"];
-	var credential_password = _details["password"];
-
-	if(credential_name != null && credential_name != "" && typeof(credential_name) != undefined){
-		mAuth.remove_admin(credential_name, mDb, response);
-	}else{
-		var error = {
-    		"code": "auth/not-email-or-phone",
-    		"message": "This is neither an email address nor a phone number"
-		}
-		response.status(400).json(error);
-		response.end();
-	}
-});
-
 app.get('/admin/db/get_tranactions', verifyToken, isAdmin, json_parser, function(request, response){
 	//mDb.admin_get_tranactions();
 });*/
@@ -460,7 +482,7 @@ app.post('/admin/auth/signin', json_parser, function(request, response){
 		response.status(400).json(error);
 		response.end();
 	}else{
-		mAuth.signin(credential_name, credential_password, response, mDb);
+		mAuth.signin(credential_name, credential_password, response, request, mDb);
 	}
 });
 
@@ -474,9 +496,23 @@ app.get('/admin/get_profile/:uid', verifyToken, function(request, response){
 		}
 		response.status(400).json(error);
 	}else{
-		mDb.get_user(params["uid"], request.headers.authorization, null, response, mDb);
+		mDb.get_user(params["uid"], null, request.headers.authorization, response, request, mDb, _auth.verifyIdToken(request.headers.authorization)["business"]);
 	}
 });
+
+/*app.get('/admin/get_user_claims/:uid', verifyToken, function(request, response){
+	//var _in = request.body;
+	var params = request.params;
+	if(isNullOrUndefinedOrEmpty(params["uid"])){
+		var error = {
+    		"code": "db/bad-uid",
+    		"message": "UserID is not attached or is invalid. uid cannot be empty, null or undefined"
+		}
+		response.status(400).json(error);
+	}else{
+		mAuth.get_user_claims(request.headers.authorization, response);
+	}
+});*/
 
 app.post('/admin/signout/:uid', function(request, response){
 	//var _in = request.body;
@@ -498,7 +534,7 @@ app.post('/admin/report_error', json_parser, function(request, response){
 	mDb.save_error(_in, response);
 });
 
-app.post('/admin/register_business', verifyToken, isAdmin, json_parser, function(request, response){
+app.post('/admin/register_business', isAdmin, json_parser, function(request, response){
 	var _details = request.body;
 	var pass_key = randStr.generate(8);
 
@@ -512,8 +548,8 @@ app.post('/admin/register_business', verifyToken, isAdmin, json_parser, function
 	b_details["photoURL"] = "https://firebasestorage.googleapis.com/v0/b/payahead-80360.appspot.com/o/index.png?alt=media&token=66c38ec1-6bb7-4aa6-ad09-8b394acd390f";
 	
 	var other_details = {};
-	if(_details["business_name "] != null && _details["business_name "] != "" && typeof(_details["business_name "]) != undefined){
-		other_details["business_name "] = _details["business_name "];
+	if(!isNullOrUndefinedOrEmpty(_details["business_name"])){
+		other_details["business_name"] = _details["business_name"];
 	}else{
 		response.status(400).json({
 			"code" : "auth/no-business-name",
@@ -522,7 +558,7 @@ app.post('/admin/register_business', verifyToken, isAdmin, json_parser, function
 		response.end();
 	}
 
-	if(_details["industry"] != null && _details["industry"] != "" && typeof(_details["industry"]) != undefined){
+	if(!isNullOrUndefinedOrEmpty(_details["industry"])){
 		other_details["industry"] = _details["industry"];
 	}else{
 		response.status(400).json({
@@ -531,9 +567,19 @@ app.post('/admin/register_business', verifyToken, isAdmin, json_parser, function
 		});
 		response.end();
 	}
+
+	if(!isNullOrUndefinedOrEmpty(_details["percentage_charge"])){
+		other_details["percentage_charge"] = _details["percentage_charge"];
+	}else{
+		response.status(400).json({
+			"code" : "auth/no-percentage-charge",
+			"message" : "No Percentage Charge. percentage_charge cannot be null, empty or undefined"
+		});
+		response.end();
+	}
 	
 	/*
-	if(_details["settlement_bank "] != null && _details["settlement_bank "] != "" && typeof(_details["settlement_bank "]) != undefined){
+	if(!isNullOrUndefinedOrEmpty(_details["settlement_bank"])){
 		other_details["settlement_bank "] = _details["settlement_bank "];
 	}else{
 		response.status(400).json({
@@ -543,7 +589,7 @@ app.post('/admin/register_business', verifyToken, isAdmin, json_parser, function
 		response.end();
 	}
 
-	if(_details["account_number "] != null && _details["account_number "] != "" && typeof(_details["account_number "]) != undefined){
+	if(!isNullOrUndefinedOrEmpty(_details["account_number"])){
 		other_details["account_number "] = _details["account_number "];
 	}else{
 		response.status(400).json({
@@ -552,18 +598,41 @@ app.post('/admin/register_business', verifyToken, isAdmin, json_parser, function
 		});
 		response.end();
 	}
-
-	if(_details["percentage_charge "] != null && _details["percentage_charge "] != "" && typeof(_details["percentage_charge "]) != undefined){
-		other_details["percentage_charge "] = _details["percentage_charge "];
-	}else{
-		response.status(400).json({
-			"code" : "auth/no-percentage-charge",
-			"message" : "No Percentage Charge. percentage_charge cannot be null, empty or undefined"
-		});
-		response.end();
-	}
 	*/
 	mAuth.register_business(request.uid, b_details, other_details, response, mDb);
+});
+
+app.post('/admin/resend_email_verification', json_parser, function(request, response){
+	var _details = request.body;
+	var credential_name = _details["emailOrPhoneNumber"];
+	//var credential_password = _details["password"];
+
+	if(isNullOrUndefinedOrEmpty(credential_name)){
+		var error = { "code": "auth/not-email-or-phone", "message": "This is neither an email address nor a phone number" }
+		response.status(400).json(error);
+		response.end();
+	}else{
+		mAuth.resend_email_verification(credential_name, response, mDb);
+		//mAuth.resend_email_verification(credential_name, config["apiKey"], response, mDb);
+	}
+});
+
+app.post('/admin/reset_password', json_parser, isAdminOrBusiness, function(request, response){
+	var _details = request.body;
+	var credential_name = _details["emailOrPhoneNumber"];
+	//var credential_password = _details["password"];
+
+	if(isNullOrUndefinedOrEmpty(credential_name)){
+		var error = { "code": "auth/not-email-or-phone", "message": "This is neither an email address nor a phone number" }
+		response.status(400).json(error);
+		response.end();
+	}else{
+		mAuth.reset_password(credential_name, response, mDb);
+	}
+});
+
+app.get('/admin/db/industries', function(request, response){
+	mDb.get_industry(response);
 });
 
 /*

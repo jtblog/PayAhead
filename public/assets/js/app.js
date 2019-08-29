@@ -10,45 +10,33 @@ var transactions = {};
 window._prepare = function(){
   
   var site = window.location.href + "";
-  if(site.includes("landing")){
+  if(site.indexOf("landing") > -1){
     landing();
+    $("#bdetails_form").submit(function(e){e.preventDefault();});
+  }else if(site.indexOf("signin") > -1){
+    $("#signin_form").submit(signin);
+    //$("#signin_form").submit(function(e){e.preventDefault();});
+    //$("#signin_btn").click(signin);
+    if(site.indexOf("?") > -1){
+      window.location = site.split("?")[0];
+    }else if(site.indexOf("#") > -1){
+      window.location = site.split("#")[0];
+    }
+  }else if(site.indexOf("user") > -1){
+    usr();
+  }else if(site.indexOf("signup") > -1){
+    sgup();
+  }else if(site.indexOf("pay") > -1){
+    py();
   }
+
   switch(site){
     case host+"/":
       break;
     case host:
-      break;
-    case host+"/user":
-      usr();
-      break;
-    case host+"/user.html":
-      usr();
-      break;
-    case host+"/signin":
-      $("#login_form").submit(signin);
-      break;
-    case host+"/signin.html":
-      $("#login_form").submit(signin);
-      break;
-    case host+"/signup":
-      sgup();
-      break;
-    case host+"/signup.html":
-      sgup();
-      break;
-    /*case host+"/landing":
-      
-      break;
-    case host+"/landing.html":
-      landing();
-      break;*/
-    case host+"/pay":
-      py();
-      break;
-    case host+"/pay.html":
-      py();
-      break;
+      break;;
   }
+  
 };
 
 function py(){
@@ -105,6 +93,12 @@ function landing(){
   if(urlParams.has('mode')){
     window.mode = urlParams.get('mode');
   }
+  if(urlParams.has('secret')){
+    window.authorization = urlParams.get('secret');
+    window.bname = urlParams.get('business_name');
+    window.id = urlParams.get('id');
+    window.pc = urlParams.get('agreement');
+  }
 
   if(!isNullOrUndefinedOrEmpty(window.actionCode)){
     var endpoint = "/verify_actioncode";
@@ -152,10 +146,114 @@ function landing(){
           }
         });
   }else{
-      //$("#rp_tab").click();
-      //$("#landing_tabs").removeClass("invisible");
+      
+      var endpoint = "/payment/get_paystack_keys";
+      var settings = {
+        "async": true,
+        "crossDomain": true,
+        "url": host + endpoint,
+        "method": "GET",
+        "headers": {
+          "authorization": window.authorization
+        }
+      }
+
+      $.ajax(settings).done(function (response) {
+        var data = response;
+        window.ky = data["s_key"];
+        var settings = {
+          "async": true,
+          "crossDomain": true,
+          "url": "https://api.paystack.co/bank",
+          "method": "GET",
+          //"contentType": "application/json",
+          //"dataType": "json",
+          "headers" : {
+            //"Content-Type": "application/json",
+            "Authorization" : "Bearer " + data["s_key"]
+          }
+        }
+
+        $.ajax(settings)
+          .done(function (response) {
+            var data = JSON.parse(JSON.stringify(response))['data'];
+            document.getElementById('bkname_group').innerHTML = "";
+            for(i=0; i<data.length; i++){
+              opt = document.createElement('OPTION');
+              opt.textContent = data[i]['name'];
+              opt.value = i;
+              document.getElementById('bkname_group').appendChild(opt);
+            }
+            $("#bs_tab").click();
+            $("#landing_tabs").removeClass("invisible");
+            $("#acc_btn").click(complete_business_reg);
+          })
+          .fail(function(jqXHR, textStatus, errorThrown) {
+            var error = JSON.parse(jqXHR.responseText);
+            errorHandler(error);
+          });
+      }); 
   }
-  
+};
+
+var complete_business_reg = function(){
+
+  window.acc_details = {
+    'business_name' : window.bname,
+    'settlement_bank' : $('#bkname_input option:selected').text(),
+    'account_number' : $("#accnum_input").val(),
+    'percentage_charge' : window.pc
+  }
+
+  var settings = {
+    "async": true,
+    "crossDomain": true,
+    "url": "https://api.paystack.co/subaccount",
+    "method": "POST",
+    "contentType": "application/json",
+    "dataType": "json",
+    "headers" : {
+      "Content-Type": "application/json",
+      "Authorization" : "Bearer " + window.ky
+    },
+    "data": JSON.stringify(window.acc_details)
+  }
+
+  $.ajax(settings)
+    .done(function (response) {
+      var data = JSON.parse(JSON.stringify(response))['data'];
+      data["uid"] = window["id"];
+      data["description"] = $("#desc_input").val();
+      var endpoint = "/save_business_account";
+      var settings = {
+        "async": true,
+        "crossDomain": true,
+        "url": host+endpoint,
+        "method": "POST",
+        "contentType": "application/json",
+        "dataType": "json",
+        "headers" : {
+          "Content-Type": "application/json",
+          "authorization" : window.authorization,
+        },
+        "data": JSON.stringify(data)
+      }
+
+      $.ajax(settings)
+        .done(function (response) {
+          $("#special_message").html("You have successfully registered a business account with PayAhead");
+          $("#ev_tab").click();
+        })
+        .fail(function(jqXHR, textStatus, errorThrown) {
+          var error = JSON.parse(jqXHR.responseText);
+          errorHandler(error);
+        });
+      
+    })
+    .fail(function(jqXHR, textStatus, errorThrown) {
+      var error = JSON.parse(jqXHR.responseText);
+      errorHandler(error);
+    });
 };
 
 var reset_password = function(e){
@@ -192,7 +290,7 @@ var reset_password = function(e){
       $("#cnpass_span").html("Password do not match");
     }catch(e){}
   }
-}
+};
 
 var initApp = function() {
   prepare_dependencies();
@@ -267,7 +365,7 @@ var signup = function(e){
       "contentType": "application/json",
       "dataType": "json",
       "headers": {
-            "Content-Type": "application/json"
+        "Content-Type": "application/json"
       },
       "data": JSON.stringify(window.su_details)
     }
@@ -549,7 +647,6 @@ var verifyOTPcode = function(e){
 
 var signin = function(e){
   e.preventDefault();
-  
   reset_all_span();
   var endpoint = "/auth/signin"
   window.si_details = {
@@ -573,9 +670,14 @@ var signin = function(e){
     $.ajax(settings)
       .done(function (response) {
         var data = response;
-        localStorage["uid"] = data["user"]["uid"];
-        localStorage["authorization"] = data["authorization"];
-        window.location = "user.html";
+        if(!isNullOrUndefinedOrEmpty(data["redirect"])){
+          window.location = data["redirect"];
+        }
+        if(!isNullOrUndefinedOrEmpty(data["user"])){
+          localStorage["uid"] = data["user"]["uid"];
+          localStorage["authorization"] = data["authorization"];
+          window.location = "user.html";
+        }
       })
       .fail(function(jqXHR, textStatus, errorThrown) {
         var error = JSON.parse(jqXHR.responseText);
@@ -643,25 +745,35 @@ function get_organizations(){
 };
 
 function populate_organizations_view(){
+  var org_template = document.getElementById("business_uid_card-body").outerHTML;
   document.getElementById("organizations_card").innerHTML = "";
 
   Object.keys(window.organizations).forEach(function(key) {
-    var o_view = window.company1 + window.organizations[key]["business_name"] + window.company3 +
-      window.organizations[key]["description"] + window.company5 + window.organizations[key]["industry"] + window.company7;
-    o_view = o_view.replaceAll("business_uid", key);
-    document.getElementById("organizations_card").innerHTML = document.getElementById("organizations_card").innerHTML + o_view;
-  });
+    var o_view = org_template.replaceAll("business_uid", key);
+    o_view = o_view.replaceAll("collapse-1", key+"b");
+    o_view = o_view.replaceAll("invisible", "");
+     document.getElementById("organizations_card").innerHTML = document.getElementById("organizations_card").innerHTML + o_view;
 
-  Object.keys(window.organizations).forEach(function(key) {
-    $("#" + key + "_btn").off('click');
-    $("#" + key + "_btn").click(org_dropdown);
-    $("#" + key + "_phref").off('click');
-    $('#' + key + "_phref").click(go_to_paymentpage);
+     //business_uid_imgb
+     $("#" + key + "_h6b").html(window.organizations[key]["business_name"]);
+     if(!isNullOrUndefinedOrEmpty(window.organizations[key]["description"])){
+        $("#" + key + "_pb").html((window.organizations[key]["description"]));
+     }else{
+        $("#" + key + "_pb").html("No description about vendor yet");
+     }
+     
+     //$("#" + key + "_phlblb").html("Phone: " + window.organizations[key]["phoneNumber"]);
+     $("#" + key + "_indlblb").html("Industry: " + window.organizations[key]["industry"]);
   });
+  document.getElementById("organizations_card").innerHTML = document.getElementById("organizations_card").innerHTML + org_template;
 
   if(document.getElementById("organizations_card").innerHTML == ""){
-    $("#organizations_card").append("<br> No registered vendors /organization for now. </br><br>Try again later");
+    $("#organizations_card").append("<br> No organization found. Try again later");
   }
+  
+  Object.keys(window.organizations).forEach(function(key) {
+    $('#' + key + "_phref").click(go_to_paymentpage);
+  });
 };
 
 var go_to_paymentpage = function(e){
@@ -675,52 +787,35 @@ var go_to_paymentpage = function(e){
   })
 }
 
-var org_dropdown = function(e){
-  e.preventDefault();
-  var href = $(this).attr('href');
-  if($(href).hasClass("show")){
-    $(href).removeClass("show");
-  }else{
-    $(href).addClass("show");
-  }
-}
-
 function populate_users_view(){
-  
+  var user_template = document.getElementById("user_id_card-body").outerHTML;
   document.getElementById("users_card").innerHTML = "";
-  Object.keys(window.users).forEach(function(key) {
-    var u_view = window.user1 + window.users[key]["displayName"] + window.user3 +
-      window.users[key]["email"] + window.user5 + window.users[key]["phoneNumber"] + window.user7 + 
-      window.users[key]["industry"] + window.user9;
-      u_view = u_view.replaceAll("user_id", key);
-    document.getElementById("users_card").innerHTML = document.getElementById("users_card").innerHTML + u_view;
-  });
 
   Object.keys(window.users).forEach(function(key) {
-    $("#" + key + "_btn").off('click');
-    $("#" + key + "_btn").click(user_dropdown);
-    $("#" + key + "_chref").off('click');
-    //$('#' + key + "_chref").click(chat);
+    var u_view = user_template.replaceAll("user_id", key);
+    u_view = u_view.replaceAll("collapse-1", key);
+    u_view = u_view.replaceAll("invisible", "");
+     document.getElementById("users_card").innerHTML = document.getElementById("users_card").innerHTML + u_view;
+
+     //user_id_img
+     $("#" + key + "_h6").html(window.users[key]["displayName"]);
+     $("#" + key + "_elbl").html("Email: " + window.users[key]["email"]);
+     $("#" + key + "_phlbl").html("Phone: " + window.users[key]["phoneNumber"]);
+     $("#" + key + "_indlbl").html("Industry: " + window.users[key]["industry"]);
   });
+  document.getElementById("users_card").innerHTML = document.getElementById("users_card").innerHTML + user_template;
 
   if(document.getElementById("users_card").innerHTML == ""){
     $("#users_card").append("<br> No record for user");
   }
+  
+  Object.keys(window.users).forEach(function(key) {
+    //$('#' + key + "_chref").click(chat);
+    //$('#' + key + "_img").click(chat);
+  });
 };
 
-
-var user_dropdown = function(e){
-  e.preventDefault();
-  var href = $(this).attr('href');
-  if($(href).hasClass("show")){
-    $(href).removeClass("show");
-  }else{
-    $(href).addClass("show");
-  }
-}
-
 var chat = function(e){
-  
 }
 
 function get_transactions(){
@@ -753,37 +848,37 @@ function get_transactions(){
 };
 
 function populate_transactions_view(){
+  
+  var trans_template = document.getElementById("payment_id_card-body").outerHTML;
   document.getElementById("transactions_card").innerHTML = "";
-  Object.keys(window.transactions).forEach(function(key) {
-    var t_view = window.trans1 + window.transactions[key]["paymentId"] + window.trans3 +
-      window.transactions[key]["payee"] + window.trans5 + window.transactions[key]["payer"] + window.trans7 + 
-      window.transactions[key]["epochPayed"] + window.trans9 + window.transactions[key]["epochVerified"] + window.trans11;
-    t_view = t_view.replaceAll("payment_id", key);
-    document.getElementById("transactions_card").innerHTML = document.getElementById("transactions_card").innerHTML + t_view;
-    
-  });
 
-  Object.keys(window.transactions).forEach(function(key) {
-    $("#" + key + "_btn").off('click');
-    $("#" + key + "_btn").click(trans_dropdown);
-    $("#" + key + "_rfhref").off('click');
-    //$('#' + key + "_rfhref").click(go_to_refundpage);
-  });
+  if(!isNullOrUndefinedOrEmpty(window.transactions)){
+    Object.keys(window.transactions).forEach(function(key) {
+      var t_view = trans_template.replaceAll("payment_id", key);
+      t_view = t_view.replaceAll("collapse-1", key);
+      t_view = t_view.replaceAll("invisible", "");
+      document.getElementById("transactions_card").innerHTML = document.getElementById("transactions_card").innerHTML + t_view;
+
+      $("#" + key + "_idh6").html("Payment ID: " + window.transactions[key]["paymentId"]);
+      $("#" + key + "_toh6").html("Payed to: " + window.transactions[key]["payee"]);
+      $("#" + key + "_byh6").html("Paid by" + window.transactions[key]["payer"]);
+      $("#" + key + "_timeh6").html("Industry: " + window.transactions[key]["epochPayed"]);
+      $("#" + key + "_vfdlbl").html("Verified on: " + window.transactions[key]["epochVerified"]);
+    });
+  }
+  document.getElementById("transactions_card").innerHTML = document.getElementById("transactions_card").innerHTML + trans_template;
+  
+  if(!isNullOrUndefinedOrEmpty(window.transactions)){
+    Object.keys(window.transactions).forEach(function(key) {
+      //$('#' + key + "_rfhref").click(go_to_refundpage);
+    });
+  }
 
   if(document.getElementById("transactions_card").innerHTML == ""){
     $("#transactions_card").append("<br> No transactions");
   }
-};
 
-var trans_dropdown = function(e){
-  e.preventDefault();
-  var href = $(this).attr('href');
-  if($(href).hasClass("show")){
-    $(href).removeClass("show");
-  }else{
-    $(href).addClass("show");
-  }
-}
+};
 
 function post_error(error){
   var endpoint = "/report_error";
@@ -937,18 +1032,20 @@ var errorHandler = function(error) {
 };
 
 function setInputFilter(textbox, inputFilter) {
-  ["input", "keydown", "keyup", "mousedown", "mouseup", "select", "contextmenu", "drop"].forEach(function(event) {
-    textbox.addEventListener(event, function() {
-      if (inputFilter(this.value)) {
-        this.oldValue = this.value;
-        this.oldSelectionStart = this.selectionStart;
-        this.oldSelectionEnd = this.selectionEnd;
-      } else if (this.hasOwnProperty("oldValue")) {
-        this.value = this.oldValue;
-        this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd);
-      }
+  if(!isNullOrUndefinedOrEmpty(textbox)){
+    ["input", "keydown", "keyup", "mousedown", "mouseup", "select", "contextmenu", "drop"].forEach(function(event) {
+      textbox.addEventListener(event, function() {
+        if (inputFilter(this.value)) {
+          this.oldValue = this.value;
+          this.oldSelectionStart = this.selectionStart;
+          this.oldSelectionEnd = this.selectionEnd;
+        } else if (this.hasOwnProperty("oldValue")) {
+          this.value = this.oldValue;
+          this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd);
+        }
+      });
     });
-  });
+  }
 };
 
 function reset_all_span(){

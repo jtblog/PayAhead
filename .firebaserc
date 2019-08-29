@@ -5,11 +5,11 @@
         "payahead-80360": [
           "payahead-80360"
         ],
-        "payahead": [
-          "payahead"
+        "upayahead": [
+          "upayahead"
         ],
-        "payahead-admin": [
-          "payahead-admin"
+        "a-payahead": [
+          "a-payahead"
         ],
         "target-name": [
           "site-name"
@@ -18,6 +18,7 @@
     }
   },
   "projects": {
-    "production": "payahead-80360"
+    "production": "payahead-80360",
+    "default": "payahead-80360"
   }
 }

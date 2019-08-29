@@ -17,8 +17,6 @@
     <link rel="stylesheet" href="assets/css/Profile-Card-1.css">
     <link rel="stylesheet" href="assets/css/Profile-Card.css">
     <link rel="stylesheet" href="assets/css/styles.css">
-      <script src="assets/js/resources.js"></script>
-
       <!-- Added link rel manifest -->
       <link rel="manifest" href="/manifest.json">
 
@@ -62,7 +60,7 @@
                 </ul><span class="text-center visible navbar-text actions"> <a class="invisible login" href="signin.html" style="color: white;">Sign In</a><a class="btn btn-light invisible action-button" role="button" href="pay.html" id="test_pay" style="color: white;">Test Pay</a></span></div>
         </div>
     </nav>
-    <div style="max-height: 550px;margin: 0 auto;max-width: 360px;">
+    <div style="max-height: 550px;margin: 0 auto;max-width: 360px;padding-left: 3px;padding-right: 3px;">
         <ul class="nav nav-tabs">
             <li class="nav-item"><a class="nav-link active" role="tab" data-toggle="tab" href="#tab-1" style="padding: 5px;"><i class="fa fa-user" style="font-size: larger;"></i><span style="font-size: smaller;">&nbsp;Profile</span></a></li>
             <li class="nav-item"><a class="nav-link" role="tab" data-toggle="tab" href="#tab-2" style="padding: 5px;"><i class="fa fa-money"></i><span style="font-size: 14px;">&nbsp;Payments</span></a></li>
@@ -97,15 +95,15 @@
             <div class="input-group-append"><button class="btn btn-primary btn-sm" type="button" style="padding: 2px;font-size: 13px;margin: 0px;">Query</button></div>
         </div>
         <div class="card border-white" id="transactions_card">
-            <div class="card-body invisible" style="padding: 10px;">
-                <h6 class="text-muted card-subtitle mb-2" style="font-size: 12px;">Payment ID</h6>
-                <h6 class="text-muted card-subtitle mb-2" style="font-size: 12px;">Payed to</h6>
-                <h6 class="text-muted card-subtitle mb-2" style="font-size: 12px;">Payed by</h6>
-                <h6 class="text-muted card-subtitle mb-2" style="font-size: 12px;">Time of pay</h6>
-                <div><a class="btn btn-primary btn-block" data-toggle="collapse" aria-expanded="true" aria-controls="collapse-1" role="button" href="#collapse-1" style="width: 100%;padding: 0px;height: 15px;margin: 0px;font-size: 11px;"><i class="fa fa-angle-down"></i></a>
+            <div class="card-body invisible" id="payment_id_card-body" style="padding: 0px;margin-top: 3px;">
+                <h6 class="text-muted card-subtitle mb-2" id="payment_id_idh6" style="font-size: 12px;">Payment ID</h6>
+                <h6 class="text-muted card-subtitle mb-2" id="payment_id_toh6" style="font-size: 12px;">Payed to</h6>
+                <h6 class="text-muted card-subtitle mb-2" id="payment_id_byh6" style="font-size: 12px;">Payed by</h6>
+                <h6 class="text-muted card-subtitle mb-2" id="payment_id_timeh6" style="font-size: 12px;">Time of pay</h6>
+                <div><a class="btn btn-primary btn-block" data-toggle="collapse" aria-expanded="false" aria-controls="collapse-1" role="button" href="#collapse-1" id="payment_id_btn" style="width: 100%;padding: 0px;height: 3px;margin: 0px;font-size: 11px;">...</a>
                     <div
-                        class="collapse show" id="collapse-1">
-                        <div><a href="#" style="font-size: 14px;margin: 5px;">Request refund</a></div><label style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;margin-bottom: 0px;height: 34px;">Verified on :&nbsp;<br></label></div>
+                        class="collapse" id="collapse-1">
+                        <div><a href="#" id="payment_id_rfhref" style="font-size: 13px;margin: 0px;">Request refund</a></div><label id="payment_id_vfdlbl" style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;margin-bottom: 0px;">Verified on :&nbsp;<br></label></div>
             </div>
         </div>
     </div>
@@ -116,14 +114,18 @@
             <div class="input-group-append"><button class="btn btn-primary" type="button" style="padding: 2px;font-size: 13px;margin: 0px;">Query</button></div>
         </div>
         <div class="card border-white" id="organizations_card">
-            <div class="card-body invisible" style="padding: 10px;">
-                <h6 class="text-muted card-subtitle mb-2" style="margin: 0px;">Company Name</h6>
-                <p class="card-text" style="font-size: 13px;margin: 0px;">Nullam id dolor id nibh ultricies vehicula ut id elit. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Donec id elit non mi porta gravida at eget metus.</p>
-                <h6 class="text-muted card-subtitle mb-2" style="font-size: 12px;margin: 0px;"></h6>
-                <div><a class="btn btn-primary" data-toggle="collapse" aria-expanded="false" aria-controls="collapse-1" role="button" href="#collapse-1" style="width: 100%;padding: 0px;height: 15px;margin: 0px;font-size: 11px;"><i class="fa fa-angle-down"></i></a>
+            <div class="card-body invisible" id="business_uid_card-body" style="margin: 0px;padding: 0px;margin-top: 5px;align-items: stretch!important;-ms-flex-wrap: wrap!important;flex-wrap: wrap!important;">
+                <div style="display: flex!important;">
+                    <div class="container" style="width: 10%;margin-right: auto;margin-left: 0px;padding-left: 0px;align-items: center;float: left;display: block;"><img class="border rounded-circle" src="assets/img/2.jpg" id="business_uid_imgb" style="width: 50px;height: 50px;margin-top: 10px;margin-right: 10px;"></div>
+                    <div class="container" style="height: 100%;padding: 2px;margin-left: 15%;margin-right: 0px;font-size: small;align-items: center;display: block;float: right;">
+                        <h6 class="text-muted mb-2" id="business_uid_h6b" style="margin: 0px;-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;">Company Name</h6>
+                        <p id="business_uid_pb" style="font-size: 13px;margin: 0px;-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;">Nullam id dolor id nibh ultricies vehicula ut id elit. Cras justo odio,&nbsp;</p>
+                    </div>
+                </div>
+                <div style="margin: 0px;"><a class="btn btn-primary" data-toggle="collapse" aria-expanded="false" aria-controls="collapse-1" role="button" href="#collapse-1" id="business_uid_btnb" style="width: 100%;padding: 0px;height: 3px;margin: 0px;font-size: 11px;">...</a>
                     <div
                         class="collapse" id="collapse-1">
-                        <div><a href="#" style="font-size: 14px;margin: 5px;">Pay</a></div><label style="font-size: 14px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;margin-bottom: 0px;">Industry :<br></label></div>
+                        <div style="margin: 0px;"><a href="#" id="business_uid_phref" style="font-size: 13px;margin: 0px;">Pay</a></div><label id="business_uid_indlblb" style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;margin: 0px;">Industry :<br></label></div>
             </div>
         </div>
     </div>
@@ -134,12 +136,19 @@
             <div class="input-group-append"><button class="btn btn-primary btn-sm" type="button" style="padding: 2px;font-size: 13px;margin: 0px;">Query</button></div>
         </div>
         <div class="card border-white" id="users_card">
-            <div class="card-body invisible" style="padding: 10px;">
-                <h6 class="text-muted card-subtitle mb-2" style="margin: 0px;">displayName</h6><label style="font-size: 14px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;margin-bottom: 0px;">Email : abc@example.com<br></label><label style="font-size: 14px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;/*overflow: scroll;*/overflow: -moz-scrollbars-none;margin-bottom: 0px;">Phone : 07000000000<br></label>
-                <div><a class="btn btn-primary" data-toggle="collapse" aria-expanded="false" aria-controls="collapse-1" role="button" href="#collapse-1" style="width: 100%;padding: 0px;height: 15px;margin: 0px;font-size: 11px;"><i class="fa fa-angle-down"></i></a>
+            <div class="card-body invisible" id="user_id_card-body" style="margin: 0px;padding: 0px;margin-top: 5px;align-items: stretch!important;-ms-flex-wrap: wrap!important;flex-wrap: wrap!important;">
+                <div style="display: flex!important;">
+                    <div class="container" style="width: 10%;margin-right: auto;margin-left: 0px;padding-left: 0px;align-items: center;display: block;float: left;"><img class="border rounded-circle" src="assets/img/2.jpg" id="user_id_img" style="width: 50px;height: 50px;margin-top: 10px;margin-right: 10px;"></div>
+                    <div class="container" style="height: 100%;padding: 2px;margin-left: 15%;margin-right: 0px;font-size: small;align-items: center;float: right;display: block;">
+                        <h6 class="text-muted mb-2" id="user_id_h6" style="margin: 0px;-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;">displayName</h6><label id="user_id_elbl" style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;margin: 0px;">Email : abc@example.com<br></label>
+                        <label
+                            id="user_id_phlbl" style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;/*overflow: scroll;*/overflow: -moz-scrollbars-none;margin: 0px;">Phone : 07000000000<br></label>
+                    </div>
+                </div>
+                <div><a class="btn btn-primary btn-sm" data-toggle="collapse" aria-expanded="false" aria-controls="collapse-1" role="button" href="#collapse-1" id="user_id_btn" style="width: 100%;padding: 0px;height: 3px;margin: 0px;font-size: 11px;">...</a>
                     <div
                         class="collapse" id="collapse-1">
-                        <div><a href="#" style="font-size: 14px;margin: 5px;">Chat</a></div><label style="font-size: 14px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;margin-bottom: 0px;">Industry : Banking and Finance<br></label></div>
+                        <div><a href="#" id="user_id_chref" style="font-size: 13px;">Chat</a></div><label id="user_id_indlbl" style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;margin: 0px;">Industry :<br></label></div>
             </div>
         </div>
     </div>
@@ -227,7 +236,6 @@
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="assets/js/app.js"></script>
-    <script src="assets/js/resources.js"></script>
     <script src="assets/js/install.js"></script>
     <script src="assets/js/intlTelInput-jquery.min.js"></script>
     <script src="assets/js/intlTelInput.js"></script>

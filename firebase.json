@@ -29,7 +29,7 @@
       }]
     },
     {
-      "target": "payahead-admin",
+      "target": "a-payahead",
       "public": "public/admin",
       "rewrites": [{
         "source": "**",
@@ -37,7 +37,7 @@
       }]
     },
     {
-      "target": "payahead",
+      "target": "upayahead",
       "public": "public",
       "ignore": [
           "public/admin"

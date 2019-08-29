@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="assets/css/intlTelInput.css">
     <link rel="stylesheet" href="assets/css/styles.css">
       <!-- Added link rel manifest -->
-      <link rel="manifest" href="/manifest.json">
+      <!--<link rel="manifest" href="/manifest.json">-->
 
       <!-- Description -->
       <meta name="description" content="Pay ahead with PayAhead">
@@ -33,14 +33,14 @@
 
       <script defer >
       // CODELAB: Register service worker.
-      if ('serviceWorker' in navigator) {
+      /*if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('/service-worker.js')
               .then((reg) => {
                 console.log('Service worker registered.', reg);
               });
         });
-      }
+      }*/
       </script>
 </head>
 
@@ -66,14 +66,13 @@
                     <div>
                         <ul class="nav nav-tabs">
                             <li class="nav-item"><a class="nav-link active" role="tab" data-toggle="tab" href="#tab-5" id="my_profile_tab" style="font-size: 14px;padding: 6px;padding-right: 6px;padding-left: 6px;"><i class="fa fa-user"></i>&nbsp;My Profile</a></li>
-                            <li class="nav-item"><a class="nav-link" role="tab" data-toggle="tab" href="#my_report_tab" style="font-size: 14px;padding-right: 6px;padding-left: 6px;padding-top: 6px;padding-bottom: 6px;"><i class="fa fa-bars"></i>&nbsp;My Report</a></li>
-                            <li
-                                class="nav-item" style="padding-top: 0px;padding-right: 0px;padding-bottom: 0px;padding-left: 0px;"><a class="nav-link invisible" role="tab" data-toggle="tab" href="#tab-7" id="add_biz_tab" style="font-size: 14px;padding-right: 6px;padding-left: 6px;padding-top: 6px;padding-bottom: 6px;"><i class="fa fa-plus"></i>&nbsp;Add business</a></li>
+                            <li class="nav-item"><a class="nav-link" role="tab" data-toggle="tab" href="#tab-6" style="font-size: 14px;padding: 6px;padding-right: 6px;padding-left: 6px;"><i class="fa fa-bars"></i>&nbsp;My Report<br></a></li>
+                            <li class="nav-item" style="padding-top: 0px;padding-right: 0px;padding-bottom: 0px;padding-left: 0px;"><a class="nav-link invisible" role="tab" data-toggle="tab" href="#tab-7" id="add_biz_tab" style="font-size: 14px;padding-right: 6px;padding-left: 6px;padding-top: 6px;padding-bottom: 6px;"><i class="fa fa-plus"></i>&nbsp;Add business</a></li>
                         </ul>
                         <div class="tab-content">
                             <div class="tab-pane active" role="tabpanel" id="tab-5">
                                 <div class="profile-card">
-                                    <div class="profile-back"></div><img class="rounded-circle profile-pic" src="assets/img/2.jpg">
+                                    <div class="profile-back"></div><img class="rounded-circle profile-pic" src="assets/img/2.jpg" id="profile_pic">
                                     <h3 class="profile-name" style="font-size: medium;">FirstName LastName</h3>
                                     <form id="update_form">
                                         <div class="form-group"><input class="form-control" type="text" name="firstname" required="" placeholder="First Name" autocomplete="on" id="fn_input"></div>
@@ -90,11 +89,17 @@
                         </form>
                     </div>
                 </div>
-                <div class="tab-pane" role="tabpanel" id="my_report_tab">
-                    <div class="invisible"><a class="btn btn-primary btn-block btn-sm bg-light border rounded" data-toggle="collapse" aria-expanded="true" aria-controls="collapse-2" role="button" href="#collapse-2" style="color: rgb(0,0,0);margin: 0px;">Activity</a>
-                        <div class="collapse show"
-                            id="collapse-2">
-                            <p>Collapse content.</p>
+                <div class="tab-pane" role="tabpanel" id="tab-6">
+                    <div class="input-group">
+                        <div class="input-group-prepend"></div><input class="form-control" type="text">
+                        <div class="input-group-append"><button class="btn btn-primary" type="button" style="padding: 0px;font-size: 13px;">Query</button></div>
+                    </div>
+                    <div class="card border-white visible" id="reports_card">
+                        <div class="card-body text-left invisible" id="activity_id_card-body" style="padding: 0px;margin-top: 3px;padding-left: 3px;">
+                            <div><a class="btn btn-primary btn-block btn-sm text-center bg-white border rounded d-xl-flex justify-content-xl-center align-items-xl-start" data-toggle="collapse" aria-expanded="false" aria-controls="collapse-1" role="button"
+                                    href="#collapse-1" id="activity_id_btn" style="width: 100%;padding: 0px;height: 20px;margin: 0px;font-size: 11px;color: rgb(0,0,0);">Signed in to PayAhead</a>
+                                <div class="collapse" id="collapse-1"><label id="activity_id_ephlbl" style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;margin-bottom: 0px;"><br></label></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -109,10 +114,12 @@
                 <div
                     class="form-group" style="margin-bottom: 0px;margin-top: 0px;"><input class="form-control" type="tel" required="" placeholder="Phone number" autocomplete="on" inputmode="tel" id="biz_pno_input" style="margin-bottom: 0px;"><span id="biz_pno_span" style="margin-left: 2.5%;color: red;font-size: smaller;"></span></div>
             <div
-                class="form-group" style="margin-top: 0px;"><select class="form-control" id="biz_industry_input" style="padding: 0px;"><optgroup label="Industry" id="industry_group"></optgroup></select></div>
-        <div class="form-group" style="margin-top: 0px;"><span id="biz_error_span" style="margin-left: 2.5%;color: red;font-size: smaller;height: 15px;"></span></div>
-        <div class="form-group"><button class="btn btn-primary btn-sm" type="submit" id="create_biz_btn" style="width: 95%;font-size: 13px;">Add</button></div>
-        </form>
+                class="form-group" style="margin-bottom: 0px;margin-top: 0px;"><input class="form-control" type="tel" required="" placeholder="Percentage Charge" autocomplete="on" inputmode="numeric" id="biz_pc_input" style="margin-bottom: 0px;"><span id="biz_pc_span" style="margin-left: 2.5%;color: red;font-size: smaller;"></span></div>
+        <div
+            class="form-group" style="margin-top: 0px;"><select class="form-control" id="biz_industry_input" style="padding: 0px;"><optgroup label="Industry" id="biz_industry_group"></optgroup></select></div>
+    <div class="form-group" style="margin-top: 0px;"><span id="biz_error_span" style="margin-left: 2.5%;color: red;font-size: smaller;height: 15px;"></span></div>
+    <div class="form-group"><button class="btn btn-primary btn-sm" type="submit" id="create_biz_btn" style="width: 95%;font-size: 13px;">Add</button></div>
+    </form>
     </div>
     </div>
     </div>
@@ -130,12 +137,22 @@
                         <div class="input-group-append"><button class="btn btn-primary" type="button" style="padding: 0px;font-size: 13px;">Query</button></div>
                     </div>
                     <div class="card border-white" id="users_card">
-                        <div class="card-body text-left border-white invisible" id="user_id_cb" style="padding: 10px;">
-                            <h6 class="text-muted card-subtitle mb-2" style="margin: 0px;">displayName</h6><label style="font-size: 14px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;margin-bottom: 0px;">Email : abc@example.com<br></label><label style="font-size: 14px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;/*overflow: scroll;*/overflow: -moz-scrollbars-none;margin-bottom: 0px;">Phone : 07000000000<br></label>
-                            <div><a class="btn btn-primary" data-toggle="collapse" aria-expanded="false" aria-controls="collapse-1" role="button" href="#collapse-1" style="width: 100%;padding: 0px;height: 15px;margin: 0px;font-size: 11px;"><i class="fa fa-angle-down"></i></a>
+                        <div class="card-body text-left invisible" id="user_id_card-body" style="margin: 0px;padding: 0px;margin-top: 5px;align-items: stretch!important;-ms-flex-wrap: wrap!important;flex-wrap: wrap!important;padding-left: 3px;padding-right: 3px;">
+                            <div style="display: flex!important;">
+                                <div class="container" style="width: 10%;margin-right: auto;margin-left: 0px;padding-left: 0px;display: block;float: left;align-items: center;"><img class="border rounded-circle" src="assets/img/2.jpg" id="user_id_img" style="width: 50px;height: 50px;margin-top: 10px;margin-right: 10px;"></div>
+                                <div class="container d-block" id="user_id_cbdiv" style="height: 100%;padding: 2px;margin-left: 15%;margin-right: 0px;font-size: small;align-items: center;float: right;display: block;">
+                                    <h6 class="text-muted mb-2" id="user_id_h6" style="margin: 0px;-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;">displayName</h6><label id="user_id_elbl" style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;margin: 0px;">Email : abc@example.com<br></label>
+                                    <label
+                                        id="user_id_phlbl" style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;/*overflow: scroll;*/overflow: -moz-scrollbars-none;margin: 0px;">Phone : 07000000000<br></label>
+                                </div>
+                            </div>
+                            <div><a class="btn btn-primary btn-sm" data-toggle="collapse" aria-expanded="false" aria-controls="collapse-1" role="button" href="#collapse-1" id="user_id_btn" style="width: 100%;padding: 0px;height: 3px;margin: 0px;font-size: 11px;">...</a>
                                 <div
                                     class="collapse" id="collapse-1">
-                                    <div><a href="#" style="font-size: 14px;margin: 5px;">Chat</a><a href="#" style="font-size: 14px;margin: 5px;">Reset Password</a><a href="#" style="font-size: 14px;margin: 5px;">Disable User</a></div><label style="font-size: 14px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;margin-bottom: 0px;">Industry : Banking and Finance<br></label></div>
+                                    <div><a href="#" id="user_id_chref" style="font-size: 13px;">Chat</a><a href="#" id="user_id_rshref" style="font-size: 13px;margin-left: 5px;">Reset Password</a><a href="#" id="user_id_dhref" style="margin-left: 5px;font-size: 13px;">Disable User</a></div>
+                                    <label
+                                        id="user_id_indlbl" style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;margin: 0px;">Industry :<br></label>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -170,22 +187,36 @@
                     <li class="nav-item"><a class="nav-link" role="tab" data-toggle="tab" href="#tab-3" style="font-size: 14px;padding: 6px 6px;padding-right: 8px;padding-left: 8px;"><i class="far fa-comment-alt"></i>&nbsp;Conversations</a></li>
                 </ul>
                 <div class="tab-content">
-                    <div class="tab-pane active" role="tabpanel" id="tab-1"></div>
+                    <div class="tab-pane active" role="tabpanel" id="tab-1">
+                        <div class="input-group">
+                            <div class="input-group-prepend"></div><input class="form-control" type="text">
+                            <div class="input-group-append"><button class="btn btn-primary" type="button" style="padding: 0px;font-size: 13px;">Query</button></div>
+                        </div>
+                        <div class="card border-white visible" id="usr_reports_card">
+                            <div class="card-body text-left invisible" id="activity_id_card-bodyb" style="padding: 0px;margin-top: 3px;padding-left: 3px;">
+                                <div><a class="btn btn-primary btn-block btn-sm text-center bg-white border rounded d-xl-flex justify-content-xl-center align-items-xl-start" data-toggle="collapse" aria-expanded="false" aria-controls="collapse-1" role="button"
+                                        href="#collapse-1" id="activity_id_btnb" style="width: 100%;padding: 0px;height: 20px;margin: 0px;font-size: 11px;color: rgb(0,0,0);">Signed in to PayAhead</a>
+                                    <div class="collapse" id="collapse-1"><label id="activity_id_ephlblb" style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;margin-bottom: 0px;"><br></label></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="tab-pane" role="tabpanel" id="tab-2">
                         <div class="input-group">
                             <div class="input-group-prepend"></div><input class="form-control" type="text">
                             <div class="input-group-append"><button class="btn btn-primary" type="button" style="padding: 0px;font-size: 13px;">Query</button></div>
                         </div>
-                        <div class="card visible" id="usr_transactions_card">
-                            <div class="card-body invisible" style="padding: 10px;">
-                                <h6 class="text-muted card-subtitle mb-2" style="font-size: 12px;">Payment ID :</h6>
-                                <h6 class="text-muted card-subtitle mb-2" style="font-size: 12px;">Payed to :</h6>
-                                <h6 class="text-muted card-subtitle mb-2" style="font-size: 12px;">Payed by :</h6>
-                                <h6 class="text-muted card-subtitle mb-2" style="font-size: 12px;">Time of pay :</h6>
-                                <div><a class="btn btn-primary" data-toggle="collapse" aria-expanded="false" aria-controls="collapse-1" role="button" href="#collapse-1" style="width: 100%;padding: 0px;height: 15px;margin: 0px;font-size: 11px;"><i class="fa fa-angle-down"></i></a>
+                        <div class="card border-white visible" id="usr_transactions_card">
+                            <div class="card-body text-left invisible" id="payment_id_card-body" style="padding: 0px;margin-top: 3px;padding-left: 3px;">
+                                <h6 class="text-muted card-subtitle mb-2" id="payment_id_idh6" style="font-size: 12px;">Payment ID</h6>
+                                <h6 class="text-muted card-subtitle mb-2" id="payment_id_toh6" style="font-size: 12px;">Payed to</h6>
+                                <h6 class="text-muted card-subtitle mb-2" id="payment_id_byh6" style="font-size: 12px;">Payed by</h6>
+                                <h6 class="text-muted card-subtitle mb-2" id="payment_id_timeh6" style="font-size: 12px;">Time of pay</h6>
+                                <div><a class="btn btn-primary btn-block" data-toggle="collapse" aria-expanded="true" aria-controls="collapse-1" role="button" href="#collapse-1" id="payment_id_btn" style="width: 100%;padding: 0px;height: 3px;margin: 0px;font-size: 11px;">...</a>
                                     <div
-                                        class="collapse" id="collapse-1">
-                                        <div><a href="#" style="font-size: 14px;margin: 5px;">Request refund</a><a href="#" style="font-size: 14px;margin: 5px;">Verify</a></div><label style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;margin-bottom: 0px;height: 34px;">Verified on :&nbsp;<br></label></div>
+                                        class="collapse show" id="collapse-1">
+                                        <div><a href="#" id="payment_id_rfhref" style="font-size: 13px;margin: 0px;">Request refund</a><a href="#" id="payment_id_rfhref" style="font-size: 13px;margin: 0px;margin-left: 5px;">Verify</a></div><label id="payment_id_vfdlbl"
+                                            style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;margin-bottom: 0px;">Verified on :&nbsp;<br></label></div>
                             </div>
                         </div>
                     </div>
