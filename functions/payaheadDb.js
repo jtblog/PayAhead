@@ -1,35 +1,36 @@
 var _db;
 var industry_ref, paystack_keys_ref, transactions_ref;
 var users_ref;
-var isNullOrUndefinedOrEmpty;
+var isNullOrUndefinedOrEmpty = function(){};
 
 function payaheadDb() {
   isNullOrUndefinedOrEmpty = function(_in){
-    switch(_in){
-      case null:
-        return true;
-        break;
-      case undefined:
-        return true;
-        break;
-      case "null":
-        return true;
-        break;
-      case "undefined":
-        return true;
-        break;
-      default:
-        return false;
-        break;
-    };
-
-    if(typeof _in == "string"){
-      if(_in.trim() == ""){
-        return true;
-      }
-    }else if(typeof _in == "undefined"){
-      return true;
-    };
+    var _check = _in+"";
+      switch(_check){
+        case null:
+          return true;
+          break;
+        case undefined:
+          return true;
+          break;
+        case "null":
+          return true;
+          break;
+        case "undefined":
+          return true;
+          break;
+        default:
+          if(typeof _check == "string"){
+          if(_check.trim() == "" || _check.split(" ").join("") == ""){
+            return true;
+          }else{
+            return false;
+          }
+        }else if(typeof _check == "undefined"){
+          return true;
+        }
+          break;
+      };
   };
 }
 
@@ -139,14 +140,12 @@ payaheadDb.prototype.get_paystack_keys = function(response){
 
 payaheadDb.prototype.get_transactions = function(_uid, response){
   var transactions = {};
-  transactions_ref.orderByKey().once('value').then(
+  _db.ref("transactions/" + _uid).once('value').then(
     function(snapshot) {
       snapshot.forEach(
         function(childSnapshot) {
-          if(!isNullOrUndefinedOrEmpty(childSnapshot.val()["payerId"]) && childSnapshot.val()["payerId"] == _uid){
-            var transaction = childSnapshot.val();
-            transactions[childSnapshot.key] = transaction;
-          }
+          var transaction = childSnapshot.val();
+          transactions[childSnapshot.key] = transaction;
         }
       )
       response.status(200).json(transactions);
@@ -171,6 +170,7 @@ payaheadDb.prototype.get_user = function(uid, _user, authorization, response, re
             Object.keys(_user).forEach(function(key) {
               dt[key] = _user[key];
             });
+            dt["customClaims"] = null;
             mDb.set_user(dt, response);
             response.status(200).json({"authorization" : authorization, "user" : dt });
           }
@@ -198,15 +198,27 @@ payaheadDb.prototype.get_company_users = function(email, response){
       snapshot.forEach(
         function(childSnapshot) {
           if(childSnapshot.val()["email"].endsWith(domain)){
-            var user = {
+            /*var user = {
               "uid" : childSnapshot.val()["uid"],
               "displayName" : childSnapshot.val()["displayName"],
               "email" : childSnapshot.val()["email"],
               "phoneNumber" : childSnapshot.val()["phoneNumber"],
+              "photoURL" : childSnapshot.val()["photoURL"],
               "industry" : childSnapshot.val()["industry"],
-              "activities" : childSnapshot.val()["activities"]
-            }
-            users[childSnapshot.key] = user;
+              "activities" : childSnapshot.val()["activities"],
+              "transactions" : childSnapshot.val()["transactions"],
+              "addedBy" : childSnapshot.val()["addedBy"],
+              "bvn" : childSnapshot.val()["bvn"],
+              "branch" : childSnapshot.val()["branch"],
+              "disabled" : childSnapshot.val()["disabled"],
+              "isBusiness" : childSnapshot.val()["isBusiness"],
+              "isStaff" : childSnapshot.val()["isStaff"],
+              "business_name" : childSnapshot.val()["business_name"],
+              "description" : childSnapshot.val()["description"],
+              "industry" : childSnapshot.val()["industry"],
+              "subaccount_code" : childSnapshot.val()["subaccount_code"]
+            }*/
+            users[childSnapshot.key] = childSnapshot.val();
           }
         }
       )
@@ -225,15 +237,7 @@ payaheadDb.prototype.get_users = function(response){
     function(snapshot) {
       snapshot.forEach(
         function(childSnapshot) {
-          var user = {
-              "uid" : childSnapshot.val()["uid"],
-              "displayName" : childSnapshot.val()["displayName"],
-              "email" : childSnapshot.val()["email"],
-              "phoneNumber" : childSnapshot.val()["phoneNumber"],
-              "industry" : childSnapshot.val()["industry"],
-              "activities" : childSnapshot.val()["activities"]
-            }
-            users[childSnapshot.key] = user;
+            users[childSnapshot.key] = childSnapshot.val();
         }
       )
       response.status(200).json(users);
@@ -287,20 +291,8 @@ payaheadDb.prototype.save_error = function(_in, response){
     });
 };
 
-payaheadDb.prototype.save_tranactions = function(uid, _details, response, mDb){
-  _db.ref("transactions/" + _details["payerId"]).set(
-    _details
-    , function(error) {
-        if (error) {
-          console.log(error);
-          response.status(400).json(error);
-          response.end();
-        } else {
-          response.status(200).json(_details);
-        }
-    });
-
-  _db.ref("users/" + uid + "/transactions/" + _details["epoch"]).set(
+payaheadDb.prototype.save_transaction = function(uid, _details, response, mDb){
+  _db.ref("transactions/" + _details["payerId"] + "/" + _details["epochPayed"]).set(
     _details
     , function(error) {
         if (error) {
@@ -309,6 +301,44 @@ payaheadDb.prototype.save_tranactions = function(uid, _details, response, mDb){
           response.end();
         } else {
           //response.status(200).json(_details);
+        }
+    });
+  _db.ref("transactions/" + _details["payeeId"] + "/" + _details["epochPayed"]).set(
+    _details
+    , function(error) {
+        if (error) {
+          console.log(error);
+          response.status(400).json(error);
+          response.end();
+        } else {
+          //response.status(200).json(_details);
+        }
+    });
+
+  _db.ref("users/" + _details["payeeId"] + "/transactions/" + _details["epochPayed"]).set(
+    _details
+    , function(error) {
+        if (error) {
+          console.log(error);
+          response.status(400).json(error);
+          response.end();
+        } else {
+          //response.status(200).json(_details);
+        }
+    });
+
+  _db.ref("users/" + uid + "/transactions/" + _details["epochPayed"]).set(
+    _details
+    , function(error) {
+        if (error) {
+          console.log(error);
+          response.status(400).json(error);
+          response.end();
+        } else {
+          try{
+            mDb.write_activity( {"epoch": _details["epochPayed"], "uid": uid, "description": "Payed NGN " +  (parseInt(_details["amount"]) / 100) + " to " + _details["payee"]}, response);
+          }catch(e){ console.lo(e)};
+          response.status(200).json(_details);
         }
     });
 };
@@ -346,6 +376,67 @@ payaheadDb.prototype.shareApp = function(idb) {
   paystack_keys_ref = _db.ref('/paystack/keys/');
   users_ref = _db.ref('/users/');
   transactions_ref = _db.ref('/transactions/');
+};
+
+payaheadDb.prototype.update_transaction = function(uid, _details, response, mDb){
+  _db.ref("transactions/" + _details["payerId"] + "/" + _details["epochPayed"]).set(
+    _details
+    , function(error) {
+        if (error) {
+          console.log(error);
+          response.status(400).json(error);
+          response.end();
+        } else {
+          //response.status(200).json(_details);
+        }
+    });
+  _db.ref("transactions/" + _details["payeeId"] + "/" + _details["epochPayed"]).set(
+    _details
+    , function(error) {
+        if (error) {
+          console.log(error);
+          response.status(400).json(error);
+          response.end();
+        } else {
+          //response.status(200).json(_details);
+        }
+    });
+
+  _db.ref("users/" + _details["payerId"] + "/transactions/" + _details["epochPayed"]).set(
+    _details
+    , function(error) {
+        if (error) {
+          console.log(error);
+          response.status(400).json(error);
+          response.end();
+        } else {
+          //response.status(200).json(_details);
+        }
+    });
+
+  _db.ref("users/" + _details["payeeId"] + "/transactions/" + _details["epochPayed"]).set(
+    _details
+    , function(error) {
+        if (error) {
+          console.log(error);
+          response.status(400).json(error);
+          response.end();
+        } else {
+          try{
+            switch(tran["condition"]){
+              case "Refunded":
+                mDb.write_activity( {"epoch": _details["epochRefunded"], "uid": uid, "description": "Refunded payment with id " +  _details["paymentId"] + " made to " + _details["payee"]}, response);
+                break;
+              case "Verified":
+                mDb.write_activity( {"epoch": _details["epochVerified"], "uid": uid, "description": "Verified payment with id " +  _details["paymentId"] + " made to " + _details["payee"]}, response);
+                break;
+              default:
+                break;
+            }
+          }catch(e){ console.lo(e)};
+          response.status(200).json(_details);
+        }
+    });
 };
 
 payaheadDb.prototype.write_activity = function(_details, response){

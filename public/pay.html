@@ -10,11 +10,13 @@
     <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
     <link rel="stylesheet" href="assets/fonts/ionicons.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Actor">
+    <link rel="stylesheet" href="assets/css/bootstrap-datetimepicker.css">
+    <link rel="stylesheet" href="assets/css/buttons.dataTables.min.css">
     <link rel="stylesheet" href="assets/css/Features-Boxed.css">
     <link rel="stylesheet" href="assets/css/Features-Clean.css">
     <link rel="stylesheet" href="assets/css/Footer-Dark.css">
     <link rel="stylesheet" href="assets/css/intlTelInput.css">
-    <link rel="stylesheet" href="assets/css/Profile-Card-1.css">
+    <link rel="stylesheet" href="assets/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="assets/css/Profile-Card.css">
     <link rel="stylesheet" href="assets/css/styles.css">
       <!-- Added link rel manifest -->
@@ -62,7 +64,7 @@
     </nav>
     <div class="profile-card" style="-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;max-width: 360px;max-height: 550px;margin: 0 auto;margin-top: 20px;">
         <div class="profile-back"></div>
-        <h3 class="profile-name" style="margin-top: 100px;font-size: 13px;">Pay [ ]</h3>
+        <h3 id="bname_h3" class="profile-name" style="margin-top: 100px;font-size: 13px;">Pay [ ]</h3>
         <form id="payment_form">
             <div class="form-group" style="margin-top: 0px;"><input class="form-control" type="text" name="amount" required="" placeholder="Enter Amount in Naira" autocomplete="on" id="amount_input"></div>
             <div class="form-group"><button class="btn btn-primary btn-sm" type="submit" id="proceed_btn" style="width: 95%;font-size: 13px;">Proceed to Checkout</button></div>
@@ -148,11 +150,20 @@
     </div>
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
-    <script src="assets/js/app.js"></script>
+    <script src="assets/js/moment-with-locales.js"></script>
+    <script src="assets/js/bootstrap-datetimepicker.js"></script>
     <script src="assets/js/install.js"></script>
     <script src="assets/js/intlTelInput-jquery.min.js"></script>
     <script src="assets/js/intlTelInput.js"></script>
     <script src="assets/js/utils.js"></script>
+    <script src="assets/js/jquery.dataTables.min.js"></script>
+    <script src="assets/js/dataTables.buttons.min.js"></script>
+    <script src="assets/js/jszip.min.js"></script>
+    <script src="assets/js/pdfmake.min.js"></script>
+    <script src="assets/js/vfs_fonts.js"></script>
+    <script src="assets/js/buttons.html5.min.js"></script>
+    <script src="assets/js/RegNumericRange.min.js"></script>
+    <script src="assets/js/app.js"></script>
 </body>
 
 </html>

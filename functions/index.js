@@ -2,6 +2,8 @@ var functions = require('firebase-functions');
 var admin = require('firebase-admin');
 var firebase = require('firebase');
 var randStr = require('randomstring');
+var jsonQuery = require('json-query')
+var Fuse = require('fuse.js')
 
 var parser = require('body-parser');
 var json_parser = parser.json( { type: "application/*+json" } );
@@ -42,7 +44,8 @@ mAuth.shareApp(payahead_auth, defaultApp, _db);
 mDb.shareApp(_db);
 
 var isNullOrUndefinedOrEmpty = function(_in){
-  switch(_in){
+  var _check = _in+"";
+  switch(_check){
     case null:
       return true;
       break;
@@ -56,17 +59,17 @@ var isNullOrUndefinedOrEmpty = function(_in){
       return true;
       break;
     default:
-      return false;
+      if(typeof _check == "string"){
+	    if(_check.trim() == "" || _check.split(" ").join("") == ""){
+	      return true;
+	    }else{
+	    	return false;
+	    }
+	  }else if(typeof _check == "undefined"){
+	    return true;
+	  }
       break;
   };
-
-  if(typeof _in == "string"){
-    if(_in.trim() == ""){
-      return true;
-    }
-  }else if(typeof _in == "undefined"){
-    return true;
-  }
 };
 
 function verifyToken(request, response, next){
@@ -77,6 +80,10 @@ function verifyToken(request, response, next){
 			//request.body["uid"] = _ctoken.uid;
 			request.uid = decodedToken["uid"];
 			request.email = decodedToken["email"];
+			request.admin = decodedToken["admin"];
+			request.business = decodedToken["business"];
+			request.user = decodedToken["user"];
+			request.staff = decodedToken["staff"];
 			return next();
 		}else{
 			response.status(401).send({"code": "auth/not-logged-in", "message" : "This Priviledge is only granted to PayAhead's logged in users"});
@@ -96,7 +103,7 @@ function isAdmin(request, response, next){
 			request.email = decodedToken["email"];
 			return next();
 		}else{
-			response.status(401).send({"code": "auth/not-logged-in", "message" : "This Priviledge is only granted to PayAhead's logged in users"});
+			response.status(401).send({"code": "auth/not-an-admin", "message" : "This Priviledge is only granted to PayAhead's admin users"});
 		}
 	  }).catch(function(error) {
 	    response.status(401).send(error);
@@ -113,7 +120,7 @@ function isBusiness(request, response, next){
 			request.email = decodedToken["email"];
 			return next();
 		}else{
-			response.status(401).send({"code": "auth/not-logged-in", "message" : "This Priviledge is only granted to PayAhead's logged in users"});
+			response.status(401).send({"code": "auth/not-a-business", "message" : "This Priviledge is only granted to PayAhead's registered business owner(s)/vendor"});
 		}
 	  }).catch(function(error) {
 	    response.status(401).send(error);
@@ -130,7 +137,7 @@ function isStaff(request, response, next){
 			request.email = decodedToken["email"];
 			return next();
 		}else{
-			response.status(401).send({"code": "auth/not-logged-in", "message" : "This Priviledge is only granted to PayAhead's logged in users"});
+			response.status(401).send({"code": "auth/not-a-staff", "message" : "This Priviledge is only granted to staffs of businesses registered on PayAhead's"});
 		}
 	  }).catch(function(error) {
 	    response.status(401).send(error);
@@ -147,7 +154,7 @@ function isBusinessOrStaff(request, response, next){
 			request.email = decodedToken["email"];
 			return next();
 		}else{
-			response.status(401).send({"code": "auth/not-logged-in", "message" : "This Priviledge is only granted to PayAhead's logged in users"});
+			response.status(401).send({"code": "auth/not-a-BusinessOrStaff", "message" : "This Priviledge is only granted to PayAhead's registered business owner(s)/vendor or staffs of businesses registered on PayAhead"});
 		}
 	  }).catch(function(error) {
 	    response.status(401).send(error);
@@ -164,7 +171,24 @@ function isAdminOrBusiness(request, response, next){
 			request.email = decodedToken["email"];
 			return next();
 		}else{
-			response.status(401).send({"code": "auth/not-logged-in", "message" : "This Priviledge is only granted to PayAhead's logged in users"});
+			response.status(401).send({"code": "auth/not-an-AdminOrBusiness", "message" : "This Priviledge is only granted to PayAhead's admin users or PayAhead's registered business owner(s)/vendor"});
+		}
+	  }).catch(function(error) {
+	    response.status(401).send(error);
+	  });
+};
+
+function isAdminOrBusinessOrStaff(request, response, next){
+	var idToken = request.headers.authorization;
+
+	_auth.verifyIdToken(idToken).then(function(decodedToken) {
+		if(decodedToken["admin"] || decodedToken["business"] || decodedToken["business"]){
+			//request.body["uid"] = _ctoken.uid;
+			request.uid = decodedToken["uid"];
+			request.email = decodedToken["email"];
+			return next();
+		}else{
+			response.status(401).send({"code": "auth/not-an-AdminOrBusinessOrStaff", "message" : "This Priviledge is only granted to PayAhead's admin users or PayAhead's registered business owner(s)/vendor as well as their staffs"});
 		}
 	  }).catch(function(error) {
 	    response.status(401).send(error);
@@ -308,14 +332,155 @@ app.get('/get_profile/:uid', verifyToken, function(request, response){
 	}
 });*/
 
-app.post('/update_profile', verifyToken, json_parser, function(request, response){
-	var _details = request.body
+app.post('/auth/updateOrCreateUser', isAdminOrBusiness, json_parser, function(request, response){
+	var _details = request.body;
+	var pass_key = randStr.generate(8);
+	var new_data = request.body["newdata"];
+	var isUpdate = false;
+	if(request.email == newdata["email"]){
+		response.status(400).json({ "code" : "auth/failed-to-createOrUpdate",
+			"message" : "You cannot perform an account creation or update through this means"
+		});
+		response.end();
+	}
+	if(_details["email"] == new_data["email"]){
+		isUpdate = true;
+		Object.keys(new_data).forEach(function(key) {
+			_details[key] = new_data[key];
+		});
+		_details["newdata"] = null;
+	}else{
+		isUpdate = false;
+		Object.keys(new_data).forEach(function(key) {
+			if(!isNullOrUndefinedOrEmpty(new_data[key])){
+				_details[key] = new_data[key];
+			}
+		});
+		_details["newdata"] = null;
+		if(!_details["email"].endsWith(request.email.split('@')[1])){
+			if(request.admin || request.user){
+			}else{
+				//Can only create user with the same organization email
+				response.status(400).json({ "code" : "auth/invalid-email-host",
+					"message" : "Can only create/update user with the same organization email"
+				});
+				response.end();
+			}
+		}
+	}
+
 	var u_details = {};
 	u_details["emailVerified"] = _details["emailVerified"];
 	u_details["disabled"] = _details["disabled"];
 	u_details["displayName"] = _details["displayName"];
 	u_details["email"] = _details["email"];
-	u_details["password"] = _details["password"];
+	u_details["password"] = pass_key;
+	u_details["phoneNumber"] = _details["phoneNumber"];
+	if(!isNullOrUndefinedOrEmpty(_details["photoURL"])){
+		u_details["photoURL"] = _details["photoURL"];
+	}else{
+		u_details["photoURL"] = "https://firebasestorage.googleapis.com/v0/b/payahead-80360.appspot.com/o/index.png?alt=media&token=66c38ec1-6bb7-4aa6-ad09-8b394acd390f";
+	}
+	
+	var other_details = {};
+	Object.keys(_details).forEach(function(key) {
+		if(!(key == "photoURL" || key == "phoneNumber" || key == "password" || key == "email" || key == "displayName" || key == "disabled" || key == "emailVerified"))
+		other_details[key] = _details[key];
+	});
+
+	other_details["uid"] = _details["uid"];
+
+	if(!isNullOrUndefinedOrEmpty(_details["bvn"])){
+		other_details["bvn"] = _details["bvn"];
+	}else{
+		response.status(400).json({ "code" : "auth/bvn",
+			"message" : "BVN is not attached or is invalid. bvn cannot be null, empty or undefined"
+		});
+		response.end();
+	}
+
+	if(!isNullOrUndefinedOrEmpty(_details["industry"])){
+		other_details["industry"] = _details["industry"];
+	}else{
+		response.status(400).json({ "code" : "auth/industry",
+			"message" : "Industry is not attached or is invalid. industry cannot be null, empty or undefined"
+		});
+		response.end();
+	}
+
+	if(isUpdate){
+		mAuth.updateUser(u_details, other_details, response, request, mDb);
+	}else{
+		mAuth.createUser(u_details, other_details, response, request, mDb);
+	}
+});
+
+app.post('/auth/update_profile', verifyToken, json_parser, function(request, response){
+	var _details = request.body;
+	var pass_key = randStr.generate(8);
+	var new_data = request.body["newdata"];
+	Object.keys(new_data).forEach(function(key) {
+		if(!isNullOrUndefinedOrEmpty(new_data[key])){
+			_details[key] = new_data[key];
+		}
+	});
+	_details["newdata"] = null;
+
+	var u_details = {};
+	u_details["emailVerified"] = _details["emailVerified"];
+	u_details["disabled"] = _details["disabled"];
+	u_details["displayName"] = _details["displayName"];
+	u_details["email"] = _details["email"];
+	u_details["password"] = pass_key;
+	u_details["phoneNumber"] = _details["phoneNumber"];
+	if(!isNullOrUndefinedOrEmpty(_details["photoURL"])){
+		u_details["photoURL"] = _details["photoURL"];
+	}else{
+		u_details["photoURL"] = "https://firebasestorage.googleapis.com/v0/b/payahead-80360.appspot.com/o/index.png?alt=media&token=66c38ec1-6bb7-4aa6-ad09-8b394acd390f";
+	}
+	
+	var other_details = {};
+	Object.keys(_details).forEach(function(key) {
+		if(!(key == "photoURL" || key == "phoneNumber" || key == "password" || key == "email" || key == "displayName" || key == "disabled" || key == "emailVerified"))
+		other_details[key] = _details[key];
+	});
+
+	other_details["uid"] = _details["uid"];
+
+	if(!isNullOrUndefinedOrEmpty(_details["bvn"])){
+		other_details["bvn"] = _details["bvn"];
+	}else{
+		response.status(400).json({ "code" : "auth/bvn",
+			"message" : "BVN is not attached or is invalid. bvn cannot be null, empty or undefined"
+		});
+		response.end();
+	}
+
+	if(!isNullOrUndefinedOrEmpty(_details["industry"])){
+		other_details["industry"] = _details["industry"];
+	}else{
+		response.status(400).json({ "code" : "auth/industry",
+			"message" : "Industry is not attached or is invalid. industry cannot be null, empty or undefined"
+		});
+		response.end();
+	}
+	mAuth.updateUser(u_details, other_details, response, request, mDb);
+});
+
+app.post('/auth/disableUser', isAdminOrBusiness, json_parser, function(request, response){
+	var _details = request.body;
+	var new_data = request.body["newdata"];
+	Object.keys(new_data).forEach(function(key) {
+		_details[key] = new_data[key];
+	});
+	_details["newdata"] = null;
+
+	var u_details = {};
+	u_details["emailVerified"] = _details["emailVerified"];
+	u_details["disabled"] = _details["disabled"];
+	u_details["displayName"] = _details["displayName"];
+	u_details["email"] = _details["email"];
+	u_details["password"] = pass_key;
 	u_details["phoneNumber"] = _details["phoneNumber"];
 
 	if(!isNullOrUndefinedOrEmpty(_details["photoURL"])){
@@ -351,7 +516,7 @@ app.post('/update_profile', verifyToken, json_parser, function(request, response
 		response.end();
 	}
 
-	mAuth.update_profile(request.uid, u_details, other_details, response, mDb);
+	mAuth.disableUser(u_details, other_details, response, request, mDb);
 });
 
 app.post('/signout/:uid', function(request, response){
@@ -392,7 +557,7 @@ app.get('/payment/get_transactions/:uid', verifyToken, function(request, respons
 app.post('/payment/save_transaction', verifyToken, json_parser, function(request, response){
 	var _details = request.body;
 	_details["paymentId"] = '' + Math.floor((Math.random() * 1000000000) + 1);
-	mDb.save_tranaction(request.uid, _details, response, mDb);
+	mDb.save_transaction(request.uid, _details, response, mDb);
 });
 
 app.post('/report_error', json_parser, function(request, response){
@@ -453,11 +618,505 @@ app.post('/save_business_account', verifyToken, json_parser, function(request, r
 	mDb.save_businessuser_details(uid, _in, response, mDb);
 });
 
+app.post('/db/fsquery', json_parser, function(request, response){
+	var _details = request.body;
+	var jsonObj = _details["jsonObject"];
+	var query = _details["query"];
+	var startDate = _details["startDate"];
+	var endDate = _details["endDate"];
+
+	if(!isNullOrUndefinedOrEmpty(startDate) && !isNullOrUndefinedOrEmpty(endDate)){
+		if(!isNullOrUndefinedOrEmpty(query)){
+			//startDate, endDate and Fuzzy
+			if(startDate < endDate){
+				var _filtrate = [];
+				//var _residue = [];
+				var all_keys = [];
+				Object.keys(jsonObj).forEach(function(key) {
+					all_keys.push(key);
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["createdAt"])){
+						if(jsonObj[key]["createdAt"] >= startDate && jsonObj[key]["createdAt"] <= endDate){
+							jsonObj[key]["key"] = jsonObj[key]["createdAt"];
+							_filtrate.push(jsonObj[key]);
+						}/*else{
+							jsonObj[key]["key"] = jsonObj[key]["createdAt"];
+							_residue.push(jsonObj[key]);
+						}*/
+					}
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["epoch"])){
+						if(jsonObj[key]["epoch"] >= startDate && jsonObj[key]["epoch"] <= endDate){
+							jsonObj[key]["key"] = jsonObj[key]["epoch"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["epochPayed"])){
+						if(jsonObj[key]["epochPayed"] >= startDate && jsonObj[key]["epochPayed"] <= endDate){
+							jsonObj[key]["key"] = jsonObj[key]["epochPayed"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+			    });
+				var showIds = [];
+				var hideIds = [];
+				var keys = [];
+				if(_filtrate.length > 0){
+					Object.keys(_filtrate[0]).forEach(function(key) {
+						keys.push(key);
+				    });
+					var options = {
+					  shouldSort: true,
+					  threshold: 0.6,
+					  location: 0,
+					  distance: 100,
+					  maxPatternLength: 32,
+					  minMatchCharLength: 1,
+					  keys: keys
+					};
+					var fuse = new Fuse(_filtrate, options);
+					var result = fuse.search(query);
+
+					var i;
+					for (i = 0; i < result.length; i++) {
+					  showIds.push(result[i]["key"]);
+					  all_keys.pop(result[i]["key"]);
+					}
+					response.status(200).json({"showIds" : showIds, "hideIds" : all_keys});
+				}else{
+					response.status(200).json({"showIds" : [], "hideIds" : all_keys});
+				}
+			}else{
+				var _filtrate = [];
+				//var _residue = [];
+				var all_keys = [];
+				Object.keys(jsonObj).forEach(function(key) {
+					all_keys.push(key);
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["createdAt"])){
+						if(jsonObj[key]["createdAt"] <= startDate && jsonObj[key]["createdAt"] >= endDate){
+							jsonObj[key]["key"] = jsonObj[key]["createdAt"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["epoch"])){
+						if(jsonObj[key]["epoch"] <= startDate && jsonObj[key]["epoch"] >= endDate){
+							jsonObj[key]["key"] = jsonObj[key]["epoch"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["epochPayed"])){
+						if(jsonObj[key]["epochPayed"] <= startDate && jsonObj[key]["epochPayed"] >= endDate){
+							jsonObj[key]["key"] = jsonObj[key]["epochPayed"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+			    });
+
+			    var showIds = [];
+				var hideIds = [];
+				var keys = [];
+				if(_filtrate.length > 0){
+					Object.keys(_filtrate[0]).forEach(function(key) {
+						keys.push(key);
+				    });
+					var options = {
+					  shouldSort: true,
+					  threshold: 0.6,
+					  location: 0,
+					  distance: 100,
+					  maxPatternLength: 32,
+					  minMatchCharLength: 1,
+					  keys: keys
+					};
+					var fuse = new Fuse(_filtrate, options);
+					var result = fuse.search(query);
+
+					var i;
+					for (i = 0; i < result.length; i++) {
+					  showIds.push(result[i]["key"]);
+					  all_keys.pop(result[i]["key"]);
+					}
+					response.status(200).json({"showIds" : showIds, "hideIds" : all_keys});
+				}else{
+					response.status(200).json({"showIds" : [], "hideIds" : all_keys});
+				}
+			}
+		}else{
+			//startDate and endDate only
+			if(startDate < endDate){
+				var _filtrate = [];
+				//var _residue = [];
+				var all_keys = [];
+				Object.keys(jsonObj).forEach(function(key) {
+					all_keys.push(key);
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["createdAt"])){
+						if(jsonObj[key]["createdAt"] >= startDate && jsonObj[key]["createdAt"] <= endDate){
+							jsonObj[key]["key"] = jsonObj[key]["createdAt"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["epoch"])){
+						if(jsonObj[key]["epoch"] >= startDate && jsonObj[key]["epoch"] <= endDate){
+							jsonObj[key]["key"] = jsonObj[key]["epoch"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["epochPayed"])){
+						if(jsonObj[key]["epochPayed"] >= startDate && jsonObj[key]["epochPayed"] <= endDate){
+							jsonObj[key]["key"] = jsonObj[key]["epochPayed"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+			    });
+			    var showIds = [];
+			    var hideIds = [];
+				if(_filtrate.length > 0){
+					var i;
+					for (i = 0; i < _filtrate.length; i++) {
+					  	showIds.push(_filtrate[i]["key"]);
+					  	all_keys.pop(_filtrate[i]["key"]);
+					}
+					response.status(200).json({"showIds" : showIds, "hideIds" : all_keys});
+				}else{
+					response.status(200).json({"showIds" : [], "hideIds" : all_keys});
+				}
+			}else{
+				var _filtrate = [];
+				//var _residue = [];
+				var all_keys = [];
+				Object.keys(jsonObj).forEach(function(key) {
+					all_keys.push(key);
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["createdAt"])){
+						if(jsonObj[key]["createdAt"] <= startDate && jsonObj[key]["createdAt"] >= endDate){
+							jsonObj[key]["key"] = jsonObj[key]["createdAt"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["epoch"])){
+						if(jsonObj[key]["epoch"] <= startDate && jsonObj[key]["epoch"] >= endDate){
+							jsonObj[key]["key"] = jsonObj[key]["epoch"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["epochPayed"])){
+						if(jsonObj[key]["epochPayed"] <= startDate && jsonObj[key]["epochPayed"] >= endDate){
+							jsonObj[key]["key"] = jsonObj[key]["epochPayed"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+			    });
+			    var showIds = [];
+			    var hideIds = [];
+				if(_filtrate.length > 0){
+					var i;
+					for (i = 0; i < _filtrate.length; i++) {
+					  	showIds.push(_filtrate[i]["key"]);
+					  	all_keys.pop(_filtrate[i]["key"]);
+					}
+					response.status(200).json({"showIds" : showIds, "hideIds" : all_keys});
+				}else{
+					response.status(200).json({"showIds" : [], "hideIds" : all_keys});
+				}
+			}
+		}
+	}else{
+		if(!isNullOrUndefinedOrEmpty(startDate)){
+			if(!isNullOrUndefinedOrEmpty(query)){
+				//startDate and Fuzzy
+				var _filtrate = [];
+				var all_keys = [];
+				Object.keys(jsonObj).forEach(function(key) {
+					all_keys.push(key);
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["createdAt"])){
+						if(jsonObj[key]["createdAt"] >= startDate){
+							jsonObj[key]["key"] = jsonObj[key]["createdAt"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["epoch"])){
+						if(jsonObj[key]["epoch"] >= startDate){
+							jsonObj[key]["key"] = jsonObj[key]["epoch"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["epochPayed"])){
+						if(jsonObj[key]["epochPayed"] >= startDate){
+							jsonObj[key]["key"] = jsonObj[key]["epochPayed"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+			    });
+
+				var showIds = [];
+				var hideIds = [];
+				var keys = [];
+				if(_filtrate.length > 0){
+					Object.keys(_filtrate[0]).forEach(function(key) {
+						keys.push(key);
+				    });
+					var options = {
+					  shouldSort: true,
+					  threshold: 0.6,
+					  location: 0,
+					  distance: 100,
+					  maxPatternLength: 32,
+					  minMatchCharLength: 1,
+					  keys: keys
+					};
+					var fuse = new Fuse(_filtrate, options);
+					var result = fuse.search(query);
+
+					var i;
+					for (i = 0; i < result.length; i++) {
+					  showIds.push(result[i]["key"]);
+					  all_keys.pop(result[i]["key"]);
+					}
+					response.status(200).json({"showIds" : showIds, "hideIds" : all_keys});
+				}else{
+					response.status(200).json({"showIds" : [], "hideIds" : all_keys});
+				}
+			}else{
+				//startDate only
+				var _filtrate = [];
+				var all_keys = [];
+				Object.keys(jsonObj).forEach(function(key) {
+					all_keys.push(key);
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["createdAt"])){
+						if(jsonObj[key]["createdAt"] >= startDate){
+							jsonObj[key]["key"] = jsonObj[key]["createdAt"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["epoch"])){
+						if(jsonObj[key]["epoch"] >= startDate){
+							jsonObj[key]["key"] = jsonObj[key]["epoch"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["epochPayed"])){
+						if(jsonObj[key]["epochPayed"] >= startDate){
+							jsonObj[key]["key"] = jsonObj[key]["epochPayed"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+			    });
+
+				var showIds = [];
+			    var hideIds = [];
+				if(_filtrate.length > 0){
+					var i;
+					for (i = 0; i < _filtrate.length; i++) {
+					  	showIds.push(_filtrate[i]["key"]);
+					  	all_keys.pop(_filtrate[i]["key"]);
+					}
+					response.status(200).json({"showIds" : showIds, "hideIds" : all_keys});
+				}else{
+					response.status(200).json({"showIds" : [], "hideIds" : all_keys});
+				}
+			}
+		}
+
+		if(!isNullOrUndefinedOrEmpty(endDate)){
+			if(!isNullOrUndefinedOrEmpty(query)){
+				//endDate and Fuzzy
+				var _filtrate = [];
+				var all_keys = [];
+				Object.keys(jsonObj).forEach(function(key) {
+					all_keys.push(key);
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["createdAt"])){
+						if(jsonObj[key]["createdAt"] <= endDate){
+							jsonObj[key]["key"] = jsonObj[key]["createdAt"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["epoch"])){
+						if(jsonObj[key]["epoch"] <= endDate){
+							jsonObj[key]["key"] = jsonObj[key]["epoch"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["epochPayed"])){
+						if(jsonObj[key]["epochPayed"] <= endDate){
+							jsonObj[key]["key"] = jsonObj[key]["epochPayed"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+			    });
+
+				var showIds = [];
+				var hideIds = [];
+				var keys = [];
+				if(_filtrate.length > 0){
+					Object.keys(_filtrate[0]).forEach(function(key) {
+						keys.push(key);
+				    });
+					var options = {
+					  shouldSort: true,
+					  threshold: 0.6,
+					  location: 0,
+					  distance: 100,
+					  maxPatternLength: 32,
+					  minMatchCharLength: 1,
+					  keys: keys
+					};
+					var fuse = new Fuse(_filtrate, options);
+					var result = fuse.search(query);
+
+					var i;
+					for (i = 0; i < result.length; i++) {
+					  showIds.push(result[i]["key"]);
+					  all_keys.pop(result[i]["key"]);
+					}
+					response.status(200).json({"showIds" : showIds, "hideIds" : all_keys});
+				}else{
+					response.status(200).json({"showIds" : [], "hideIds" : all_keys});
+				}
+			}else{
+				//endDate only
+				var _filtrate = [];
+				var all_keys = [];
+				Object.keys(jsonObj).forEach(function(key) {
+					all_keys.push(key);
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["createdAt"])){
+						if(jsonObj[key]["createdAt"] <= endDate){
+							jsonObj[key]["key"] = jsonObj[key]["createdAt"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["epoch"])){
+						if(jsonObj[key]["epoch"] <= endDate){
+							jsonObj[key]["key"] = jsonObj[key]["epoch"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["epochPayed"])){
+						if(jsonObj[key]["epochPayed"] <= endDate){
+							jsonObj[key]["key"] = jsonObj[key]["epochPayed"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+			    });
+
+				var showIds = [];
+			    var hideIds = [];
+				if(_filtrate.length > 0){
+					var i;
+					for (i = 0; i < _filtrate.length; i++) {
+					  	showIds.push(_filtrate[i]["key"]);
+					  	all_keys.pop(_filtrate[i]["key"]);
+					}
+					response.status(200).json({"showIds" : showIds, "hideIds" : all_keys});
+				}else{
+					response.status(200).json({"showIds" : [], "hideIds" : all_keys});
+				}
+			}
+		}
+
+		if(isNullOrUndefinedOrEmpty(startDate) && isNullOrUndefinedOrEmpty(endDate) && !isNullOrUndefinedOrEmpty(query)){
+			//Fuzzy only
+			var _filtrate = [];
+			var all_keys = [];
+			Object.keys(jsonObj).forEach(function(key) {
+				all_keys.push(key);
+				if(!isNullOrUndefinedOrEmpty(jsonObj[key]["createdAt"])){
+					jsonObj[key]["key"] = jsonObj[key]["createdAt"];
+					_filtrate.push(jsonObj[key]);
+				}
+				if(!isNullOrUndefinedOrEmpty(jsonObj[key]["epoch"])){
+					jsonObj[key]["key"] = jsonObj[key]["epoch"];
+					_filtrate.push(jsonObj[key]);
+				}
+				if(!isNullOrUndefinedOrEmpty(jsonObj[key]["epochPayed"])){
+					jsonObj[key]["key"] = jsonObj[key]["epochPayed"];
+					_filtrate.push(jsonObj[key]);
+				}
+		    });
+
+			var showIds = [];
+			var hideIds = [];
+			var keys = [];
+			if(_filtrate.length > 0){
+				Object.keys(_filtrate[0]).forEach(function(key) {
+					keys.push(key);
+			    });
+				var options = {
+				  shouldSort: true,
+				  threshold: 0.6,
+				  location: 0,
+				  distance: 100,
+				  maxPatternLength: 32,
+				  minMatchCharLength: 1,
+				  keys: keys
+				};
+				var fuse = new Fuse(_filtrate, options);
+				var result = fuse.search(query);
+
+				var i;
+				for (i = 0; i < result.length; i++) {
+				  showIds.push(result[i]["key"]);
+				}
+				var i;
+				for (i = 0; i < all_keys.length; i++) {
+				  if(showIds.indexOf(all_keys[i]["key"]) <= -1){
+				  	hideIds.push(all_keys[i]["key"]);
+				  }
+				}
+				response.status(200).json({"showIds" : showIds, "hideIds" : hideIds});
+			}else{
+				response.status(200).json({"showIds" : [], "hideIds" : all_keys});
+			}
+			
+		}
+	}
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*
 app.get('/admin/db/get_tranactions', verifyToken, isAdmin, json_parser, function(request, response){
 	//mDb.admin_get_tranactions();
 });*/
-
 
 app.get('/admin', json_parser, function(request, response){
   	var url = request.protocol + "://" + request.headers['x-forwarded-host'];
@@ -483,6 +1142,456 @@ app.post('/admin/auth/signin', json_parser, function(request, response){
 		response.end();
 	}else{
 		mAuth.signin(credential_name, credential_password, response, request, mDb);
+	}
+});
+
+app.post('/admin/db/fsquery', json_parser, function(request, response){
+	var _details = request.body;
+	var jsonObj = _details["jsonObject"];
+	var query = _details["query"];
+	var startDate = _details["startDate"];
+	var endDate = _details["endDate"];
+
+	if(!isNullOrUndefinedOrEmpty(startDate) && !isNullOrUndefinedOrEmpty(endDate)){
+		if(!isNullOrUndefinedOrEmpty(query)){
+			//startDate, endDate and Fuzzy
+			if(startDate < endDate){
+				var _filtrate = [];
+				//var _residue = [];
+				var all_keys = [];
+				Object.keys(jsonObj).forEach(function(key) {
+					all_keys.push(key);
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["createdAt"])){
+						if(jsonObj[key]["createdAt"] >= startDate && jsonObj[key]["createdAt"] <= endDate){
+							jsonObj[key]["key"] = jsonObj[key]["createdAt"];
+							_filtrate.push(jsonObj[key]);
+						}/*else{
+							jsonObj[key]["key"] = jsonObj[key]["createdAt"];
+							_residue.push(jsonObj[key]);
+						}*/
+					}
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["epoch"])){
+						if(jsonObj[key]["epoch"] >= startDate && jsonObj[key]["epoch"] <= endDate){
+							jsonObj[key]["key"] = jsonObj[key]["epoch"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["epochPayed"])){
+						if(jsonObj[key]["epochPayed"] >= startDate && jsonObj[key]["epochPayed"] <= endDate){
+							jsonObj[key]["key"] = jsonObj[key]["epochPayed"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+			    });
+				var showIds = [];
+				var hideIds = [];
+				var keys = [];
+				if(_filtrate.length > 0){
+					Object.keys(_filtrate[0]).forEach(function(key) {
+						keys.push(key);
+				    });
+					var options = {
+					  shouldSort: true,
+					  threshold: 0.6,
+					  location: 0,
+					  distance: 100,
+					  maxPatternLength: 32,
+					  minMatchCharLength: 1,
+					  keys: keys
+					};
+					var fuse = new Fuse(_filtrate, options);
+					var result = fuse.search(query);
+
+					var i;
+					for (i = 0; i < result.length; i++) {
+					  showIds.push(result[i]["key"]);
+					  all_keys.pop(result[i]["key"]);
+					}
+					response.status(200).json({"showIds" : showIds, "hideIds" : all_keys});
+				}else{
+					response.status(200).json({"showIds" : [], "hideIds" : all_keys});
+				}
+			}else{
+				var _filtrate = [];
+				//var _residue = [];
+				var all_keys = [];
+				Object.keys(jsonObj).forEach(function(key) {
+					all_keys.push(key);
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["createdAt"])){
+						if(jsonObj[key]["createdAt"] <= startDate && jsonObj[key]["createdAt"] >= endDate){
+							jsonObj[key]["key"] = jsonObj[key]["createdAt"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["epoch"])){
+						if(jsonObj[key]["epoch"] <= startDate && jsonObj[key]["epoch"] >= endDate){
+							jsonObj[key]["key"] = jsonObj[key]["epoch"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["epochPayed"])){
+						if(jsonObj[key]["epochPayed"] <= startDate && jsonObj[key]["epochPayed"] >= endDate){
+							jsonObj[key]["key"] = jsonObj[key]["epochPayed"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+			    });
+
+			    var showIds = [];
+				var hideIds = [];
+				var keys = [];
+				if(_filtrate.length > 0){
+					Object.keys(_filtrate[0]).forEach(function(key) {
+						keys.push(key);
+				    });
+					var options = {
+					  shouldSort: true,
+					  threshold: 0.6,
+					  location: 0,
+					  distance: 100,
+					  maxPatternLength: 32,
+					  minMatchCharLength: 1,
+					  keys: keys
+					};
+					var fuse = new Fuse(_filtrate, options);
+					var result = fuse.search(query);
+
+					var i;
+					for (i = 0; i < result.length; i++) {
+					  showIds.push(result[i]["key"]);
+					  all_keys.pop(result[i]["key"]);
+					}
+					response.status(200).json({"showIds" : showIds, "hideIds" : all_keys});
+				}else{
+					response.status(200).json({"showIds" : [], "hideIds" : all_keys});
+				}
+			}
+		}else{
+			//startDate and endDate only
+			if(startDate < endDate){
+				var _filtrate = [];
+				//var _residue = [];
+				var all_keys = [];
+				Object.keys(jsonObj).forEach(function(key) {
+					all_keys.push(key);
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["createdAt"])){
+						if(jsonObj[key]["createdAt"] >= startDate && jsonObj[key]["createdAt"] <= endDate){
+							jsonObj[key]["key"] = jsonObj[key]["createdAt"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["epoch"])){
+						if(jsonObj[key]["epoch"] >= startDate && jsonObj[key]["epoch"] <= endDate){
+							jsonObj[key]["key"] = jsonObj[key]["epoch"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["epochPayed"])){
+						if(jsonObj[key]["epochPayed"] >= startDate && jsonObj[key]["epochPayed"] <= endDate){
+							jsonObj[key]["key"] = jsonObj[key]["epochPayed"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+			    });
+			    var showIds = [];
+			    var hideIds = [];
+				if(_filtrate.length > 0){
+					var i;
+					for (i = 0; i < _filtrate.length; i++) {
+					  	showIds.push(_filtrate[i]["key"]);
+					  	all_keys.pop(_filtrate[i]["key"]);
+					}
+					response.status(200).json({"showIds" : showIds, "hideIds" : all_keys});
+				}else{
+					response.status(200).json({"showIds" : [], "hideIds" : all_keys});
+				}
+			}else{
+				var _filtrate = [];
+				//var _residue = [];
+				var all_keys = [];
+				Object.keys(jsonObj).forEach(function(key) {
+					all_keys.push(key);
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["createdAt"])){
+						if(jsonObj[key]["createdAt"] <= startDate && jsonObj[key]["createdAt"] >= endDate){
+							jsonObj[key]["key"] = jsonObj[key]["createdAt"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["epoch"])){
+						if(jsonObj[key]["epoch"] <= startDate && jsonObj[key]["epoch"] >= endDate){
+							jsonObj[key]["key"] = jsonObj[key]["epoch"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["epochPayed"])){
+						if(jsonObj[key]["epochPayed"] <= startDate && jsonObj[key]["epochPayed"] >= endDate){
+							jsonObj[key]["key"] = jsonObj[key]["epochPayed"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+			    });
+			    var showIds = [];
+			    var hideIds = [];
+				if(_filtrate.length > 0){
+					var i;
+					for (i = 0; i < _filtrate.length; i++) {
+					  	showIds.push(_filtrate[i]["key"]);
+					  	all_keys.pop(_filtrate[i]["key"]);
+					}
+					response.status(200).json({"showIds" : showIds, "hideIds" : all_keys});
+				}else{
+					response.status(200).json({"showIds" : [], "hideIds" : all_keys});
+				}
+			}
+		}
+	}else{
+		if(!isNullOrUndefinedOrEmpty(startDate)){
+			if(!isNullOrUndefinedOrEmpty(query)){
+				//startDate and Fuzzy
+				var _filtrate = [];
+				var all_keys = [];
+				Object.keys(jsonObj).forEach(function(key) {
+					all_keys.push(key);
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["createdAt"])){
+						if(jsonObj[key]["createdAt"] >= startDate){
+							jsonObj[key]["key"] = jsonObj[key]["createdAt"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["epoch"])){
+						if(jsonObj[key]["epoch"] >= startDate){
+							jsonObj[key]["key"] = jsonObj[key]["epoch"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["epochPayed"])){
+						if(jsonObj[key]["epochPayed"] >= startDate){
+							jsonObj[key]["key"] = jsonObj[key]["epochPayed"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+			    });
+
+				var showIds = [];
+				var hideIds = [];
+				var keys = [];
+				if(_filtrate.length > 0){
+					Object.keys(_filtrate[0]).forEach(function(key) {
+						keys.push(key);
+				    });
+					var options = {
+					  shouldSort: true,
+					  threshold: 0.6,
+					  location: 0,
+					  distance: 100,
+					  maxPatternLength: 32,
+					  minMatchCharLength: 1,
+					  keys: keys
+					};
+					var fuse = new Fuse(_filtrate, options);
+					var result = fuse.search(query);
+
+					var i;
+					for (i = 0; i < result.length; i++) {
+					  showIds.push(result[i]["key"]);
+					  all_keys.pop(result[i]["key"]);
+					}
+					response.status(200).json({"showIds" : showIds, "hideIds" : all_keys});
+				}else{
+					response.status(200).json({"showIds" : [], "hideIds" : all_keys});
+				}
+			}else{
+				//startDate only
+				var _filtrate = [];
+				var all_keys = [];
+				Object.keys(jsonObj).forEach(function(key) {
+					all_keys.push(key);
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["createdAt"])){
+						if(jsonObj[key]["createdAt"] >= startDate){
+							jsonObj[key]["key"] = jsonObj[key]["createdAt"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["epoch"])){
+						if(jsonObj[key]["epoch"] >= startDate){
+							jsonObj[key]["key"] = jsonObj[key]["epoch"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["epochPayed"])){
+						if(jsonObj[key]["epochPayed"] >= startDate){
+							jsonObj[key]["key"] = jsonObj[key]["epochPayed"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+			    });
+
+				var showIds = [];
+			    var hideIds = [];
+				if(_filtrate.length > 0){
+					var i;
+					for (i = 0; i < _filtrate.length; i++) {
+					  	showIds.push(_filtrate[i]["key"]);
+					  	all_keys.pop(_filtrate[i]["key"]);
+					}
+					response.status(200).json({"showIds" : showIds, "hideIds" : all_keys});
+				}else{
+					response.status(200).json({"showIds" : [], "hideIds" : all_keys});
+				}
+			}
+		}
+
+		if(!isNullOrUndefinedOrEmpty(endDate)){
+			if(!isNullOrUndefinedOrEmpty(query)){
+				//endDate and Fuzzy
+				var _filtrate = [];
+				var all_keys = [];
+				Object.keys(jsonObj).forEach(function(key) {
+					all_keys.push(key);
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["createdAt"])){
+						if(jsonObj[key]["createdAt"] <= endDate){
+							jsonObj[key]["key"] = jsonObj[key]["createdAt"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["epoch"])){
+						if(jsonObj[key]["epoch"] <= endDate){
+							jsonObj[key]["key"] = jsonObj[key]["epoch"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["epochPayed"])){
+						if(jsonObj[key]["epochPayed"] <= endDate){
+							jsonObj[key]["key"] = jsonObj[key]["epochPayed"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+			    });
+
+				var showIds = [];
+				var hideIds = [];
+				var keys = [];
+				if(_filtrate.length > 0){
+					Object.keys(_filtrate[0]).forEach(function(key) {
+						keys.push(key);
+				    });
+					var options = {
+					  shouldSort: true,
+					  threshold: 0.6,
+					  location: 0,
+					  distance: 100,
+					  maxPatternLength: 32,
+					  minMatchCharLength: 1,
+					  keys: keys
+					};
+					var fuse = new Fuse(_filtrate, options);
+					var result = fuse.search(query);
+
+					var i;
+					for (i = 0; i < result.length; i++) {
+					  showIds.push(result[i]["key"]);
+					  all_keys.pop(result[i]["key"]);
+					}
+					response.status(200).json({"showIds" : showIds, "hideIds" : all_keys});
+				}else{
+					response.status(200).json({"showIds" : [], "hideIds" : all_keys});
+				}
+			}else{
+				//endDate only
+				var _filtrate = [];
+				var all_keys = [];
+				Object.keys(jsonObj).forEach(function(key) {
+					all_keys.push(key);
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["createdAt"])){
+						if(jsonObj[key]["createdAt"] <= endDate){
+							jsonObj[key]["key"] = jsonObj[key]["createdAt"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["epoch"])){
+						if(jsonObj[key]["epoch"] <= endDate){
+							jsonObj[key]["key"] = jsonObj[key]["epoch"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+					if(!isNullOrUndefinedOrEmpty(jsonObj[key]["epochPayed"])){
+						if(jsonObj[key]["epochPayed"] <= endDate){
+							jsonObj[key]["key"] = jsonObj[key]["epochPayed"];
+							_filtrate.push(jsonObj[key]);
+						}
+					}
+			    });
+
+				var showIds = [];
+			    var hideIds = [];
+				if(_filtrate.length > 0){
+					var i;
+					for (i = 0; i < _filtrate.length; i++) {
+					  	showIds.push(_filtrate[i]["key"]);
+					  	all_keys.pop(_filtrate[i]["key"]);
+					}
+					response.status(200).json({"showIds" : showIds, "hideIds" : all_keys});
+				}else{
+					response.status(200).json({"showIds" : [], "hideIds" : all_keys});
+				}
+			}
+		}
+
+		if(isNullOrUndefinedOrEmpty(startDate) && isNullOrUndefinedOrEmpty(endDate) && !isNullOrUndefinedOrEmpty(query)){
+			//Fuzzy only
+			var _filtrate = [];
+			var all_keys = [];
+			Object.keys(jsonObj).forEach(function(key) {
+				all_keys.push(key);
+				if(!isNullOrUndefinedOrEmpty(jsonObj[key]["createdAt"])){
+					jsonObj[key]["key"] = jsonObj[key]["createdAt"];
+					_filtrate.push(jsonObj[key]);
+				}
+				if(!isNullOrUndefinedOrEmpty(jsonObj[key]["epoch"])){
+					jsonObj[key]["key"] = jsonObj[key]["epoch"];
+					_filtrate.push(jsonObj[key]);
+				}
+				if(!isNullOrUndefinedOrEmpty(jsonObj[key]["epochPayed"])){
+					jsonObj[key]["key"] = jsonObj[key]["epochPayed"];
+					_filtrate.push(jsonObj[key]);
+				}
+		    });
+
+			var showIds = [];
+			var hideIds = [];
+			var keys = [];
+			if(_filtrate.length > 0){
+				Object.keys(_filtrate[0]).forEach(function(key) {
+					keys.push(key);
+			    });
+				var options = {
+				  shouldSort: true,
+				  threshold: 0.6,
+				  location: 0,
+				  distance: 100,
+				  maxPatternLength: 32,
+				  minMatchCharLength: 1,
+				  keys: keys
+				};
+				var fuse = new Fuse(_filtrate, options);
+				var result = fuse.search(query);
+
+				var i;
+				for (i = 0; i < result.length; i++) {
+				  showIds.push(result[i]["key"]);
+				}
+				var i;
+				for (i = 0; i < all_keys.length; i++) {
+				  if(showIds.indexOf(all_keys[i]["key"]) <= -1){
+				  	hideIds.push(all_keys[i]["key"]);
+				  }
+				}
+				response.status(200).json({"showIds" : showIds, "hideIds" : hideIds});
+			}else{
+				response.status(200).json({"showIds" : [], "hideIds" : all_keys});
+			}
+			
+		}
 	}
 });
 
@@ -548,6 +1657,7 @@ app.post('/admin/register_business', isAdmin, json_parser, function(request, res
 	b_details["photoURL"] = "https://firebasestorage.googleapis.com/v0/b/payahead-80360.appspot.com/o/index.png?alt=media&token=66c38ec1-6bb7-4aa6-ad09-8b394acd390f";
 	
 	var other_details = {};
+	other_details["addedBy"] = request.uid;
 	if(!isNullOrUndefinedOrEmpty(_details["business_name"])){
 		other_details["business_name"] = _details["business_name"];
 	}else{
@@ -617,7 +1727,195 @@ app.post('/admin/resend_email_verification', json_parser, function(request, resp
 	}
 });
 
-app.post('/admin/reset_password', json_parser, isAdminOrBusiness, function(request, response){
+app.post('/admin/auth/updateOrCreateUser', isAdminOrBusiness, json_parser, function(request, response){
+	var _details = request.body;
+	var pass_key = randStr.generate(8);
+	var new_data = request.body["newdata"];
+	var isUpdate = false;
+	if(request.email == newdata["email"]){
+		response.status(400).json({ "code" : "auth/failed-to-createOrUpdate",
+			"message" : "You cannot perform an account creation or update through this means"
+		});
+		response.end();
+	}
+	if(_details["email"] == new_data["email"]){
+		isUpdate = true;
+		Object.keys(new_data).forEach(function(key) {
+			_details[key] = new_data[key];
+		});
+		_details["newdata"] = null;
+	}else{
+		isUpdate = false;
+		Object.keys(new_data).forEach(function(key) {
+			if(!isNullOrUndefinedOrEmpty(new_data[key])){
+				_details[key] = new_data[key];
+			}
+		});
+		_details["newdata"] = null;
+		if(!_details["email"].endsWith(request.email.split('@')[1])){
+			if(request.admin || request.user){
+			}else{
+				//Can only create user with the same organization email
+				response.status(400).json({ "code" : "auth/invalid-email-host",
+					"message" : "Can only create/update user with the same organization email"
+				});
+				response.end();
+			}
+		}
+	}
+
+	var u_details = {};
+	u_details["emailVerified"] = _details["emailVerified"];
+	u_details["disabled"] = _details["disabled"];
+	u_details["displayName"] = _details["displayName"];
+	u_details["email"] = _details["email"];
+	u_details["password"] = pass_key;
+	u_details["phoneNumber"] = _details["phoneNumber"];
+	if(!isNullOrUndefinedOrEmpty(_details["photoURL"])){
+		u_details["photoURL"] = _details["photoURL"];
+	}else{
+		u_details["photoURL"] = "https://firebasestorage.googleapis.com/v0/b/payahead-80360.appspot.com/o/index.png?alt=media&token=66c38ec1-6bb7-4aa6-ad09-8b394acd390f";
+	}
+	
+	
+	var other_details = {};
+	Object.keys(_details).forEach(function(key) {
+		if(!(key == "photoURL" || key == "phoneNumber" || key == "password" || key == "email" || key == "displayName" || key == "disabled" || key == "emailVerified"))
+		other_details[key] = _details[key];
+	});
+
+	other_details["uid"] = _details["uid"];
+
+	if(!isNullOrUndefinedOrEmpty(_details["bvn"])){
+		other_details["bvn"] = _details["bvn"];
+	}else{
+		response.status(400).json({ "code" : "auth/bvn",
+			"message" : "BVN is not attached or is invalid. bvn cannot be null, empty or undefined"
+		});
+		response.end();
+	}
+
+	if(!isNullOrUndefinedOrEmpty(_details["industry"])){
+		other_details["industry"] = _details["industry"];
+	}else{
+		response.status(400).json({ "code" : "auth/industry",
+			"message" : "Industry is not attached or is invalid. industry cannot be null, empty or undefined"
+		});
+		response.end();
+	}
+
+	if(isUpdate){
+		mAuth.updateUser(u_details, other_details, response, request, mDb);
+	}else{
+		mAuth.createUser(u_details, other_details, response, request, mDb);
+	}
+});
+
+app.post('/admin/auth/update_profile', isAdmin, json_parser, function(request, response){
+	var _details = request.body;
+	var pass_key = randStr.generate(8);
+	var new_data = request.body["newdata"];
+	Object.keys(new_data).forEach(function(key) {
+		if(!isNullOrUndefinedOrEmpty(new_data[key])){
+			_details[key] = new_data[key];
+		}
+	});
+	_details["newdata"] = null;
+
+	var u_details = {};
+	u_details["emailVerified"] = _details["emailVerified"];
+	u_details["disabled"] = _details["disabled"];
+	u_details["displayName"] = _details["displayName"];
+	u_details["email"] = _details["email"];
+	u_details["password"] = pass_key;
+	u_details["phoneNumber"] = _details["phoneNumber"];
+	if(!isNullOrUndefinedOrEmpty(_details["photoURL"])){
+		u_details["photoURL"] = _details["photoURL"];
+	}else{
+		u_details["photoURL"] = "https://firebasestorage.googleapis.com/v0/b/payahead-80360.appspot.com/o/index.png?alt=media&token=66c38ec1-6bb7-4aa6-ad09-8b394acd390f";
+	}
+	
+	var other_details = {};
+	Object.keys(_details).forEach(function(key) {
+		if(!(key == "photoURL" || key == "phoneNumber" || key == "password" || key == "email" || key == "displayName" || key == "disabled" || key == "emailVerified"))
+		other_details[key] = _details[key];
+	});
+
+	other_details["uid"] = _details["uid"];
+
+	if(!isNullOrUndefinedOrEmpty(_details["bvn"])){
+		other_details["bvn"] = _details["bvn"];
+	}else{
+		response.status(400).json({ "code" : "auth/bvn",
+			"message" : "BVN is not attached or is invalid. bvn cannot be null, empty or undefined"
+		});
+		response.end();
+	}
+
+	if(!isNullOrUndefinedOrEmpty(_details["industry"])){
+		other_details["industry"] = _details["industry"];
+	}else{
+		response.status(400).json({ "code" : "auth/industry",
+			"message" : "Industry is not attached or is invalid. industry cannot be null, empty or undefined"
+		});
+		response.end();
+	}
+	mAuth.updateUser(u_details, other_details, response, request, mDb);
+});
+
+app.post('/admin/auth/disableUser', isAdminOrBusiness, json_parser, function(request, response){
+	var pass_key = randStr.generate(8);
+	var _details = request.body;
+	var new_data = request.body["newdata"];
+	Object.keys(new_data).forEach(function(key) {
+		_details[key] = new_data[key];
+	});
+	_details["newdata"] = null;
+
+	var u_details = {};
+	u_details["emailVerified"] = _details["emailVerified"];
+	u_details["disabled"] = _details["disabled"];
+	u_details["displayName"] = _details["displayName"];
+	u_details["email"] = _details["email"];
+	u_details["password"] = pass_key;
+	u_details["phoneNumber"] = _details["phoneNumber"];
+
+	if(!isNullOrUndefinedOrEmpty(_details["photoURL"])){
+		u_details["photoURL"] = _details["photoURL"];
+	}else{
+		u_details["photoURL"] = "https://firebasestorage.googleapis.com/v0/b/payahead-80360.appspot.com/o/index.png?alt=media&token=66c38ec1-6bb7-4aa6-ad09-8b394acd390f";
+	}
+	
+	var other_details = {};
+	Object.keys(_details).forEach(function(key) {
+		if(!(key == "photoURL" || key == "phoneNumber" || key == "password" || key == "email" || key == "displayName" || key == "disabled" || key == "emailVerified"))
+		other_details[key] = _details[key];
+	});
+
+	other_details["uid"] = _details["uid"];
+
+	if(!isNullOrUndefinedOrEmpty(_details["bvn"])){
+		other_details["bvn"] = _details["bvn"];
+	}else{
+		response.status(400).json({ "code" : "auth/bvn",
+			"message" : "BVN is not attached or is invalid. bvn cannot be null, empty or undefined"
+		});
+		response.end();
+	}
+
+	if(!isNullOrUndefinedOrEmpty(_details["industry"])){
+		other_details["industry"] = _details["industry"];
+	}else{
+		response.status(400).json({ "code" : "auth/industry",
+			"message" : "Industry is not attached or is invalid. industry cannot be null, empty or undefined"
+		});
+		response.end();
+	}
+
+	mAuth.disableUser(u_details, other_details, response, request, mDb);
+});
+
+/*app.post('/admin/reset_password', json_parser, isAdminOrBusiness, function(request, response){
 	var _details = request.body;
 	var credential_name = _details["emailOrPhoneNumber"];
 	//var credential_password = _details["password"];
@@ -629,10 +1927,19 @@ app.post('/admin/reset_password', json_parser, isAdminOrBusiness, function(reque
 	}else{
 		mAuth.reset_password(credential_name, response, mDb);
 	}
-});
+});*/
 
 app.get('/admin/db/industries', function(request, response){
 	mDb.get_industry(response);
+});
+
+app.get('/admin/payment/get_paystack_keys', verifyToken, function(request, response){
+	mDb.get_paystack_keys(response);
+});
+
+app.post('/admin/payment/update_transaction', isAdminOrBusinessOrStaff, json_parser, function(request, response){
+	var _details = request.body;
+	mDb.update_transaction(request.uid, _details, response, mDb);
 });
 
 /*

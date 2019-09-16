@@ -149,3 +149,10 @@ custompaystack1 {
   height: 150px;
 }
 
+.error {
+  background: red;
+  color: #fff;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+

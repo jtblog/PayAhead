@@ -3,34 +3,36 @@ var _auth1, _auth2;
 var _db;
 var fs = require('fs');
 var _request = require("request");
+var isNullOrUndefinedOrEmpty = function(){};
 
 function payaheadAuth() {
 	isNullOrUndefinedOrEmpty = function(_in){
-	    switch(_in){
-	      case null:
-	        return true;
-	        break;
-	      case undefined:
-	        return true;
-	        break;
-	      case "null":
-	        return true;
-	        break;
-	      case "undefined":
-	        return true;
-	        break;
-	      default:
-	        return false;
-	        break;
-	    };
-
-	    if(typeof _in == "string"){
-	      if(_in.trim() == ""){
-	        return true;
-	      }
-	    }else if(typeof _in == "undefined"){
-	      return true;
-	    };
+	    var _check = _in+"";
+		  switch(_check){
+		    case null:
+		      return true;
+		      break;
+		    case undefined:
+		      return true;
+		      break;
+		    case "null":
+		      return true;
+		      break;
+		    case "undefined":
+		      return true;
+		      break;
+		    default:
+		      if(typeof _check == "string"){
+			    if(_check.trim() == "" || _check.split(" ").join("") == ""){
+			      return true;
+			    }else{
+			    	return false;
+			    }
+			  }else if(typeof _check == "undefined"){
+			    return true;
+			  }
+		      break;
+		  };
 	  };
 };
 
@@ -40,9 +42,22 @@ payaheadAuth.prototype.confirm_password_reset = function (code, newPassword, ema
 	 		_auth2.getUserByEmail(email)
 			    .then(function(user) {
 			    	var _user = JSON.parse(JSON.stringify(user));
-			    	_user["password"] = newPassword;
-			    	mDb.set_user(_user ,response);
-			    	mDb.write_activity( {"epoch": `${Date.now()}`, "uid": user.uid, "description": "Set/Reset password on PayAhead" }, response );
+
+			    	_db.ref("users/" + _user["uid"]).once("value", function(data) {
+				      if (data || JSON.parse(JSON.stringify(data))) {
+				        var dt = JSON.parse(JSON.stringify(data));
+				        Object.keys(dt).forEach(function(key) {
+							_user[key] = dt[key];
+					    });
+					    _user["password"] = newPassword;
+					    mDb.set_user(_user ,response);
+			    		mDb.write_activity( {"epoch": `${Date.now()}`, "uid": _user["uid"], "description": "Set/Reset password on PayAhead" }, response );
+						
+				      } else {
+				        console.log(error);
+				        response.status(400).json(error);
+				      }
+				  });
 			    })
 			    .catch(function(error) {
 			    	console.log(error);
@@ -54,6 +69,89 @@ payaheadAuth.prototype.confirm_password_reset = function (code, newPassword, ema
 		    response.status(400).json(error);
 		});
 };
+
+payaheadAuth.prototype.createUser = function (b_details, other_details, response, request, mDb) {
+	_auth2.createUser(
+		b_details
+		)
+		.then(function(userRecord) {
+			var _user = JSON.parse(JSON.stringify(userRecord));
+			Object.keys(_user).forEach(function(key) {
+				other_details[key] = _user[key];
+		    });
+		    Object.keys(b_details).forEach(function(key) {
+				other_details[key] = b_details[key];
+		    });
+		    other_details["isStaff"] = true;
+			_auth2.setCustomUserClaims(_user["uid"], {
+				"user": false,
+				"business" : false,
+				"admin" : false,
+				"staff" : true
+			});
+
+			_auth1.sendPasswordResetEmail(other_details["email"]).then(function() {
+				mDb.set_user(other_details, response);
+				mDb.write_activity( {"epoch": `${Date.now()}`, "uid": request.uid, "description": "Added email " + other_details["email"] + "as staff on PayAhead" }, response);
+			}).catch(function(error) {
+				console.log(error);
+		        response.status(400).json(error);
+			});
+
+		})
+		.catch(function(error) {
+			console.log(error);
+			response.status(400).json(error);
+		});		
+};
+
+payaheadAuth.prototype.disableUser = function (u_details, other_details, response, request, mDb) {
+	_auth2.updateUser(other_details["uid"], u_details)
+		.then(function(userRecord) {
+			var _user = JSON.parse(JSON.stringify(userRecord));
+			
+		    _auth2.setCustomUserClaims(other_details["uid"], {
+				"user": isNullOrUndefinedOrEmpty(other_details["isUser"]) ? false : other_details["isUser"],
+				"business" : isNullOrUndefinedOrEmpty(other_details["isBusiness"]) ? false : other_details["isBusiness"],
+				"admin" : isNullOrUndefinedOrEmpty(other_details["isAdmin"]) ? false : other_details["isAdmin"],
+				"staff" : isNullOrUndefinedOrEmpty(other_details["isStaff"]) ? false : other_details["isStaff"]
+			});
+			
+			
+			_db.ref("users/" + other_details["uid"]).once("value", function(data) {
+			      if (data || JSON.parse(JSON.stringify(data))) {
+			        var dt = JSON.parse(JSON.stringify(data));
+			        Object.keys(dt).forEach(function(key) {
+			        	if(isNullOrUndefinedOrEmpty(other_details[key])){
+							other_details[key] = dt[key];
+			        	}
+				    });
+				    Object.keys(u_details).forEach(function(key) {
+						other_details[key] = u_details[key];
+				    });
+				    Object.keys(_user).forEach(function(key) {
+						other_details[key] = _user[key];
+				    });
+				    other_details["customClaims"] = null;
+				    mDb.set_user(other_details, response);
+				    if(other_details["disabled"]){
+						mDb.write_activity( {"epoch": `${Date.now()}`, "uid": request.uid, "description": "Disabled the profile with email " + other_details["email"] + " on PayAhead" }, response );
+				    }else{
+				    	mDb.write_activity( {"epoch": `${Date.now()}`, "uid": request.uid, "description": "Enabled the profile with email " + other_details["email"] + " on PayAhead" }, response );
+				    }
+					
+			      } else {
+			        console.log(error);
+			        response.status(400).json(error);
+			      }
+			  });
+			
+		})
+		.catch(function(error) {
+			console.log(error);
+			response.status(400).json(error);
+		});		
+}; 
 
 payaheadAuth.prototype.get_user_claims = function (token, response) {
 	var c = _auth2.verifyIdToken(token)
@@ -86,7 +184,7 @@ payaheadAuth.prototype.register_business = function (uid, b_details, other_detai
 
 			_auth1.sendPasswordResetEmail(other_details["email"]).then(function() {
 				mDb.set_user(other_details, response);
-				mDb.write_activity( {"epoch": `${Date.now()}`, "uid": uid, "description": "Registered" + other_details["business_name"] + "as a business entity on PayAhead" }, response);
+				mDb.write_activity( {"epoch": `${Date.now()}`, "uid": uid, "description": "Registered " + other_details["business_name"] + " as a business entity on PayAhead" }, response);
 			}).catch(function(error) {
 				console.log(error);
 		        response.status(400).json(error);
@@ -97,7 +195,7 @@ payaheadAuth.prototype.register_business = function (uid, b_details, other_detai
 			console.log(error);
 			response.status(400).json(error);
 		});		
-}; 
+};  
 
 payaheadAuth.prototype.resend_email_verification = function (credential_name, response, mDb) {
 	if(validator.isEmail(credential_name)){
@@ -463,15 +561,25 @@ payaheadAuth.prototype.signin = function (credential_name, credential_password, 
 };
 
 payaheadAuth.prototype.signout = function (_uid, response, mDb) {
-	mDb.write_activity( {"epoch": `${Date.now()}`, "uid": _uid, "description": "Signed out of PayAhead"}, response);
-	_auth2.revokeRefreshTokens(_uid)
-		.then(function() {
-			response.status(200).json({ "message" : "successful" });
-		})
-		.catch(function(error) {
-			console.log(error);
-			response.status(400).json(error);
-		});		
+	var _details = {"epoch": `${Date.now()}`, "uid": _uid, "description": "Signed out of PayAhead", "id" : '' + Math.floor((Math.random() * 1111111111) + 1) };
+	_db.ref("users/" + _details["uid"] + "/activities/" + _details["epoch"]).set(
+	  _details, 
+	  function(error) {
+	    if (error) {
+	    	console.log(error);
+	        response.status(400).json(error);
+	    } else {
+	        _auth2.revokeRefreshTokens(_uid)
+				.then(function() {
+					//mDb.write_activity( {"epoch": `${Date.now()}`, "uid": _uid, "description": "Signed out of PayAhead"}, response);
+					response.status(200).json({ "message" : "successful" });
+				})
+				.catch(function(error) {
+					console.log(error);
+					response.status(400).json(error);
+				});	
+	    }
+	  });	
 };
 
 payaheadAuth.prototype.signup = function (su_details, other_details, response, mDb) {
@@ -529,18 +637,53 @@ payaheadAuth.prototype.signup = function (su_details, other_details, response, m
 		});		
 }; 
 
-payaheadAuth.prototype.update_profile = function (uid, u_details, other_details, response, mDb) {
+payaheadAuth.prototype.updateUser = function (u_details, other_details, response, request, mDb) {
 	_auth2.updateUser(other_details["uid"], u_details)
 		.then(function(userRecord) {
 			var _user = JSON.parse(JSON.stringify(userRecord));
-			Object.keys(_user).forEach(function(key) {
-				other_details[key] = _user[key];
-		    });
-		    Object.keys(u_details).forEach(function(key) {
-				other_details[key] = u_details[key];
-		    });
-		    mDb.write_activity( {"epoch": `${Date.now()}`, "uid": uid, "description": "Updated his/her profile on PayAhead" }, response );
-		    mDb.set_user(other_details, response);
+
+		    _auth2.setCustomUserClaims(other_details["uid"], {
+				"user": isNullOrUndefinedOrEmpty(other_details["isUser"]) ? false : other_details["isUser"],
+				"business" : isNullOrUndefinedOrEmpty(other_details["isBusiness"]) ? false : other_details["isBusiness"],
+				"admin" : isNullOrUndefinedOrEmpty(other_details["isAdmin"]) ? false : other_details["isAdmin"],
+				"staff" : isNullOrUndefinedOrEmpty(other_details["isStaff"]) ? false : other_details["isStaff"]
+			});
+
+
+			_db.ref("users/" + other_details["uid"]).once("value", function(data) {
+			      if (data || JSON.parse(JSON.stringify(data))) {
+			        var dt = JSON.parse(JSON.stringify(data));
+			        Object.keys(dt).forEach(function(key) {
+			        	if(isNullOrUndefinedOrEmpty(other_details[key])){
+							other_details[key] = dt[key];
+			        	}
+				    });
+				    Object.keys(u_details).forEach(function(key) {
+						other_details[key] = u_details[key];
+				    });
+				    Object.keys(_user).forEach(function(key) {
+						other_details[key] = _user[key];
+				    });
+				    other_details["customClaims"] = null;
+				    _auth1.sendPasswordResetEmail(other_details["email"]).then(function() {
+						if(request.uid == other_details["uid"]){
+					    	mDb.write_activity( {"epoch": `${Date.now()}`, "uid": request.uid, "description": "Updated his/her profile on PayAhead" }, response );
+					    	mDb.set_user(other_details, response);
+					    }else{
+					    	other_details["addedBy"] = request.uid;
+							mDb.set_user(other_details, response);
+							mDb.write_activity( {"epoch": `${Date.now()}`, "uid": request.uid, "description": "Updated the profile with email " + other_details["email"] + " on PayAhead" }, response );
+					    }
+					}).catch(function(error) {
+						console.log(error);
+				        response.status(400).json(error);
+					}); 
+					
+			      } else {
+			        console.log(error);
+			        response.status(400).json(error);
+			      }
+			  });
 		})
 		.catch(function(error) {
 			console.log(error);

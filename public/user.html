@@ -10,11 +10,13 @@
     <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
     <link rel="stylesheet" href="assets/fonts/ionicons.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Actor">
+    <link rel="stylesheet" href="assets/css/bootstrap-datetimepicker.css">
+    <link rel="stylesheet" href="assets/css/buttons.dataTables.min.css">
     <link rel="stylesheet" href="assets/css/Features-Boxed.css">
     <link rel="stylesheet" href="assets/css/Features-Clean.css">
     <link rel="stylesheet" href="assets/css/Footer-Dark.css">
     <link rel="stylesheet" href="assets/css/intlTelInput.css">
-    <link rel="stylesheet" href="assets/css/Profile-Card-1.css">
+    <link rel="stylesheet" href="assets/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="assets/css/Profile-Card.css">
     <link rel="stylesheet" href="assets/css/styles.css">
       <!-- Added link rel manifest -->
@@ -60,22 +62,22 @@
                 </ul><span class="text-center visible navbar-text actions"> <a class="invisible login" href="signin.html" style="color: white;">Sign In</a><a class="btn btn-light invisible action-button" role="button" href="pay.html" id="test_pay" style="color: white;">Test Pay</a></span></div>
         </div>
     </nav>
-    <div style="max-height: 550px;margin: 0 auto;max-width: 360px;padding-left: 3px;padding-right: 3px;">
-        <ul class="nav nav-tabs">
-            <li class="nav-item"><a class="nav-link active" role="tab" data-toggle="tab" href="#tab-1" style="padding: 5px;"><i class="fa fa-user" style="font-size: larger;"></i><span style="font-size: smaller;">&nbsp;Profile</span></a></li>
-            <li class="nav-item"><a class="nav-link" role="tab" data-toggle="tab" href="#tab-2" style="padding: 5px;"><i class="fa fa-money"></i><span style="font-size: 14px;">&nbsp;Payments</span></a></li>
-            <li class="nav-item"><a class="nav-link" role="tab" data-toggle="tab" href="#tab-3" style="padding: 5px;"><i class="far fa-building"></i>&nbsp;<span style="font-size: smaller;">Vendors</span></a></li>
-            <li class="nav-item"><a class="nav-link visible" role="tab" data-toggle="tab" href="#tab-4" style="font-size: 14px;padding: 5px;height: 100%;"><i class="fas fa-users"></i>&nbsp;Users</a></li>
+    <div style="max-height: 550px;margin: 0 auto;max-width: 360px;padding-left: 3px;padding-right: 3px;display: block;margin-bottom: 50px;">
+        <ul class="nav nav-tabs" style="font-size: 15px;">
+            <li class="nav-item"><a class="nav-link active" role="tab" data-toggle="tab" href="#tab-1" style="padding: 5px;"><i class="fa fa-user" style="font-size: larger;"></i>&nbsp;Profile</a></li>
+            <li class="nav-item"><a class="nav-link" role="tab" data-toggle="tab" href="#tab-2" style="padding: 5px;"><i class="fa fa-money"></i>&nbsp;Payments</a></li>
+            <li class="nav-item"><a class="nav-link visible" role="tab" data-toggle="tab" href="#tab-4" style="padding: 5px;height: 100%;"><i class="fas fa-users"></i>&nbsp;Users</a></li>
+            <li class="nav-item"><a class="nav-link" role="tab" data-toggle="tab" href="#tab-3" style="padding: 5px;height: 100%;"><i class="fas fa-align-justify"></i>&nbsp;Reports</a></li>
         </ul>
-        <div class="tab-content" style="-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;max-width: 360px;max-height: 550px;margin-bottom: 30px;">
-            <div class="tab-pane active" role="tabpanel" id="tab-1">
+        <div class="tab-content" style="-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;max-width: 360px;max-height: 550px;margin-bottom: 50px;height: auto;display: block;">
+            <div class="tab-pane active" role="tabpanel" id="tab-1" style="margin-bottom: 50px;">
                 <div class="profile-card">
-                    <div class="profile-back"></div><img class="rounded-circle profile-pic" src="assets/img/2.jpg">
+                    <div class="profile-back"></div><img class="rounded-circle profile-pic" src="assets/img/2.jpg" id="profile_pic">
                     <h3 class="profile-name" style="font-size: 13px;">FirstName LastName</h3>
                     <form id="update_form">
                         <div class="form-group"><input class="form-control" type="text" name="firstname" required="" placeholder="First Name" autocomplete="on" id="fn_input"></div>
                         <div class="form-group"><input class="form-control" type="text" name="lastname" required="" placeholder="Last Name" autocomplete="on" id="ln_input"></div>
-                        <div class="form-group" style="margin-bottom: 0px;"><input class="form-control" type="text" required="" placeholder="Email address" autocomplete="on" inputmode="email" id="email_input" style="margin-bottom: 0px;"><span id="email_span" style="margin-left: 2.5%;color: red;font-size: smaller;"></span></div>
+                        <div class="form-group" style="margin-bottom: 0px;"><input class="form-control" type="text" disabled="" required="" placeholder="Email address" autocomplete="on" inputmode="email" id="email_input" style="margin-bottom: 0px;"><span id="email_span" style="margin-left: 2.5%;color: red;font-size: smaller;"></span></div>
                         <div
                             class="form-group" style="margin-bottom: 0px;margin-top: 0px;"><input class="form-control" type="text" required="" placeholder="Phone number" autocomplete="on" inputmode="tel" id="pno_input" style="margin-bottom: 0px;"><span id="pno_span" style="margin-left: 2.5%;color: red;font-size: smaller;"></span></div>
                 <div
@@ -84,71 +86,146 @@
             <div
                 class="form-group" style="margin-top: 0px;"><input class="form-control" type="text" name="bvn" placeholder="BVN" autocomplete="on" id="bvn_input"></div>
         <div class="form-group"><button class="btn btn-primary btn-sm" type="submit" id="update_btn" style="width: 95%;font-size: 13px;">Update</button><button class="btn btn-primary btn-sm" type="button" id="signout_btn" style="margin-top: 15px;width: 95%;font-size: 13px;">Sign Out</button></div>
-        <div
-            class="form-group"><a href="#" class="already" style="font-size: 13px;">Reset password</a></div>
-    </form>
+        </form>
     </div>
     </div>
-    <div class="tab-pane" role="tabpanel" id="tab-2">
-        <div class="input-group">
-            <div class="input-group-prepend"></div><input class="form-control" type="text">
-            <div class="input-group-append"><button class="btn btn-primary btn-sm" type="button" style="padding: 2px;font-size: 13px;margin: 0px;">Query</button></div>
+    <div class="tab-pane" role="tabpanel" id="tab-2" style="margin-bottom: 50px;">
+        <div class="d-xl-flex align-items-stretch align-items-xl-center" style="padding: 0px;"><button class="btn btn-primary" type="button" id="save_pays_btn" style="font-size: 13px;padding-top: 0px;padding-bottom: 0px;padding-right: 3px;padding-left: 3px;margin: 0px;">Save</button></div>
+        <div class="modal" role="dialog" tabindex="-1" id="save_pays_modal">
+            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h6 class="modal-title"></h6><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>
+                    <div class="modal-body">
+                        <div>
+                            <div id="example"></div>
+                            <p class="text-center" style="margin: 5px;font-size: 13px;">Start Date</p><input type="datetime-local" id="start_date1" style="width: 100%;margin: 5px;">
+                            <p class="text-center" style="margin: 5px;font-size: 13px;">End Date</p><input type="datetime-local" id="end_date1" style="width: 100%;margin: 5px;"></div>
+                        <div class="table-responsive">
+                            <table class="table table-hover table-sm" id="payment_table">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>Time payed</th>
+                                        <th>Paid to</th>
+                                        <th>Attended to (@branch)</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="payment_id_tb">
+                                    <tr class="visible" id="payment_id_tr">
+                                        <td style="width: 10%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Cell 1</td>
+                                        <td style="width: 22.5%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Cell 2</td>
+                                        <td style="width: 22.5%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Cell 3</td>
+                                        <td style="width: 22.5%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Cell 4</td>
+                                        <td style="width: 22.5%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Cell 5</td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr></tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer"></div>
+                </div>
+            </div>
         </div>
         <div class="card border-white" id="transactions_card">
-            <div class="card-body invisible" id="payment_id_card-body" style="padding: 0px;margin-top: 3px;">
-                <h6 class="text-muted card-subtitle mb-2" id="payment_id_idh6" style="font-size: 12px;">Payment ID</h6>
-                <h6 class="text-muted card-subtitle mb-2" id="payment_id_toh6" style="font-size: 12px;">Payed to</h6>
-                <h6 class="text-muted card-subtitle mb-2" id="payment_id_byh6" style="font-size: 12px;">Payed by</h6>
-                <h6 class="text-muted card-subtitle mb-2" id="payment_id_timeh6" style="font-size: 12px;">Time of pay</h6>
-                <div><a class="btn btn-primary btn-block" data-toggle="collapse" aria-expanded="false" aria-controls="collapse-1" role="button" href="#collapse-1" id="payment_id_btn" style="width: 100%;padding: 0px;height: 3px;margin: 0px;font-size: 11px;">...</a>
+            <div class="card-body text-left invisible" id="payment_id_card-body" style="padding: 0px;margin-top: 10px;padding-left: 3px;">
+                <h6 class="text-muted card-subtitle mb-2" id="payment_id_idh6" style="font-size: 12px;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Payment ID:&nbsp;</h6>
+                <h6 class="text-muted card-subtitle mb-2" id="payment_id_toh6" style="font-size: 12px;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Payed to:&nbsp;</h6>
+                <h6 class="text-muted card-subtitle mb-2" id="payment_id_byh6" style="font-size: 12px;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Payed by:&nbsp;</h6>
+                <h6 class="text-muted card-subtitle mb-2" id="payment_id_timeh6" style="font-size: 12px;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Time of pay:&nbsp;</h6>
+                <div><a class="btn btn-primary btn-block" data-toggle="collapse" aria-expanded="false" aria-controls="collapse-1" role="button" href="#collapse-1" id="payment_id_btn" style="width: 100%;padding: 0px;height: 3px;margin: 0px;font-size: 11px;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">...</a>
                     <div
                         class="collapse" id="collapse-1">
-                        <div><a href="#" id="payment_id_rfhref" style="font-size: 13px;margin: 0px;">Request refund</a></div><label id="payment_id_vfdlbl" style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;margin-bottom: 0px;">Verified on :&nbsp;<br></label></div>
+                        <div><a href="#" id="payment_id_rrfhref" style="font-size: 13px;margin: 0px;">Request refund</a></div><label id="payment_id_vfrfdlbl" style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;margin-bottom: 0px;">Verified on:&nbsp;<br></label></div>
             </div>
         </div>
     </div>
     </div>
-    <div class="tab-pane" role="tabpanel" id="tab-3">
-        <div class="input-group">
-            <div class="input-group-prepend"></div><input class="form-control" type="text">
-            <div class="input-group-append"><button class="btn btn-primary" type="button" style="padding: 2px;font-size: 13px;margin: 0px;">Query</button></div>
-        </div>
-        <div class="card border-white" id="organizations_card">
-            <div class="card-body invisible" id="business_uid_card-body" style="margin: 0px;padding: 0px;margin-top: 5px;align-items: stretch!important;-ms-flex-wrap: wrap!important;flex-wrap: wrap!important;">
-                <div style="display: flex!important;">
-                    <div class="container" style="width: 10%;margin-right: auto;margin-left: 0px;padding-left: 0px;align-items: center;float: left;display: block;"><img class="border rounded-circle" src="assets/img/2.jpg" id="business_uid_imgb" style="width: 50px;height: 50px;margin-top: 10px;margin-right: 10px;"></div>
-                    <div class="container" style="height: 100%;padding: 2px;margin-left: 15%;margin-right: 0px;font-size: small;align-items: center;display: block;float: right;">
-                        <h6 class="text-muted mb-2" id="business_uid_h6b" style="margin: 0px;-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;">Company Name</h6>
-                        <p id="business_uid_pb" style="font-size: 13px;margin: 0px;-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;">Nullam id dolor id nibh ultricies vehicula ut id elit. Cras justo odio,&nbsp;</p>
+    <div class="tab-pane" role="tabpanel" id="tab-4" style="margin-bottom: 50px;">
+        <div class="d-xl-flex align-items-stretch align-items-xl-center" style="padding: 0px;"><button class="btn btn-primary visible" type="button" disabled="disabled" id="users_save_btn" style="font-size: 13px;padding-top: 0px;padding-bottom: 0px;padding-right: 3px;padding-left: 3px;margin: 0px;">Save</button></div>
+        <div class="modal"
+            role="dialog" tabindex="-1" id="save_users_modal">
+            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title"></h4><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>
+                    <div class="modal-body">
+                        <div>
+                            <div id="message"></div>
+                            <p class="text-center" style="margin: 5px;font-size: 13px;">Start Date (<span style="text-decoration: underline;">Users created after) -- Min</span></p><input type="datetime-local" id="start_date2" style="width: 100%;margin: 5px;">
+                            <p class="text-center" style="margin: 5px;font-size: 13px;">End Date (Users created before) -- Max</p><input type="datetime-local" id="end_date2" style="width: 100%;margin: 5px;"></div>
                     </div>
                 </div>
-                <div style="margin: 0px;"><a class="btn btn-primary" data-toggle="collapse" aria-expanded="false" aria-controls="collapse-1" role="button" href="#collapse-1" id="business_uid_btnb" style="width: 100%;padding: 0px;height: 3px;margin: 0px;font-size: 11px;">...</a>
-                    <div
-                        class="collapse" id="collapse-1">
-                        <div style="margin: 0px;"><a href="#" id="business_uid_phref" style="font-size: 13px;margin: 0px;">Pay</a></div><label id="business_uid_indlblb" style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;margin: 0px;">Industry :<br></label></div>
             </div>
         </div>
-    </div>
-    </div>
-    <div class="tab-pane" role="tabpanel" id="tab-4">
-        <div class="input-group">
-            <div class="input-group-prepend"></div><input class="form-control" type="text">
-            <div class="input-group-append"><button class="btn btn-primary btn-sm" type="button" style="padding: 2px;font-size: 13px;margin: 0px;">Query</button></div>
-        </div>
         <div class="card border-white" id="users_card">
-            <div class="card-body invisible" id="user_id_card-body" style="margin: 0px;padding: 0px;margin-top: 5px;align-items: stretch!important;-ms-flex-wrap: wrap!important;flex-wrap: wrap!important;">
-                <div style="display: flex!important;">
-                    <div class="container" style="width: 10%;margin-right: auto;margin-left: 0px;padding-left: 0px;align-items: center;display: block;float: left;"><img class="border rounded-circle" src="assets/img/2.jpg" id="user_id_img" style="width: 50px;height: 50px;margin-top: 10px;margin-right: 10px;"></div>
-                    <div class="container" style="height: 100%;padding: 2px;margin-left: 15%;margin-right: 0px;font-size: small;align-items: center;float: right;display: block;">
-                        <h6 class="text-muted mb-2" id="user_id_h6" style="margin: 0px;-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;">displayName</h6><label id="user_id_elbl" style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;margin: 0px;">Email : abc@example.com<br></label>
-                        <label
-                            id="user_id_phlbl" style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;/*overflow: scroll;*/overflow: -moz-scrollbars-none;margin: 0px;">Phone : 07000000000<br></label>
-                    </div>
+            <div class="card-body text-left invisible" id="user_id_card-body" style="margin: 0px;padding: 0px;margin-top: 5px;align-items: stretch!important;-ms-flex-wrap: wrap!important;flex-wrap: wrap!important;padding-left: 3px;padding-right: 3px;word-wrap: break-word;word-wrap: anywhere;">
+                <div class="d-xl-flex justify-content-xl-start" style="display: flex!important;">
+                    <div class="container d-xl-flex align-items-xl-center" style="width: 50px;margin-right: auto;margin-left: 0px;padding: 0px;padding-left: 0px;display: block;float: left;align-items: center;"><img class="border rounded-circle" src="assets/img/index.png" id="user_id_img" style="width: 50px;height: 50px;margin-top: 0px;margin-right: 0px;"></div>
+                    <div class="container d-block" id="user_id_cbdiv" style="height: 100%;padding: 2px;margin-left: 5px;margin-right: 0px;font-size: small;align-items: center;float: right;display: block;">
+                        <h6 class="text-muted mb-2" id="user_id_h6" style="margin: 0px;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">displayName</h6><label id="user_id_bnlbl" style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;margin: 0px;">Business:&nbsp;</label><label id="user_id_elbl"
+                            style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;margin: 0px;">Email:&nbsp;</label></div>
                 </div>
                 <div><a class="btn btn-primary btn-sm" data-toggle="collapse" aria-expanded="false" aria-controls="collapse-1" role="button" href="#collapse-1" id="user_id_btn" style="width: 100%;padding: 0px;height: 3px;margin: 0px;font-size: 11px;">...</a>
                     <div
                         class="collapse" id="collapse-1">
-                        <div><a href="#" id="user_id_chref" style="font-size: 13px;">Chat</a></div><label id="user_id_indlbl" style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;margin: 0px;">Industry :<br></label></div>
+                        <div><a href="#" id="user_id_chref" style="font-size: 13px;">Chat</a><a href="#" id="user_id_phref" style="font-size: 13px;margin-left: 10px;">Pay</a></div><label id="user_id_indlbl" style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;margin: 0px;">Industry:&nbsp;</label>
+                        <label
+                            id="user_id_brchlbl" style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;margin: 0px;">Branch:&nbsp;</label><label id="user_id_phlbl" style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;margin: 0px;">Phone:&nbsp;</label></div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <div class="tab-pane" role="tabpanel" id="tab-3" style="margin-bottom: 50px;">
+        <div class="d-xl-flex align-items-stretch align-items-xl-center" style="padding: 0px;"><button class="btn btn-primary" type="button" id="save_act_btn" style="font-size: 13px;padding-top: 0px;padding-bottom: 0px;padding-right: 3px;padding-left: 3px;margin: 0px;">Save</button></div>
+        <div class="modal" role="dialog" tabindex="-1" id="save_act_modal">
+            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h6 class="modal-title"></h6><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>
+                    <div class="modal-body">
+                        <div>
+                            <div id="message"></div>
+                            <p class="text-center" style="margin: 5px;font-size: 13px;">Start Date (Activities after) -- Min</p><input type="datetime-local" id="start_date3" style="width: 100%;margin: 5px;">
+                            <p class="text-center" style="margin: 5px;font-size: 13px;">End Date (Activities before) -- Max</p><input type="datetime-local" id="end_date3" style="width: 100%;margin: 5px;"></div>
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="save_act_table">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>Display Name</th>
+                                        <th>Time</th>
+                                        <th>Activity</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="activity_id_tb">
+                                    <tr class="invisible" id="activity_id_tr">
+                                        <td style="width: 10%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Cell 1</td>
+                                        <td style="-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;width: 30%;">Cell 2</td>
+                                        <td style="-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;width: 30%;">Cell 3</td>
+                                        <td style="-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;width: 30%;">Cell 4</td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr></tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer"></div>
+                </div>
+            </div>
+        </div>
+        <div class="card border-white visible" id="reports_card" style="word-wrap: break-word;word-wrap: anywhere;">
+            <div class="card-body text-left invisible" id="activity_id_card-body" style="margin: 0px;padding: 0px;margin-top: 5px;align-items: stretch!important;-ms-flex-wrap: wrap!important;flex-wrap: wrap!important;padding-left: 3px;padding-right: 3px;word-wrap: break-word;word-wrap: anywhere;">
+                <div><a class="btn btn-primary btn-block btn-sm text-center bg-white border rounded d-xl-flex justify-content-xl-center align-items-xl-start" data-toggle="collapse" aria-expanded="false" aria-controls="collapse-1" role="button" href="#collapse-1"
+                        id="activity_id_btn" style="width: 100%;padding: 0px;height: 20px;margin: 0px;font-size: 11px;color: rgb(0,0,0);-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Signed in to PayAhead</a>
+                    <div
+                        class="collapse" id="collapse-1"><label id="activity_id_ephlbl" style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;margin-bottom: 0px;"><br></label></div>
             </div>
         </div>
     </div>
@@ -235,11 +312,20 @@
     </div>
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
-    <script src="assets/js/app.js"></script>
+    <script src="assets/js/moment-with-locales.js"></script>
+    <script src="assets/js/bootstrap-datetimepicker.js"></script>
     <script src="assets/js/install.js"></script>
     <script src="assets/js/intlTelInput-jquery.min.js"></script>
     <script src="assets/js/intlTelInput.js"></script>
     <script src="assets/js/utils.js"></script>
+    <script src="assets/js/jquery.dataTables.min.js"></script>
+    <script src="assets/js/dataTables.buttons.min.js"></script>
+    <script src="assets/js/jszip.min.js"></script>
+    <script src="assets/js/pdfmake.min.js"></script>
+    <script src="assets/js/vfs_fonts.js"></script>
+    <script src="assets/js/buttons.html5.min.js"></script>
+    <script src="assets/js/RegNumericRange.min.js"></script>
+    <script src="assets/js/app.js"></script>
 </body>
 
 </html>

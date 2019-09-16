@@ -16,9 +16,9 @@
           ".write": "true"
         },
         "transactions":{
-          "$uid": {
+          "$epoch": {
             ".read": "true",
-            ".write": "$uid === newData.child('payerId').val() || $uid === newData.child('payerId').val()"
+            ".write": "$uid === newData.child('payerId').val() || $uid === newData.child('payeeId').val()"
           }
         }
       }
@@ -47,8 +47,10 @@
     },
     "transactions":{
       "$uid": {
-        ".read": "true",
-        ".write": "$uid === newData.child('payerId').val() || $uid === newData.child('payerId').val()"
+        "$epoch" : {
+          ".read": "true",
+          ".write": "$uid === newData.child('payerId').val() || $uid === newData.child('payerId').val()"
+        }
       }
     }
   }
