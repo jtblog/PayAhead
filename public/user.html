@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
     <link rel="stylesheet" href="assets/fonts/ionicons.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Actor">
-    <link rel="stylesheet" href="assets/css/bootstrap-datetimepicker.css">
     <link rel="stylesheet" href="assets/css/buttons.dataTables.min.css">
     <link rel="stylesheet" href="assets/css/Features-Boxed.css">
     <link rel="stylesheet" href="assets/css/Features-Clean.css">
@@ -19,6 +18,9 @@
     <link rel="stylesheet" href="assets/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="assets/css/Profile-Card.css">
     <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/botui.min.css">
+    <link rel="stylesheet" href="assets/css/botui-theme-default.css">
+    <link rel="stylesheet" href="assets/css/jquery.datetimepicker.css">
       <!-- Added link rel manifest -->
       <link rel="manifest" href="/manifest.json">
 
@@ -72,7 +74,7 @@
         <div class="tab-content" style="-ms-overflow-style: none;scrollbar-width: none;overflow: scroll;overflow: -moz-scrollbars-none;max-width: 360px;max-height: 550px;margin-bottom: 50px;height: auto;display: block;">
             <div class="tab-pane active" role="tabpanel" id="tab-1" style="margin-bottom: 50px;">
                 <div class="profile-card">
-                    <div class="profile-back"></div><img class="rounded-circle profile-pic" src="assets/img/2.jpg" id="profile_pic">
+                    <div class="profile-back"></div><img class="rounded-circle profile-pic" src="assets/img/index.png" id="profile_pic">
                     <h3 class="profile-name" style="font-size: 13px;">FirstName LastName</h3>
                     <form id="update_form">
                         <div class="form-group"><input class="form-control" type="text" name="firstname" required="" placeholder="First Name" autocomplete="on" id="fn_input"></div>
@@ -99,8 +101,12 @@
                     <div class="modal-body">
                         <div>
                             <div id="example"></div>
-                            <p class="text-center" style="margin: 5px;font-size: 13px;">Start Date</p><input type="datetime-local" id="start_date1" style="width: 100%;margin: 5px;">
-                            <p class="text-center" style="margin: 5px;font-size: 13px;">End Date</p><input type="datetime-local" id="end_date1" style="width: 100%;margin: 5px;"></div>
+                            <p class="text-center" style="margin: 5px;font-size: 13px;">Start Date</p>
+                            <div class="input-group" style="height: 35px;"><input class="form-control" type="text" id="start_date1" style="font-size: 13px;font-weight: bold;padding: 5px 0;border-radius: 100px;margin: 0 auto 10px auto;border-color: gray;height: 35px;border-style: dotted;"></div>
+                            <p
+                                class="text-center" style="margin: 5px;font-size: 13px;">End Date</p>
+                                <div class="input-group" style="height: 35px;"><input class="form-control" type="text" id="end_date1" style="font-family: 'Actor', sans-serif;font-size: 13px;font-weight: bold;padding: 5px 0;border-radius: 100px;margin: 0 auto 10px auto;border-color: gray;height: 35px;border-style: dotted;"></div>
+                        </div>
                         <div class="table-responsive">
                             <table class="table table-hover table-sm" id="payment_table">
                                 <thead>
@@ -147,8 +153,37 @@
     </div>
     <div class="tab-pane" role="tabpanel" id="tab-4" style="margin-bottom: 50px;">
         <div class="d-xl-flex align-items-stretch align-items-xl-center" style="padding: 0px;"><button class="btn btn-primary visible" type="button" disabled="disabled" id="users_save_btn" style="font-size: 13px;padding-top: 0px;padding-bottom: 0px;padding-right: 3px;padding-left: 3px;margin: 0px;">Save</button></div>
-        <div class="modal"
-            role="dialog" tabindex="-1" id="save_users_modal">
+        <div class="modal fade"
+            role="dialog" tabindex="-1" id="img_modal" style="max-width: 360px;">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header d-flex align-items-stretch" style="padding: 0px;display: -ms-flexbox;display: flex;-ms-flex-wrap: wrap;flex-wrap: wrap;"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>
+                    <div class="modal-body d-flex justify-content-center align-items-center" style="padding: 0px;"><img id="u_img" style="width: 320px;height: 320px;margin: 0 auto;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" role="dialog" tabindex="-1" id="chat_modal" style="max-width: 360px;">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header d-flex align-items-stretch" id="chat_header" style="padding: 0px;display: -ms-flexbox;display: flex;-ms-flex-wrap: wrap;flex-wrap: wrap;"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>
+                    <div class="modal-body">
+                        <div class="card">
+                            <div class="card-body" id="chatee_profileUi" style="padding: 0px;width: 100%;">
+                                <div class="float-right" style="overflow-x: hidden;position: absolute;margin-left: 50px;width: 80%;">
+                                    <h6 id="chatee_h6" style="overflow: hidden;text-overflow: ellipsis;white-space: nowrap;overflow: hidden;">displayName</h6>
+                                    <p id="chatee_p" style="margin: 0px;text-overflow: ellipsis;white-space: nowrap;overflow: hidden;">last login at&nbsp;</p>
+                                </div>
+                                <div class="d-flex float-left justify-content-center align-items-center"><img class="rounded-circle" src="assets/img/index.png" width="50px" height="50px" id="chatee_img"></div>
+                            </div>
+                            <div class="card-body float-left" id="chat_dbclicked" style="padding: 0px;width: 100%;"><i class="fa fa-reply"></i><i class="fa fa-star" style="margin: 0 15px;"></i><i class="fa fa-remove" style="margin: 0 15px;"></i><i class="fa fa-copy" style="margin: 0 15px;"></i><i class="fa fa-share" style="padding: 0 15px;"></i></div>
+                        </div>
+                        <div class="container" id="chat_body" style="-ms-overflow-style: none;scrollbar-width: none;overflow-y: scroll;overflow: -moz-scrollbars-none;max-width: 360px;max-height: 550px;margin-bottom: 50px;height: auto;"><bot-ui></bot-ui></div>
+                    </div>
+                    <div class="modal-footer" style="height: 60px;"><label id="chat_error_lbl" style="margin-left: 2.5%;color: red;font-size: smaller;"></label></div>
+                </div>
+            </div>
+        </div>
+        <div class="modal" role="dialog" tabindex="-1" id="save_users_modal">
             <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -156,8 +191,12 @@
                     <div class="modal-body">
                         <div>
                             <div id="message"></div>
-                            <p class="text-center" style="margin: 5px;font-size: 13px;">Start Date (<span style="text-decoration: underline;">Users created after) -- Min</span></p><input type="datetime-local" id="start_date2" style="width: 100%;margin: 5px;">
-                            <p class="text-center" style="margin: 5px;font-size: 13px;">End Date (Users created before) -- Max</p><input type="datetime-local" id="end_date2" style="width: 100%;margin: 5px;"></div>
+                            <p class="text-center" style="margin: 5px;font-size: 13px;">Start Date (<span style="text-decoration: underline;">Users created after) -- Min</span></p>
+                            <div class="input-group" style="height: 35px;"><input class="form-control" type="text" id="start_date2" style="font-size: 13px;font-weight: bold;padding: 5px 0;border-radius: 100px;margin: 0 auto 10px auto;border-color: gray;height: 35px;border-style: dotted;"></div>
+                            <p
+                                class="text-center" style="margin: 5px;font-size: 13px;">End Date (Users created before) -- Max</p>
+                                <div class="input-group" style="height: 35px;"><input class="form-control" type="text" id="end_date2" style="font-family: 'Actor', sans-serif;font-size: 13px;font-weight: bold;padding: 5px 0;border-radius: 100px;margin: 0 auto 10px auto;border-color: gray;height: 35px;border-style: dotted;"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -190,8 +229,12 @@
                     <div class="modal-body">
                         <div>
                             <div id="message"></div>
-                            <p class="text-center" style="margin: 5px;font-size: 13px;">Start Date (Activities after) -- Min</p><input type="datetime-local" id="start_date3" style="width: 100%;margin: 5px;">
-                            <p class="text-center" style="margin: 5px;font-size: 13px;">End Date (Activities before) -- Max</p><input type="datetime-local" id="end_date3" style="width: 100%;margin: 5px;"></div>
+                            <p class="text-center" style="margin: 5px;font-size: 13px;">Start Date (Activities after) -- Min</p>
+                            <div class="input-group" style="height: 35px;"><input class="form-control" type="text" id="start_date3" style="font-size: 13px;font-weight: bold;padding: 5px 0;border-radius: 100px;margin: 0 auto 10px auto;border-color: gray;height: 35px;border-style: dotted;"></div>
+                            <p
+                                class="text-center" style="margin: 5px;font-size: 13px;">End Date (Activities before) -- Max</p>
+                                <div class="input-group" style="height: 35px;"><input class="form-control" type="text" id="end_date3" style="font-size: 13px;font-weight: bold;padding: 5px 0;border-radius: 100px;margin: 0 auto 10px auto;border-color: gray;height: 35px;border-style: dotted;"></div>
+                        </div>
                         <div class="table-responsive">
                             <table class="table table-hover" id="save_act_table">
                                 <thead>
@@ -312,8 +355,6 @@
     </div>
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
-    <script src="assets/js/moment-with-locales.js"></script>
-    <script src="assets/js/bootstrap-datetimepicker.js"></script>
     <script src="assets/js/install.js"></script>
     <script src="assets/js/intlTelInput-jquery.min.js"></script>
     <script src="assets/js/intlTelInput.js"></script>
@@ -324,6 +365,9 @@
     <script src="assets/js/pdfmake.min.js"></script>
     <script src="assets/js/vfs_fonts.js"></script>
     <script src="assets/js/buttons.html5.min.js"></script>
+    <script src="assets/js/jquery.datetimepicker.full.min.js"></script>
+    <script src="assets/js/vue.min.js"></script>
+    <script src="assets/js/botui.min.js"></script>
     <script src="assets/js/RegNumericRange.min.js"></script>
     <script src="assets/js/app.js"></script>
 </body>

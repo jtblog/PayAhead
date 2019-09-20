@@ -10,13 +10,15 @@
     <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
     <link rel="stylesheet" href="assets/fonts/ionicons.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Actor">
-    <link rel="stylesheet" href="assets/css/bootstrap-datetimepicker.css">
+    <link rel="stylesheet" href="assets/css/botui-theme-default.css">
+    <link rel="stylesheet" href="assets/css/botui.min.css">
     <link rel="stylesheet" href="assets/css/buttons.dataTables.min.css">
     <link rel="stylesheet" href="assets/css/Features-Boxed-1.css">
     <link rel="stylesheet" href="assets/css/Features-Boxed.css">
     <link rel="stylesheet" href="assets/css/Footer-Dark.css">
     <link rel="stylesheet" href="assets/css/intlTelInput.css">
     <link rel="stylesheet" href="assets/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="assets/css/jquery.datetimepicker.css">
     <link rel="stylesheet" href="assets/css/styles.css">
  
 
@@ -136,22 +138,54 @@
                     <div class="tab-pane active" role="tabpanel" id="tab-4">
                         <div class="d-xl-flex align-items-stretch align-items-xl-center" style="padding: 0px;"><button class="btn btn-primary visible" type="button" disabled="disabled" id="users_save_btn" style="font-size: 13px;padding-top: 0px;padding-bottom: 0px;padding-right: 3px;padding-left: 3px;margin: 0px;">Save</button></div>
                         <div
-                            class="modal" role="dialog" tabindex="-1" id="users_modal">
-                            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                            class="modal fade" role="dialog" tabindex="-1" id="img_modal" style="max-width: 360px;">
+                            <div class="modal-dialog" role="document">
                                 <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h6 class="modal-title"></h6><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>
-                                    <div class="modal-body">
-                                        <p style="margin: 5px;font-size: 13px;">Start Date</p><input type="datetime-local" id="start_date2" style="width: 100%;margin: 5px;">
-                                        <p style="margin: 5px;font-size: 13px;">End Date</p><input type="datetime-local" id="end_date2" style="width: 100%;margin: 5px;"></div>
-                                    <div class="modal-footer"></div>
+                                    <div class="modal-header d-flex align-items-stretch" style="padding: 0px;display: -ms-flexbox;display: flex;-ms-flex-wrap: wrap;flex-wrap: wrap;"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>
+                                    <div class="modal-body d-flex justify-content-center align-items-center" style="padding: 0px;"><img id="u_img" style="width: 320px;height: 320px;margin: 0 auto;"></div>
                                 </div>
                             </div>
+                    </div>
+                    <div class="modal fade" role="dialog" tabindex="-1" id="chat_modal" style="max-width: 360px;">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header d-flex align-items-stretch" id="chat_header" style="padding: 0px;display: -ms-flexbox;display: flex;-ms-flex-wrap: wrap;flex-wrap: wrap;"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>
+                                <div class="modal-body">
+                                    <div class="card">
+                                        <div class="card-body" id="chatee_profileUi" style="padding: 0px;width: 100%;">
+                                            <div class="float-right" style="overflow-x: hidden;position: absolute;margin-left: 50px;width: 80%;">
+                                                <h6 id="chatee_h6" style="overflow: hidden;text-overflow: ellipsis;white-space: nowrap;overflow: hidden;">displayName</h6>
+                                                <p id="chatee_p" style="margin: 0px;text-overflow: ellipsis;white-space: nowrap;overflow: hidden;">last login at&nbsp;</p>
+                                            </div>
+                                            <div class="d-flex float-left justify-content-center align-items-center"><img class="rounded-circle" src="assets/img/index.png" width="50px" height="50px" id="chatee_img"></div>
+                                        </div>
+                                        <div class="card-body float-left" id="chat_dbclicked" style="padding: 0px;width: 100%;"><i class="fa fa-reply"></i><i class="fa fa-star" style="margin: 0 15px;"></i><i class="fa fa-remove" style="margin: 0 15px;"></i><i class="fa fa-copy" style="margin: 0 15px;"></i><i class="fa fa-share" style="padding: 0 15px;"></i></div>
+                                    </div>
+                                    <div class="container" id="chat_body" style="-ms-overflow-style: none;scrollbar-width: none;overflow-y: scroll;overflow: -moz-scrollbars-none;max-width: 360px;max-height: 550px;margin-bottom: 50px;height: auto;"><bot-ui></bot-ui></div>
+                                </div>
+                                <div class="modal-footer" style="height: 60px;"><label id="chat_error_lbl" style="margin-left: 2.5%;color: red;font-size: smaller;"></label></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal" role="dialog" tabindex="-1" id="save_users_modal">
+                        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h6 class="modal-title"></h6><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>
+                                <div class="modal-body">
+                                    <div>
+                                        <div id="message"></div>
+                                        <p style="margin: 5px;font-size: 13px;">Start Date (Users created after) -- Min</p><input type="datetime-local" id="start_date2" style="width: 100%;margin: 5px;">
+                                        <p style="margin: 5px;font-size: 13px;">End Date (Users created before) --Max</p><input type="datetime-local" id="end_date2" style="width: 100%;margin: 5px;"></div>
+                                </div>
+                                <div class="modal-footer"></div>
+                            </div>
+                        </div>
                     </div>
                     <div class="card border-white" id="users_card">
                         <div class="card-body text-left invisible" id="user_id_card-body" style="margin: 0px;padding: 0px;margin-top: 5px;align-items: stretch!important;-ms-flex-wrap: wrap!important;flex-wrap: wrap!important;padding-left: 3px;padding-right: 3px;word-wrap: break-word;word-wrap: anywhere;">
                             <div class="d-xl-flex justify-content-xl-start" style="display: flex!important;">
-                                <div class="container d-xl-flex align-items-xl-center" style="width: 50px;margin-right: auto;margin-left: 0px;padding: 0px;padding-left: 0px;display: block;float: left;align-items: center;"><img class="border rounded-circle" src="2.jpg" id="user_id_img" style="width: 50px;height: 50px;margin-top: 0px;margin-right: 0px;"></div>
+                                <div class="container d-xl-flex align-items-xl-center" style="width: 50px;margin-right: auto;margin-left: 0px;padding: 0px;padding-left: 0px;display: block;float: left;align-items: center;"><img class="border rounded-circle" src="assets/img/index.png" id="user_id_img" style="width: 50px;height: 50px;margin-top: 0px;margin-right: 0px;"></div>
                                 <div class="container d-block" id="user_id_cbdiv" style="height: 100%;padding: 2px;margin-left: 5px;margin-right: 0px;font-size: small;align-items: center;float: right;display: block;">
                                     <h6 class="text-muted mb-2" id="user_id_h6" style="margin: 0px;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">displayName</h6><label id="user_id_bnlbl" style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;margin: 0px;">Business:&nbsp;</label>
                                     <label
@@ -276,10 +310,10 @@
                                                     <tbody id="payment_id_tb">
                                                         <tr class="visible" id="payment_id_tr">
                                                             <td style="width: 10%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Cell 1</td>
-                                                            <td style="width: 20%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Cell 2</td>
-                                                            <td style="width: 20%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Cell 3</td>
-                                                            <td style="width: 20%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Cell 4</td>
-                                                            <td style="width: 10%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Cell 5</td>
+                                                            <td style="width: 22.5%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Cell 2</td>
+                                                            <td style="width: 22.5%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Cell 3</td>
+                                                            <td style="width: 22.5%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Cell 4</td>
+                                                            <td style="width: 22.5%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Cell 5</td>
                                                         </tr>
                                                     </tbody>
                                                     <tfoot>
@@ -301,7 +335,7 @@
                                     <div><a class="btn btn-primary btn-block" data-toggle="collapse" aria-expanded="false" aria-controls="collapse-1" role="button" href="#collapse-1" id="payment_id_btn" style="width: 100%;padding: 0px;height: 3px;margin: 0px;font-size: 11px;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">...</a>
                                         <div
                                             class="collapse" id="collapse-1">
-                                            <div><a href="#" id="payment_id_rfhref" style="font-size: 13px;margin: 0px;">Request refund</a><a href="#" id="payment_id_vhref" style="font-size: 13px;margin: 0px;margin-left: 5px;">Verify</a></div><label id="payment_id_vfrfdlbl"
+                                            <div><a href="#" id="payment_id_rfhref" style="font-size: 13px;margin: 0px;">Refund</a><a href="#" id="payment_id_vhref" style="font-size: 13px;margin: 0px;margin-left: 5px;">Verify</a></div><label id="payment_id_vfrfdlbl"
                                                 style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;margin-bottom: 0px;">Verified on:&nbsp;<br></label></div>
                                 </div>
                             </div>
@@ -397,8 +431,6 @@
             </div>
             <script src="assets/js/jquery.min.js"></script>
             <script src="assets/bootstrap/js/bootstrap.min.js"></script>
-            <script src="assets/js/moment-with-locales.js"></script>
-            <script src="assets/js/bootstrap-datetimepicker.js"></script>
             <script src="assets/js/install.js"></script>
             <script src="assets/js/intlTelInput-jquery.min.js"></script>
             <script src="assets/js/intlTelInput.js"></script>
@@ -410,6 +442,9 @@
             <script src="assets/js/vfs_fonts.js"></script>
             <script src="assets/js/buttons.html5.min.js"></script>
             <script src="assets/js/RegNumericRange.min.js"></script>
+            <script src="assets/js/vue.min.js"></script>
+            <script src="assets/js/botui.min.js"></script>
+            <script src="assets/js/jquery.datetimepicker.full.min.js"></script>
             <script src="assets/js/app.js"></script>
 </body>
 

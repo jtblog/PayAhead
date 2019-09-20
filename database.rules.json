@@ -20,6 +20,14 @@
             ".read": "true",
             ".write": "$uid === newData.child('payerId').val() || $uid === newData.child('payeeId').val()"
           }
+        },
+        "conversations":{
+          "$uid": {
+            "$epoch" : {
+              ".read": "true",
+              ".write": "$uid === newData.child('senderId').val() || $uid === newData.child('recieverId').val()"
+            }
+          }
         }
       }
     },
@@ -50,6 +58,14 @@
         "$epoch" : {
           ".read": "true",
           ".write": "$uid === newData.child('payerId').val() || $uid === newData.child('payerId').val()"
+        }
+      }
+    },
+    "conversations":{
+      "$uid": {
+        "$epoch" : {
+          ".read": "true",
+          ".write": "$uid === newData.child('senderId').val() || $uid === newData.child('recieverId').val()"
         }
       }
     }

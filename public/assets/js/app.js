@@ -504,8 +504,10 @@ function get_profile(){
         /*get_transactions();*/
         if(!isNullOrUndefinedOrEmpty(window.user_json["transactions"])){
           window.transactions = window.user_json["transactions"];
-          window.reports = window.user_json["activities"];
           populate_transactions_view();
+        }
+        if(!isNullOrUndefinedOrEmpty(window.user_json["activities"])){
+          window.reports = window.user_json["activities"];
           populate_reports_view();
         }
         get_users();
@@ -620,7 +622,9 @@ function save_t(_res){
     "payer" : window.user_json["displayName"],
     "amount" : window.sub_details0["amount"],
     "subaccount_code" : window.sub_details0["subaccount_code"],
-    "status" : "Paid"
+    "condition" : "paid",
+    "epochPayed" : Date.now(),
+    "epochLatest" : Date.now()
   }
   Object.keys(_res).forEach(function(key) {
     _p[key] = _res[key];
@@ -800,18 +804,6 @@ function get_users(){
   }
 };
 
-var go_to_paymentpage = function(e){
-  e.preventDefault();
-  var id = $(this).attr('id');
-  id = id.replaceAll("_phref", "");
-  Object.keys(window.users).forEach(function(key) {
-    if(key == id){
-      localStorage["sub_details0"] = JSON.stringify(window.users[key]);
-      window.location = "pay.html";
-    }
-  })
-}
-
 function populate_users_view(){
   $("#users_card").empty();
   Object.keys(window.users).forEach(function(key) {
@@ -820,7 +812,181 @@ function populate_users_view(){
 };
 
 var chat = function(e){
+  e.preventDefault();
+  var id = $(this).attr('id');
+  id = id.replaceAll("_chref", "");
+
+  window.chat_ui = null;
+  $("#chat_body").html("<bot-ui></bot-ui>");
+  window.chat_ui = new BotUI("chat_body");
+  
+  window.selected_user = window.users[id];
+  try{clicked_user();}catch(e){}
+
+  $("#chatee_img").attr("src", window.selected_user["photoURL"]);
+  $("#chatee_h6").html(window.selected_user["displayName"]);
+  $("#chatee_p").html("Last seen at " + toDate(window.selected_user["lastLoginAt"]));
+  var chats = {};
+  try{
+    chats = window.user_json["conversations"][id];
+  }catch(e){};
+  if(!isNullOrUndefinedOrEmpty(chats)){
+    Object.keys(chats).forEach(function(key) {
+      if(chats[key]["senderId"] == window.user_json["uid"]){
+        window.chat_ui.message.human({
+          content: chats[key]["content"]
+        });
+      }else{
+        window.chat_ui.message.bot({
+          content: chats[key]["content"]
+        });
+      }
+    });
+    window.chat_ui.action.text({
+      autoHide: true,
+      addMessage: false,
+      action: {
+        placeholder: 'Type here'
+      }
+    }).then(save_chat);
+  }else{
+    window.chat_ui.action.text({
+      autoHide: true,
+      addMessage: false,
+      action: {
+        placeholder: 'Type here'
+      }
+    }).then(save_chat);
+  }
+  $("#chat_modal").modal("show");
 }
+
+var save_chat = function(res){
+  //reset_all_span();
+  $("#chat_error_lbl").html("");
+  var endpoint = "/chat/save_conversation";
+  var _c = {
+    "content" : res.value,
+    "type" : "text",
+    "recieverId" : window.selected_user["uid"],
+    "reciever" : window.selected_user["displayName"],
+    "senderId" : window.user_json["uid"],
+    "sender" : window.user_json["displayName"],
+    "delivered" : true,
+    "read" : false,
+    "epochSent" : Date.now()
+  }
+  Object.keys(res).forEach(function(key) {
+    _c[key] = res[key];
+  });
+
+  var settings = {
+      "async": true,
+      "crossDomain": true,
+      "url": host+endpoint,
+      "method": "POST",
+      "contentType": "application/json",
+      "dataType": "json",
+      "headers" : {
+        "Content-Type": "application/json",
+        "authorization" : localStorage["authorization"],
+      },
+      "data": JSON.stringify(_c)
+    }
+
+    $.ajax(settings)
+      .done(function (response) {
+        var data = response;
+        window.chat_ui.message.human({
+          content: res.value
+        }).then(function(){
+          window.chat_ui.action.text({
+            autoHide: true,
+            addMessage: false,
+            action: {
+              placeholder: 'Type here'
+            }
+          }).then(save_chat);
+        });
+      })
+      .fail(function(jqXHR, textStatus, errorThrown) {
+        var error = JSON.parse(jqXHR.responseText);
+        errorHandler(error);
+        $("#chat_error_lbl").html("Error sending message. Please try again");
+        window.chat_ui.action.text({
+            autoHide: true,
+            addMessage: false,
+            action: {
+              placeholder: 'Type here'
+            }
+          }).then(save_chat);
+      });
+}
+
+var popup_pic = function(e){
+  e.preventDefault();
+  var id = $(this).attr('id');
+  id = id.replaceAll("_img", "");
+
+  window.selected_user = window.users[id];
+  try{clicked_user();}catch(e){}
+
+  $("#u_img").attr("src", window.selected_user["photoURL"]);
+  $("#img_modal").modal("show");
+}
+
+var refund = function(e){
+  e.preventDefault();
+  var id = $(this).attr('id');
+  id = id.replaceAll("_rrfhref", "");
+  var selected_tran = {};
+  Object.keys(window.transactions).forEach(function(key) {
+    if(key == window.transactions[key]["paymentId"]){
+      selected_tran = window.transactions[key];
+    }
+  });
+
+  if(!isNullOrUndefinedOrEmpty(selected_tran)){
+    var endpoint = "/chat/save_conversation";
+    var _c = {
+      "content" : "Please, you would do well to refund my payment urgently",
+      "type" : "text",
+      "recieverId" : window.selected_user["uid"],
+      "reciever" : window.selected_user["displayName"],
+      "senderId" : window.user_json["uid"],
+      "sender" : window.user_json["displayName"],
+      "delivered" : true,
+      "read" : false,
+      "epochLatest" : Date.now()
+    }
+    Object.keys(selected_tranes).forEach(function(key) {
+      _c[key] = selected_tran[key];
+    });
+
+    var settings = {
+        "async": true,
+        "crossDomain": true,
+        "url": host+endpoint,
+        "method": "POST",
+        "contentType": "application/json",
+        "dataType": "json",
+        "headers" : {
+          "Content-Type": "application/json",
+          "authorization" : localStorage["authorization"],
+        },
+        "data": JSON.stringify(_c)
+      }
+
+      $.ajax(settings)
+        .done(function (response) {
+          var data = response;
+        })
+        .fail(function(jqXHR, textStatus, errorThrown) {
+          var error = JSON.parse(jqXHR.responseText);
+          //errorHandler(error);
+        });
+  }
+};
 
 /*function get_transactions(){
   if( isNullOrUndefinedOrEmpty(localStorage["authorization"])){
@@ -869,9 +1035,15 @@ function populate_transactions_view(){
             'excelHtml5', 'csvHtml5', 'pdfHtml5'//, 'copyHtml5'
         ]
     });
-    $('#start_date1, #end_date1').on('dp.change', function(e){
+    /*$('#start_date1, #end_date1').on('dp.change', function(e){
       var min1 = parseInt( $("#start_date1").data("DateTimePicker").date().valueOf() );
       var max1 = parseInt( $("#end_date1").data("DateTimePicker").date().valueOf() );
+      var regEx = getRegex(min1, max1);
+      window.payment_datatable.column(0).search(regEx, true, true).draw();
+    });*/
+    $('#start_date1, #end_date1').on("click keypress", function(e){
+      var min1 = toEpoch( $("#start_date1").val() );
+      var max1 = toEpoch( $("#end_date1").val() );
       var regEx = getRegex(min1, max1);
       window.payment_datatable.column(0).search(regEx, true, true).draw();
     });
@@ -896,14 +1068,22 @@ function populate_reports_view(){
             'excelHtml5', 'csvHtml5', 'pdfHtml5'//, 'copyHtml5'
         ]
     });
-    $('#start_date3, #end_date3').on('dp.change', function(e){
+    /*$('#start_date3, #end_date3').on('dp.change', function(e){
       var min3 = parseInt( $("#start_date3").data("DateTimePicker").date().valueOf() );
       var max3 = parseInt( $("#end_date3").data("DateTimePicker").date().valueOf() );
+      var regEx = getRegex(min3, max3);
+      window.report_datatable.column(0).search(regEx, true, true).draw();
+    });*/
+
+    $('#start_date3, #end_date3').on("click keypress", function(e){
+      var min3 = toEpoch( $("#start_date3").val() );
+      var max3 = toEpoch( $("#end_date3").val() );
       var regEx = getRegex(min3, max3);
       window.report_datatable.column(0).search(regEx, true, true).draw();
     });
   }catch(e){ console.log(e); }
 };
+
 
 function getRegex(minValue, maxValue){
   var _res = RegNumericRange(minValue, maxValue, {
@@ -1215,6 +1395,10 @@ function isNullOrUndefinedOrEmpty(_in){
         }
       }else if(typeof _check == "undefined"){
         return true;
+      }else if(_check == {}){
+        return true;
+      }else{
+        return false
       }
       break;
     };
@@ -1245,16 +1429,24 @@ function previewImage(input) {
 
 function toEpoch(strDate){
   var datum = Date.parse(strDate);
-  return datum/1000;
+  return datum;
 };
+
+var body_change_listener = function(e){
+  /*if(!isNullOrUndefinedOrEmpty(){
+    
+  }*/
+}
 
 function prepare_ui(){
     
+    $(".close").html('<i class="fa fa-arrow-left" style="font-size: 13px;"></i>');
+    $("body").change(body_change_listener);
     $("#profile_pic").attr("src", "");
 
     /* Payments tab*/
-    $("#start_date1").datetimepicker({ inline: true, sideBySide: true });
-    $("#end_date1").datetimepicker({ inline: true, sideBySide: true });
+    $("#start_date1").datetimepicker({ format:'m/d/Y H:i:s', showSecond: true});
+    $("#end_date1").datetimepicker({ format:'m/d/Y H:i:s', showSecond: true});
     $("#start_date1").val("");
     $("#end_date1").val("");
     $("#save_pays_btn").click(function(e){$("#save_pays_modal").modal("show");});
@@ -1263,19 +1455,30 @@ function prepare_ui(){
     removeElement("payment_id_card-body");
     removeElement("payment_id_tr");
 
+
+
+
     /* All users tab */
-    $("#start_date2").datetimepicker({ inline: true, sideBySide: true });
-    $("#end_date2").datetimepicker({ inline: true, sideBySide: true });
+    $("#start_date2").datetimepicker({ format:'m/d/Y H:i:s', showSecond: true});
+    $("#end_date2").datetimepicker({ format:'m/d/Y H:i:s', showSecond: true});
     $("#start_date2").val("");
     $("#end_date2").val("");
     $("#users_save_btn").click(function(e){$("#save_users_modal").modal("show");});
     localStorage["user_id_card-body"] = document.getElementById("user_id_card-body").outerHTML;
     removeElement("user_id_card-body");
 
+    /*All user's tab (chat function) */
+    localStorage["chat_dbclicked"] = document.getElementById("chat_dbclicked").outerHTML
+    localStorage["chatee_profileUi"] = document.getElementById("chatee_profileUi").outerHTML
+    removeElement("chat_dbclicked");
+    window.chat_ui = new BotUI("chat_body");
+
+
+
 
     /* Reports tab */
-    $("#start_date3").datetimepicker({ inline: true, sideBySide: true });
-    $("#end_date3").datetimepicker({ inline: true, sideBySide: true });
+    $("#start_date3").datetimepicker({ format:'m/d/Y H:i:s', showSecond: true});
+    $("#end_date3").datetimepicker({ format:'m/d/Y H:i:s', showSecond: true});
     $("#start_date3").val("");
     $("#end_date3").val("");
     $("#save_act_btn").click(function(e){$("#save_act_modal").modal("show");});
@@ -1294,23 +1497,26 @@ function add_transactionUi(tran){
 
   appendElement(t_view, "transactions_card");
 
-  //$('#' + _id + "_rrfhref").click(go_to_refundpage);
+  $('#' + _id + "_rrfhref").click(refund);
   $("#" + _id + "_idh6").html($("#" + _id + "_idh6").html() + tran["paymentId"]);
   $("#" + _id + "_toh6").html($("#" + _id + "_toh6").html() + tran["payee"]);
   $("#" + _id + "_byh6").html($("#" + _id + "_byh6").html() + tran["payer"]);
   $("#" + _id + "_timeh6").html($("#" + _id + "_timeh6").html() + toDate(_id) );
   $("#" + _id + "_btn").click(_dropdown);
   switch(tran["condition"]){
-    case "Paid":
+    case "paid":
       $("#" + _id + "_vfrfdlbl").remove();
       break;
-    case "Verified":
+    case "verified":
       $('#' + _id + "_rrfhref").remove();
       $("#" + _id + "_vfrfdlbl").html("Verified :" + toDate(tran["epochVerified"]) );
       break;
-    case "Refunded":
+    case "refunded":
       $('#' + _id + "_rrfhref").remove();
       $("#" + _id + "_vfrfdlbl").html("Refunded :" + toDate(tran["epochRefunded"]) );
+      break;
+    case "refundRequested":
+      $("#" + _id + "_vfrfdlbl").html("Refund request :" + toDate(tran["epochLatest"]) );
       break;
     default:
       $("#" + _id + "_vfrfdlbl").remove();
@@ -1323,17 +1529,25 @@ function add_transactionUi(tran){
     tr_up = tr_up.replaceAll("Cell 2", toDate(tran["epochPayed"]) );
     tr_up = tr_up.replaceAll("Cell 3", tran["payee"]);
     switch(tran["condition"]){
-      case "Refunded":
+      case "refunded":
         tr_up = tr_up.replaceAll("Cell 4", tran["refundedAt"]);
         break;
-      case "Verified":
+      case "verified":
         tr_up = tr_up.replaceAll("Cell 4", tran["verifiedAt"]);
+        break;
+      case "refundRequested":
+        tr_up = tr_up.replaceAll("Cell 4", tran["epochLatest"]);
         break;
       default:
         tr_up = tr_up.replaceAll("Cell 4", "---");
         break;
     }
-    tr_up = tr_up.replaceAll("Cell 5", tran["condition"] + " : " + tran["epochLatest"]);
+    if(!isNullOrUndefinedOrEmpty(tran["condition"])){
+      tr_up = tr_up.replaceAll("Cell 5", tran["condition"] + " : " + tran["epochLatest"]);
+    }else{
+      tr_up = tr_up.replaceAll("Cell 5", "");
+    }
+    
     tr_up = tr_up.replaceAll("invisible", "");
 
     appendElement(tr_up, "payment_id_tb");
@@ -1353,8 +1567,8 @@ function add_userUi(user){
   $("#" + user["uid"] + "_phlbl").html($("#" + user["uid"] + "_phlbl").html() + user["phoneNumber"]);
   $("#" + user["uid"] + "_indlbl").html($("#" + user["uid"] + "_indlbl").html() + user["industry"]);
   
-  //$("#" + user["uid"] + "_img").click(popup_pic);
-  //$('#' + user["uid"] + "_chref").click(chat);
+  $("#" + user["uid"] + "_img").click(popup_pic);
+  $('#' + user["uid"] + "_chref").click(chat);
   $('#' + user["uid"] + "_phref").click(go_to_paymentpage);
   if(user["disabled"]){
     $('#' + user["uid"] + "_card-body").attr("disabled", "disabled");

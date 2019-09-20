@@ -2,6 +2,7 @@ var host = window.location.href.slice(0, window.location.href.lastIndexOf("/"));
 
 var authorization, user_json;
 var cre_ac_cntr, cre_ac_frm, vrfy_otp_frm;
+var connection;
 
 var organizations = {}; 
 var users = {};
@@ -524,7 +525,128 @@ var disable_user = function(e){
 };
 
 var chat = function(e){
-};
+  e.preventDefault();
+  var id = $(this).attr('id');
+  id = id.replaceAll("_chref", "");
+
+  window.chat_ui = null;
+  $("#chat_body").html("<bot-ui></bot-ui>");
+  window.chat_ui = new BotUI("chat_body");
+  
+  window.selected_user = window.users[id];
+  try{clicked_user();}catch(e){}
+
+  $("#chatee_img").attr("src", window.selected_user["photoURL"]);
+  $("#chatee_h6").html(window.selected_user["displayName"]);
+  $("#chatee_p").html("Last seen at " + toDate(window.selected_user["lastLoginAt"]));
+  var chats = {};
+  try{
+    chats = window.user_json["conversations"][id];
+  }catch(e){};
+  if(!isNullOrUndefinedOrEmpty(chats)){
+    Object.keys(chats).forEach(function(key) {
+      if(chats[key]["senderId"] == window.user_json["uid"]){
+        window.chat_ui.message.human({
+          content: chats[key]["content"]
+        });
+      }else{
+        window.chat_ui.message.bot({
+          content: chats[key]["content"]
+        });
+      }
+    });
+    window.chat_ui.action.text({
+      autoHide: true,
+      addMessage: false,
+      action: {
+        placeholder: 'Type here'
+      }
+    }).then(save_chat);
+  }else{
+    window.chat_ui.action.text({
+      autoHide: true,
+      addMessage: false,
+      action: {
+        placeholder: 'Type here'
+      }
+    }).then(save_chat);
+  }
+  $("#chat_modal").modal("show");
+}
+
+var save_chat = function(res){
+  //reset_all_span();
+  $("#chat_error_lbl").html("");
+  var endpoint = "/chat/save_conversation";
+  var _c = {
+    "content" : res.value,
+    "type" : "text",
+    "recieverId" : window.selected_user["uid"],
+    "reciever" : window.selected_user["displayName"],
+    "senderId" : window.user_json["uid"],
+    "sender" : window.user_json["displayName"],
+    "delivered" : true,
+    "read" : false,
+    "epochSent" : Date.now()
+  }
+  Object.keys(res).forEach(function(key) {
+    _c[key] = res[key];
+  });
+
+  var settings = {
+      "async": true,
+      "crossDomain": true,
+      "url": host+endpoint,
+      "method": "POST",
+      "contentType": "application/json",
+      "dataType": "json",
+      "headers" : {
+        "Content-Type": "application/json",
+        "authorization" : localStorage["authorization"],
+      },
+      "data": JSON.stringify(_c)
+    }
+
+    $.ajax(settings)
+      .done(function (response) {
+        var data = response;
+        window.chat_ui.message.human({
+          content: res.value
+        }).then(function(){
+          window.chat_ui.action.text({
+            autoHide: true,
+            addMessage: false,
+            action: {
+              placeholder: 'Type here'
+            }
+          }).then(save_chat);
+        });
+      })
+      .fail(function(jqXHR, textStatus, errorThrown) {
+        var error = JSON.parse(jqXHR.responseText);
+        errorHandler(error);
+        $("#chat_error_lbl").html("Error sending message. Please try again");
+        window.chat_ui.action.text({
+            autoHide: true,
+            addMessage: false,
+            action: {
+              placeholder: 'Type here'
+            }
+          }).then(save_chat);
+      });
+}
+
+var popup_pic = function(e){
+  e.preventDefault();
+  var id = $(this).attr('id');
+  id = id.replaceAll("_img", "");
+
+  window.selected_user = window.users[id];
+  try{clicked_user();}catch(e){}
+
+  $("#u_img").attr("src", window.selected_user["photoURL"]);
+  $("#img_modal").modal("show");
+}
 
 var clicked_user = function(e){
   e.preventDefault();
@@ -588,10 +710,16 @@ var clicked_user = function(e){
               'excelHtml5', 'csvHtml5', 'pdfHtml5'//, 'copyHtml5'
           ]
       });
-      $('#start_date3, #end_date3').on('dp.change', function(e){
+      /*$('#start_date3, #end_date3').on('dp.change', function(e){
         var min0 = parseInt( $("#start_date3").data("DateTimePicker").date().valueOf() );
         var max0 = parseInt( $("#end_date3").data("DateTimePicker").date().valueOf() );
         var regEx = getRegex(min0, max0);
+        window.usr_save_act_datatable.column(0).search(regEx, true, true).draw();
+      });*/
+      $('#start_date3, #end_date3').on("click keypress", function(e){
+        var min3 = toEpoch( $("#start_date3").val() );
+        var max3 = toEpoch( $("#end_date3").val() );
+        var regEx = getRegex(min3, max3);
         window.usr_save_act_datatable.column(0).search(regEx, true, true).draw();
       });
     }catch(e){ console.log(e); }
@@ -618,10 +746,16 @@ var clicked_user = function(e){
               'excelHtml5', 'csvHtml5', 'pdfHtml5'//, 'copyHtml5'
           ]
       });
-      $('#start_date4, #end_date4').on('dp.change', function(e){
+      /*$('#start_date4, #end_date4').on('dp.change', function(e){
         var min1 = parseInt( $("#start_date4").data("DateTimePicker").date().valueOf() );
         var max1 = parseInt( $("#end_date4").data("DateTimePicker").date().valueOf() );
         var regEx = getRegex(min1, max1);
+        window.usr_save_pay_datatable.column(0).search(regEx, true, true).draw();
+      });*/
+      $('#start_date4, #end_date4').on("click keypress", function(e){
+        var min4 = toEpoch( $("#start_date4").val() );
+        var max4 = toEpoch( $("#end_date4").val() );
+        var regEx = getRegex(min4, max4);
         window.usr_save_pay_datatable.column(0).search(regEx, true, true).draw();
       });
     }catch(e){ console.log(e); }
@@ -702,7 +836,7 @@ var verify = function(e){
         tran["verifierId"] = window.user_json["uid"];
         tran["epochVerified"] = Date.now();
         tran["epochLatest"] = tran["epochVerified"];
-        tran["condition"] = "Verified"
+        tran["condition"] = "verified"
 
         var settings = {
             "async": true,
@@ -792,7 +926,7 @@ var refund = function(e){
         tran["refunderId"] = window.user_json["uid"];
         tran["epochRefunded"] = Date.now();
         tran["epochLatest"] = tran["epochRefunded"];
-        tran["condition"] = "Refunded"
+        tran["condition"] = "refunded"
 
         var settings = {
             "async": true,
@@ -1252,12 +1386,17 @@ function isNullOrUndefinedOrEmpty(_in){
         }
       }else if(typeof _check == "undefined"){
         return true;
+      }else if(_check == {}){
+        return true;
+      }else{
+        return false
       }
       break;
     };
 };
 
 function prepare_ui(){
+    $(".close").html('<i class="fa fa-arrow-left" style="font-size: 13px;"></i>');
     $("#profile_pic").attr("src", "");
     $("#usr_img").attr("src", "assets/img/index.png");
 
@@ -1266,18 +1405,33 @@ function prepare_ui(){
     script.setAttribute("src", "https://js.paystack.co/v1/inline.js");
     document.getElementsByTagName("head")[0].appendChild(script);
 
+
+
+
+
     /* All users tab*/
-    $("#start_date2").datetimepicker({ inline: true, sideBySide: true });
-    $("#end_date2").datetimepicker({ inline: true, sideBySide: true });
+    $("#start_date2").datetimepicker({ format:'m/d/Y H:i:s', showSecond: true});
+    $("#end_date2").datetimepicker({ format:'m/d/Y H:i:s', showSecond: true});
     $("#start_date2").val("");
     $("#end_date2").val("");
-    $("#users_save_btn").click(function(e){$("#users_modal").modal("show");});
+    $("#users_save_btn").click(function(e){$("#save_users_modal").modal("show");});
     localStorage["user_id_card-body"] = document.getElementById("user_id_card-body").outerHTML;
     removeElement("user_id_card-body");
 
+    /*All user's tab (chat function) */
+    localStorage["chat_dbclicked"] = document.getElementById("chat_dbclicked").outerHTML
+    localStorage["chatee_profileUi"] = document.getElementById("chatee_profileUi").outerHTML
+    removeElement("chat_dbclicked");
+    window.chat_ui = new BotUI("chat_body");
+
+
+
+
+
+
     /* User's activities */
-    $("#start_date3").datetimepicker({ inline: true, sideBySide: true });
-    $("#end_date3").datetimepicker({ inline: true, sideBySide: true });
+    $("#start_date3").datetimepicker({ format:'m/d/Y H:i:s', showSecond: true});
+    $("#end_date3").datetimepicker({ format:'m/d/Y H:i:s', showSecond: true});
     $("#start_date3").val("");
     $("#end_date3").val("");
     $("#usr_save_act_btn").click(function(e){$("#usr_save_act_modal").modal("show");});
@@ -1286,9 +1440,13 @@ function prepare_ui(){
     removeElement("activity_id_card-bodyb");
     removeElement("activity_id_trb");
 
+
+
+
+
     /* User's transactions */
-    $("#start_date4").datetimepicker({ inline: true, sideBySide: true });
-    $("#end_date4").datetimepicker({ inline: true, sideBySide: true });
+    $("#start_date4").datetimepicker({ format:'m/d/Y H:i:s', showSecond: true});
+    $("#end_date4").datetimepicker({ format:'m/d/Y H:i:s', showSecond: true});
     $("#start_date4").val("");
     $("#end_date4").val("");
     $("#usr_save_pay_btn").click(function(e){$("#usr_save_pay_modal").modal("show");});
@@ -1311,8 +1469,8 @@ function add_userUi(user){
   $("#" + user["uid"] + "_phlbl").html($("#" + user["uid"] + "_phlbl").html() + user["phoneNumber"]);
   $("#" + user["uid"] + "_indlbl").html($("#" + user["uid"] + "_indlbl").html() + user["industry"]);
   
-  //$("#" + user["uid"] + "_img").click(popup_pic);
-  //$('#' + user["uid"] + "_chref").click(chat);
+  $("#" + user["uid"] + "_img").click(popup_pic);
+  $('#' + user["uid"] + "_chref").click(chat);
   $('#' + user["uid"] + "_cbdiv").click(clicked_user);
   $('#' + user["uid"] + "_dhref").click(disable_user);
   //$('#' + user["uid"] + "_btn").click(_dropdown);
@@ -1392,18 +1550,21 @@ function add_usr_transactionUi(tran){
   $('#' + _id + "_vhref").click(verify);
   $("#" + _id + "_btn").click(_dropdown);
   switch(tran["condition"]){
-    case "Paid":
+    case "paid":
       $("#" + _id + "_vfrfdlbl").remove();
       break;
-    case "Verified":
+    case "verified":
       $('#' + _id + "_vhref").remove();
       $('#' + _id + "_rfhref").remove();
       $("#" + _id + "_vfrfdlbl").html("Verified :" + toDate(tran["epochVerified"]) );
       break;
-    case "Refunded":
+    case "refunded":
       $('#' + _id + "_vhref").remove();
       $('#' + _id + "_rfhref").remove();
       $("#" + _id + "_vfrfdlbl").html("Refunded :" + toDate(tran["epochRefunded"]) );
+      break;
+    case "refundRequested":
+      $("#" + _id + "_vfrfdlbl").html("Refund requested :" + toDate(tran["epochLatest"]) );
       break;
     default:
       $("#" + _id + "_vfrfdlbl").remove();
@@ -1417,18 +1578,24 @@ function add_usr_transactionUi(tran){
     tr_up = tr_up.replaceAll("Cell 2", toDate(tran["epochPayed"]) );
     tr_up = tr_up.replaceAll("Cell 3", tran["payee"]);
     switch(tran["condition"]){
-      case "Refunded":
+      case "refunded":
         tr_up = tr_up.replaceAll("Cell 4", tran["refundedAt"]);
         break;
-      case "Verified":
+      case "verified":
         tr_up = tr_up.replaceAll("Cell 4", tran["verifiedAt"]);
+        break;
+      case "refundRequested":
+        tr_up = tr_up.replaceAll("Cell 4", tran["epochLatest"]);
         break;
       default:
         tr_up = tr_up.replaceAll("Cell 4", "---");
         break;
     }
-    tr_up = tr_up.replaceAll("Cell 5", tran["condition"] + " : " + tran["epochLatest"]);
-    tr_up = tr_up.replaceAll("invisible", "");
+    if(!isNullOrUndefinedOrEmpty(tran["condition"])){
+      tr_up = tr_up.replaceAll("Cell 5", tran["condition"] + " : " + tran["epochLatest"]);
+    }else{
+      tr_up = tr_up.replaceAll("Cell 5", "");
+    }
 
     appendElement(tr_up, "payment_id_tb");
   }catch(e){ console.log(e); }

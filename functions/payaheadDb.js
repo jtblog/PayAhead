@@ -343,6 +343,60 @@ payaheadDb.prototype.save_transaction = function(uid, _details, response, mDb){
     });
 };
 
+payaheadDb.prototype.save_conversation = function(uid, _details, response, mDb){
+  _db.ref("conversations/" + _details["senderId"] + "/" + _details["epochSent"]).set(
+    _details
+    , function(error) {
+        if (error) {
+          console.log(error);
+          response.status(400).json(error);
+          response.end();
+        } else {
+          //response.status(200).json(_details);
+        }
+    });
+  _db.ref("conversations/" + _details["recieverId"] + "/" + _details["epochSent"]).set(
+    _details
+    , function(error) {
+        if (error) {
+          console.log(error);
+          response.status(400).json(error);
+          response.end();
+        } else {
+          //response.status(200).json(_details);
+        }
+    });
+
+  _db.ref("users/" + _details["recieverId"] + "/conversations/" + uid + "/" + _details["epochSent"]).set(
+    _details
+    , function(error) {
+        if (error) {
+          console.log(error);
+          response.status(400).json(error);
+          response.end();
+        } else {
+          //response.status(200).json(_details);
+        }
+    });
+
+  _db.ref("users/" + uid + "/conversations/" + _details["recieverId"] + "/" + _details["epochSent"]).set(
+    _details
+    , function(error) {
+        if (error) {
+          console.log(error);
+          response.status(400).json(error);
+          response.end();
+        } else {
+          if(!isNullOrUndefinedOrEmpty(_details["paymentId"])){
+            _details["condition"] = "refundRequested";
+            mDb.update_transaction(uid, _details, response, mDb)
+          }else{
+            response.status(200).json({});
+          }
+        }
+    });
+};
+
 payaheadDb.prototype.set_authorization = function(baseurl, _in, response){
   _db.ref("authorization/" + baseurl).set(
     _in
@@ -410,6 +464,21 @@ payaheadDb.prototype.update_transaction = function(uid, _details, response, mDb)
           response.status(400).json(error);
           response.end();
         } else {
+          try{
+            switch(tran["condition"]){
+              case "refunded":
+                mDb.write_activity( {"epoch": _details["epochRefunded"], "uid": uid, "description": "Refunded payment with id " +  _details["paymentId"] + " made to " + _details["payee"]}, response);
+                break;
+              case "verified":
+                mDb.write_activity( {"epoch": _details["epochVerified"], "uid": uid, "description": "Verified payment with id " +  _details["paymentId"] + " made to " + _details["payee"]}, response);
+                break;
+              case "refundRequested":
+                mDb.write_activity( {"epoch": _details["epochLatest"], "uid": uid, "description": "Requested refund of payment with id " +  _details["paymentId"] + " made to " + _details["payee"]}, response);
+                break;
+              default:
+                break;
+            }
+          }catch(e){ console.lo(e)};
           //response.status(200).json(_details);
         }
     });
@@ -424,11 +493,14 @@ payaheadDb.prototype.update_transaction = function(uid, _details, response, mDb)
         } else {
           try{
             switch(tran["condition"]){
-              case "Refunded":
+              case "refunded":
                 mDb.write_activity( {"epoch": _details["epochRefunded"], "uid": uid, "description": "Refunded payment with id " +  _details["paymentId"] + " made to " + _details["payee"]}, response);
                 break;
-              case "Verified":
+              case "verified":
                 mDb.write_activity( {"epoch": _details["epochVerified"], "uid": uid, "description": "Verified payment with id " +  _details["paymentId"] + " made to " + _details["payee"]}, response);
+                break;
+              case "refundRequested":
+                mDb.write_activity( {"epoch": _details["epochVerified"], "uid": uid, "description": "Requested refund of payment with id " +  _details["paymentId"] + " made to " + _details["payee"]}, response);
                 break;
               default:
                 break;

@@ -2,8 +2,9 @@ var functions = require('firebase-functions');
 var admin = require('firebase-admin');
 var firebase = require('firebase');
 var randStr = require('randomstring');
-var jsonQuery = require('json-query')
-var Fuse = require('fuse.js')
+var jsonQuery = require('json-query');
+var Fuse = require('fuse.js');
+var WebSocket = require('ws');
 
 var parser = require('body-parser');
 var json_parser = parser.json( { type: "application/*+json" } );
@@ -558,6 +559,12 @@ app.post('/payment/save_transaction', verifyToken, json_parser, function(request
 	var _details = request.body;
 	_details["paymentId"] = '' + Math.floor((Math.random() * 1000000000) + 1);
 	mDb.save_transaction(request.uid, _details, response, mDb);
+});
+
+app.post('/chat/save_conversation', verifyToken, json_parser, function(request, response){
+	var _details = request.body;
+	_details["conversationId"] = '' + Math.floor((Math.random() * 1000000000) + 1);
+	mDb.save_conversation(request.uid, _details, response, mDb);
 });
 
 app.post('/report_error', json_parser, function(request, response){
@@ -1942,6 +1949,12 @@ app.post('/admin/payment/update_transaction', isAdminOrBusinessOrStaff, json_par
 	mDb.update_transaction(request.uid, _details, response, mDb);
 });
 
+app.post('/admin/chat/save_conversation', verifyToken, json_parser, function(request, response){
+	var _details = request.body;
+	_details["conversationId"] = '' + Math.floor((Math.random() * 1000000000) + 1);
+	mDb.save_conversation(request.uid, _details, response, mDb);
+});
+
 /*
 app.post('/signin-form', (request, response) => {
   var username = request.body.username
@@ -1964,5 +1977,26 @@ app.delete('/', function (request, response) {
   response.send("HTTP DELETE Request");
 });
 */
+
+
+/*var port = process.env.PORT || 80;
+var server = app.listen(port, function () {
+    console.log('node.js static server listening on port: ' + port + ", with websockets listener")
+})
+
+//initialize the WebSocket server instance
+const wss = new WebSocket.Server({ server });
+
+wss.on('connection', function(ws){
+
+	//connection is up, let's add a simple simple event
+	ws.on('message', function(message){
+		//log the received message and send it back to the client
+        console.log('received: %s', message);
+	});
+
+	//send immediatly a feedback to the incoming connection    
+    ws.send('Hi there, I am a WebSocket server');
+});*/
 
 exports.app = functions.https.onRequest(app);
