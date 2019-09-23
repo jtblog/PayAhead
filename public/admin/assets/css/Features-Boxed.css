@@ -37,11 +37,11 @@
 }
 
 .features-boxed .item {
-  text-align: center;
+  /*text-align: center;*/
 }
 
 .features-boxed .item .box {
-  text-align: center;
+  /*text-align: center;*/
   background-color: #fff;
   margin-bottom: 30px;
 }

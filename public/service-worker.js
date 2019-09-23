@@ -16,43 +16,30 @@
  * limitations under the License
  */
 'use strict';
+/*importScripts('/workbox/workbox-v4.3.1/workbox-sw.js');
+workbox.setConfig({
+  modulePathPrefix: '/workbox/workbox-v4.3.1/'
+});
+
+workbox.routing.registerRoute(
+  new RegExp('^http://localhost:5000/*'),
+  new workbox.strategies.CacheFirst()
+);*/
 
 // CODELAB: Update cache names any time any of the cached files change.
 const CACHE_NAME = 'static-cache-v1';
 
 // CODELAB: Add list of files to cache here.
 const FILES_TO_CACHE = [
-  //'/',
+  '/',
+  '/404.html',
   '/offline.html',
   '/index.html',
-  '/assets/js/app.js',
-  '/assets/js/install.js',
-  '/assets/js/intlTelInput-jquery.min.js',
-  '/assets/js/intlTelInput.js',
-  '/assets/js/script.min.js',
-  '/assets/js/utils.js',
-  '/assets/js/jquery.min.js',
-
-  '/assets/bootstrap/css/bootstrap.min.css',
-  '/assets/bootstrap/js/bootstrap.min.js',
-
-  '/assets/css/styles.min.css',
-  '/assets/css/styles.css',
-  '/assets/css/Map-Clean.css',
-  '/assets/css/Profile-Card.css',
-  '/assets/css/Profile-Card-1.css',
-  '/assets/css/Registration-Form-with-Photo.css',
-  '/assets/css/Navigation-with-Button.css',
-  '/assets/css/Login-Form-Clean.css',
-  '/assets/css/intlTelInput.css',
-  '/assets/css/Footer-Dark.css',
-  '/assets/css/Features-Clean.css',
-  '/assets/css/Features-Boxed.css',
-
-  '/assets/img/2.jpg',
-  '/assets/img/flags.png',
-  '/assets/img/flags@2x.png',
-  '/assets/img/index.png',
+  '/signin.html',
+  '/signup.html',
+  '/landing.html',
+  '/user.html',
+  '/pay.html'
 ];
 
 self.addEventListener('install', (evt) => {

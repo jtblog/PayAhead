@@ -8,11 +8,13 @@ var reports = {};
 
 window._prepare = function(){
   $(".copyright").html("PayAhead © " + new Date().getFullYear());
+  $('iframe').remove();
   
   var site = window.location.href + "";
   if(site.indexOf("landing") > -1){
     landing();
     $("#bdetails_form").submit(function(e){e.preventDefault();});
+    $('iframe').remove();
   }else if(site.indexOf("signin") > -1){
     $("#signin_form").submit(signin);
     //$("#signin_form").submit(function(e){e.preventDefault();});
@@ -24,20 +26,19 @@ window._prepare = function(){
     }else if(site.indexOf("#") > -1){
       window.location = site.split("#")[0];
     }
+    $('iframe').remove();
   }else if(site.indexOf("user") > -1){
     usr();
+    $('iframe').remove();
   }else if(site.indexOf("signup") > -1){
     sgup();
-  }else if(site.indexOf("pay") > -1){
+    $('iframe').remove();
+  }else if(site.indexOf("/pay") > -1){
     py();
+    $('iframe').remove();
   }
 
-  /*switch(site){
-    case host+"/":
-      break;
-    case host:
-      break;;
-  }*/
+  $('iframe').remove();
 };
 
 var initApp = function() {
@@ -121,10 +122,14 @@ function usr(){
   prepare_ui();
   var input = document.querySelector("#pno_input");
     window.pno_input = window.intlTelInput(input);
-    get_profile();
+    preset();
     $("#update_form").submit(function(e){e.preventDefault();});
     $("#signout_btn").click(signout);
     $("#update_btn").click(update_profile);
+    $("#profile_pic").click(function(e){$("#pic_input").click();});
+    $('#pic_input').on('change', function() {
+        previewImage(this);
+    });
 };
 
 function sgup(){
@@ -480,6 +485,8 @@ var signup = function(e){
 
 function get_profile(){
 
+  $('iframe').remove();
+
   if(isNullOrUndefinedOrEmpty(localStorage["uid"])){
     window.location = "signin.html";
   }else{
@@ -518,6 +525,51 @@ function get_profile(){
       });
   }
 };
+
+function preset(){
+  if(isNullOrUndefinedOrEmpty(localStorage["uid"])){
+    window.location = "signin.html";
+  }else{
+    var endpoint = "/get_credentials";
+      
+    var settings = {
+      "async": true,
+      "crossDomain": true,
+      "url": host+endpoint,
+      "method": "GET",
+      "headers" : {
+        "authorization" : localStorage["authorization"],
+      }
+    }
+
+    $.ajax(settings)
+      .done(function (response) {
+        var data = response;
+        firebase.initializeApp(data.preset);
+        var db = firebase.database();
+        db.ref(data.refEndpoint).on("value", function(data) {
+            get_profile();
+            if($('#chat_modal').is(':visible')){
+              chat();
+            }
+        });
+        db.ref(data.refEndpoint.split("/")[0]).on("value", function(data) {
+            get_profile();
+            if($('#chat_modal').is(':visible')){
+              chat();
+            }
+        });
+        try{
+          window.last_clicked.click();
+        }catch(e){}
+      })
+      .fail(function(jqXHR, textStatus, errorThrown) {
+        console.log(jqXHR.responseText);
+        var error = JSON.parse(jqXHR.responseText);
+        errorHandler(error);
+      });
+  }
+}
 
 function prepare_for_payment(){
 
@@ -611,6 +663,18 @@ var pay_popup = function(e){
     console.log(e);
   }
 };
+
+var go_to_paymentpage = function(e){
+  e.preventDefault();
+  var id = $(this).attr('id');
+  id = id.replaceAll("_phref", "");
+  Object.keys(window.users).forEach(function(key) {
+    if(key == id){
+      localStorage["sub_details0"] = JSON.stringify(window.users[key]);
+      window.location = "pay.html";
+    }
+  })
+}
 
 function save_t(_res){
   var endpoint = "/payment/save_transaction";
@@ -813,7 +877,12 @@ function populate_users_view(){
 
 var chat = function(e){
   e.preventDefault();
-  var id = $(this).attr('id');
+  if(window.last_clicked == $(this)){
+  }else{
+    window.last_clicked = $(this);
+  }
+  
+  var id = window.last_clicked.attr('id');
   id = id.replaceAll("_chref", "");
 
   window.chat_ui = null;
@@ -1160,43 +1229,82 @@ var signout = function() {
 var update_profile = function(e){
   e.preventDefault();
   reset_all_span();
-  var endpoint = "/auth/update_profile";
 
-  window.up_details = {
-    'displayName' : $("#fn_input").val() + " " + $("#ln_input").val(),
-    'industry' : $('#industry_input option:selected').text(),
-    'password' : $("#password_input").val(),
-    'bvn' : $("#bvn_input").val(),
-    'email' : $("#email_input").val(),
-    'phoneNumber' : pno_input.getNumber(),
-    'photoURL' : $("#profile_pic").attr("src")
-  }
-  window.user_json["newdata"] = window.up_details;
+  var storageRef = firebase.storage();
+  var uploadTask = storageRef.ref('profilePictures/' + window.profilePicture["name"]).put(window.profilePicture);
 
-  var settings = {
-      "async": true,
-      "crossDomain": true,
-      "url": host+endpoint,
-      "method": "POST",
-      "contentType": "application/json",
-      "dataType": "json",
-      "headers": {
-        "Content-Type": "application/json",
-        "authorization" : window.authorization
-      },
-      "data": JSON.stringify(window.user_json)
-    }
+  // Listen for state changes, errors, and completion of the upload.
+  uploadTask.on(firebase.storage.TaskEvent.STATE_CHANGED, // or 'state_changed'
+    function(snapshot) {
+      // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+      var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+      console.log('Upload is ' + progress + '% done');
+      switch (snapshot.state) {
+        case firebase.storage.TaskState.PAUSED: // or 'paused'
+          console.log('Upload is paused');
+          break;
+        case firebase.storage.TaskState.RUNNING: // or 'running'
+          console.log('Upload is running');
+          break;
+      }
+    }, function(error) {
+      errorHandler(error);
+    // A full list of error codes is available at https://firebase.google.com/docs/storage/web/handle-errors
+    /*switch (error.code) {
+      case 'storage/unauthorized':
+        // User doesn't have permission to access the object
+        break;
+      case 'storage/canceled':
+        // User canceled the upload
+        break;
+      case 'storage/unknown':
+        // Unknown error occurred, inspect error.serverResponse
+        break;
+    }*/
+  }, function() {
+    // Upload completed successfully, now we can get the download URL
+    uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+      var endpoint = "/auth/update_profile";
 
-    $.ajax(settings)
-      .done(function (response) {
-        var data = response;
-        signout();
-      })
-      .fail(function(jqXHR, textStatus, errorThrown) {
-        populate_industry();
-        var error = JSON.parse(jqXHR.responseText);
-        errorHandler(error);
-      });
+      window.up_details = {
+        'displayName' : $("#fn_input").val() + " " + $("#ln_input").val(),
+        'industry' : $('#industry_input option:selected').text(),
+        'password' : $("#password_input").val(),
+        'bvn' : $("#bvn_input").val(),
+        'email' : $("#email_input").val(),
+        'phoneNumber' : pno_input.getNumber(),
+        'photoURL' : downloadURL
+      }
+      window.user_json["newdata"] = window.up_details;
+
+      var settings = {
+          "async": true,
+          "crossDomain": true,
+          "url": host+endpoint,
+          "method": "POST",
+          "contentType": "application/json",
+          "dataType": "json",
+          "headers": {
+            "Content-Type": "application/json",
+            "authorization" : window.authorization
+          },
+          "data": JSON.stringify(window.user_json)
+        }
+
+        $.ajax(settings)
+          .done(function (response) {
+            var data = response;
+            signout();
+          })
+          .fail(function(jqXHR, textStatus, errorThrown) {
+            var uploadTask = storageRef.child('profilePictures/' + window.profilePicture["name"]).delete();
+            populate_industry();
+            var error = JSON.parse(jqXHR.responseText);
+            errorHandler(error);
+          });
+
+    });
+  });
 };
 
 
@@ -1419,8 +1527,9 @@ function previewImage(input) {
     var reader = new FileReader();
     reader.onload = function (e) {
       if(typeof(document.getElementById('profilepic')) != undefined){
-        //document.getElementById('profilepic').src = e.target.result;
-        //$('#profilepic').attr('src', e.target.result);
+        //document.getElementById('profile_pic').src = e.target.result;
+        $('#profile_pic').attr('src', e.target.result);
+        window.profilePicture = input.files[0];
       }
     };
   reader.readAsDataURL(input.files[0]);
@@ -1433,6 +1542,7 @@ function toEpoch(strDate){
 };
 
 var body_change_listener = function(e){
+  $('iframe').remove();
   /*if(!isNullOrUndefinedOrEmpty(){
     
   }*/

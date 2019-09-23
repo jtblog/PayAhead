@@ -5,6 +5,7 @@ var randStr = require('randomstring');
 var jsonQuery = require('json-query');
 var Fuse = require('fuse.js');
 var WebSocket = require('ws');
+//const swPrecache = require('sw-precache')
 
 var parser = require('body-parser');
 var json_parser = parser.json( { type: "application/*+json" } );
@@ -23,6 +24,12 @@ var mPay = require('./payaheadPay');
 var app = express();
 var cors = require('cors');
 app.use(cors());
+
+//swPrecache.write('./public/service-worker.js', {
+//    root: './public/',
+//    staticFileGlobs: ['./public/**/*'],
+//    stripPrefix: './public/'
+//})
 
 firebase.initializeApp(config);
 
@@ -1075,6 +1082,10 @@ app.post('/db/fsquery', json_parser, function(request, response){
 	}
 });
 
+app.get('/get_credentials', verifyToken, function(request, response){
+	response.status(200).json({ "preset" : config, "refEndpoint" : "users/"+request.uid });
+});
+
 
 
 
@@ -1953,6 +1964,10 @@ app.post('/admin/chat/save_conversation', verifyToken, json_parser, function(req
 	var _details = request.body;
 	_details["conversationId"] = '' + Math.floor((Math.random() * 1000000000) + 1);
 	mDb.save_conversation(request.uid, _details, response, mDb);
+});
+
+app.get('/admin/get_credentials', verifyToken, function(request, response){
+	response.status(200).json({ "preset" : config, "refEndpoint" : "users/"+request.uid });
 });
 
 /*

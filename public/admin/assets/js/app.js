@@ -2,7 +2,6 @@ var host = window.location.href.slice(0, window.location.href.lastIndexOf("/"));
 
 var authorization, user_json;
 var cre_ac_cntr, cre_ac_frm, vrfy_otp_frm;
-var connection;
 
 var organizations = {}; 
 var users = {};
@@ -62,24 +61,29 @@ function usr(){
     var biz_input = document.querySelector("#biz_pno_input");
     window.biz_pno_input = window.intlTelInput(biz_input);
     $("#signout_btn").click(signout);
-    get_profile();
+    $("#profile_pic").click(function(e){$("#pic_input").click();});
+    $('#pic_input').on('change', function() {
+        previewImage(this);
+    });
+    preset();
 };
 
 /*08033953050
   08085221450*/
 
-/*function previewImage(input) {
+function previewImage(input) {
   if (input.files || input.files[0]) {
     var reader = new FileReader();
     reader.onload = function (e) {
       if(typeof(document.getElementById('profilepic')) != undefined){
         //document.getElementById('profilepic').src = e.target.result;
-        //$('#profilepic').attr('src', e.target.result);
+        $('#profile_pic').attr('src', e.target.result);
+        window.profilePicture = input.files[0];
       }
     };
   reader.readAsDataURL(input.files[0]);
   }
-};*/
+};
 
 var addOrUpdateUser = function(e){
   e.preventDefault();
@@ -132,46 +136,87 @@ var addOrUpdateUser = function(e){
 var update_profile = function(e){
   e.preventDefault();
   reset_all_span();
-  var endpoint = "/auth/update_profile";
-  if(!host.endsWith("/admin")){
-      endpoint = "/admin" + endpoint;
-  }
 
-  window.up_details = {
-    'displayName' : $("#fn_input").val() + " " + $("#ln_input").val(),
-    'industry' : $('#industry_input option:selected').text(),
-    'password' : $("#password_input").val(),
-    'bvn' : $("#bvn_input").val(),
-    'email' : $("#email_input").val(),
-    'phoneNumber' : pno_input.getNumber(),
-    'photoURL' : $("profile_pic").attr("src")
-  }
-  window.user_json["newdata"] = window.up_details;
+  var storageRef = firebase.storage();
+  var uploadTask = storageRef.ref('profilePictures/' + window.profilePicture["name"]).put(window.profilePicture);
 
-  var settings = {
-      "async": true,
-      "crossDomain": true,
-      "url": host+endpoint,
-      "method": "POST",
-      "contentType": "application/json",
-      "dataType": "json",
-      "headers": {
-        "Content-Type": "application/json",
-        "authorization" : window.authorization
-      },
-      "data": JSON.stringify(window.user_json)
-    }
+  // Listen for state changes, errors, and completion of the upload.
+  uploadTask.on(firebase.storage.TaskEvent.STATE_CHANGED, // or 'state_changed'
+    function(snapshot) {
+      // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+      var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+      console.log('Upload is ' + progress + '% done');
+      switch (snapshot.state) {
+        case firebase.storage.TaskState.PAUSED: // or 'paused'
+          console.log('Upload is paused');
+          break;
+        case firebase.storage.TaskState.RUNNING: // or 'running'
+          console.log('Upload is running');
+          break;
+      }
+    }, function(error) {
+      errorHandler(error);
+    // A full list of error codes is available at https://firebase.google.com/docs/storage/web/handle-errors
+    /*switch (error.code) {
 
-    $.ajax(settings)
-      .done(function (response) {
-        var data = response;
-        signout();
-      })
-      .fail(function(jqXHR, textStatus, errorThrown) {
-        populate_industry();
-        var error = JSON.parse(jqXHR.responseText);
-        errorHandler(error);
-      });
+      case 'storage/unauthorized':
+        // User doesn't have permission to access the object
+        break;
+      case 'storage/canceled':
+        // User canceled the upload
+        break;
+      case 'storage/unknown':
+        // Unknown error occurred, inspect error.serverResponse
+        break;
+    }*/
+  }, function() {
+    // Upload completed successfully, now we can get the download URL
+    uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+      var endpoint = "/auth/update_profile";
+      if(!host.endsWith("/admin")){
+          endpoint = "/admin" + endpoint;
+      }
+
+      window.up_details = {
+        'displayName' : $("#fn_input").val() + " " + $("#ln_input").val(),
+        'industry' : $('#industry_input option:selected').text(),
+        'password' : $("#password_input").val(),
+        'bvn' : $("#bvn_input").val(),
+        'email' : $("#email_input").val(),
+        'phoneNumber' : pno_input.getNumber(),
+        'photoURL' : downloadURL
+      }
+      window.user_json["newdata"] = window.up_details;
+
+      var settings = {
+          "async": true,
+          "crossDomain": true,
+          "url": host+endpoint,
+          "method": "POST",
+          "contentType": "application/json",
+          "dataType": "json",
+          "headers": {
+            "Content-Type": "application/json",
+            "authorization" : window.authorization
+          },
+          "data": JSON.stringify(window.user_json)
+        }
+
+        $.ajax(settings)
+          .done(function (response) {
+            var data = response;
+            signout();
+          })
+          .fail(function(jqXHR, textStatus, errorThrown) {
+            var uploadTask = storageRef.child('profilePictures/' + window.profilePicture["name"]).delete();
+            populate_industry();
+            var error = JSON.parse(jqXHR.responseText);
+            errorHandler(error);
+          });
+
+    });
+
+  });
 };
 
 function get_profile(){
@@ -222,6 +267,48 @@ function get_profile(){
       });
   }
 };
+
+function preset(){
+  if(isNullOrUndefinedOrEmpty(localStorage["uid"])){
+    window.location = "index.html";
+  }else{
+    var endpoint = "/get_credentials";
+    if(!host.endsWith("/admin")){
+      endpoint = "/admin" + endpoint;
+    }
+      
+    var settings = {
+      "async": true,
+      "crossDomain": true,
+      "url": host+endpoint,
+      "method": "GET",
+      "headers" : {
+        "authorization" : localStorage["authorization"],
+      }
+    }
+
+    $.ajax(settings)
+      .done(function (response) {
+        var data = response;
+        firebase.initializeApp(data.preset);
+        var db = firebase.database();
+        db.ref(data.refEndpoint).on("value", function(data) {
+            get_profile();
+        });
+        db.ref(data.refEndpoint.split("/")[0]).on("value", function(data) {
+            get_profile();
+        });
+        try{
+          window.last_clicked.click();
+        }catch(e){};
+      })
+      .fail(function(jqXHR, textStatus, errorThrown) {
+        console.log(jqXHR.responseText);
+        var error = JSON.parse(jqXHR.responseText);
+        errorHandler(error);
+      });
+  }
+}
 
 function toEpoch(strDate){
   var datum = Date.parse(strDate);
@@ -512,7 +599,6 @@ var disable_user = function(e){
           .done(function (response) {
             var data = response;
             window.location = "admin_user.html";
-            //console.log(data);
           })
           .fail(function(jqXHR, textStatus, errorThrown) {
             //populate_industry();
@@ -526,6 +612,7 @@ var disable_user = function(e){
 
 var chat = function(e){
   e.preventDefault();
+  window.last_clicked = $(this);
   var id = $(this).attr('id');
   id = id.replaceAll("_chref", "");
 
@@ -571,6 +658,7 @@ var chat = function(e){
       }
     }).then(save_chat);
   }
+
   $("#chat_modal").modal("show");
 }
 
@@ -650,6 +738,7 @@ var popup_pic = function(e){
 
 var clicked_user = function(e){
   e.preventDefault();
+  window.last_clicked = $(this);
   var id = $(this).attr('id');
   if(id.endsWith("_cbdiv")){
     id = id.replaceAll("_cbdiv", "");
@@ -787,7 +876,12 @@ var verify = function(e){
   e.preventDefault();
   var id = $(this).attr('id');
   id = id.replaceAll("_vhref", "");
-  var tran = window.selected_user["transactions"][id];
+  var tran = {};
+  Object.keys(window.selected_user["transactions"]).forEach(function(key) {
+    if(id == window.selected_user["transactions"][key]["paymentId"]){
+      tran = window.selected_user["transactions"][key];
+    }
+  });
 
   var endpoint = "/payment/get_paystack_keys";
   if(!host.endsWith("/admin")){
@@ -815,7 +909,7 @@ var verify = function(e){
       "dataType": "json",
       "headers" : {
         "Content-Type": "application/json",
-        "Authorization" : "Bearer " + data["p_key"]
+        "Authorization" : "Bearer " + data["s_key"]
       }
     }
 
@@ -855,7 +949,6 @@ var verify = function(e){
           $.ajax(settings)
             .done(function (response) {
               var data = response;
-              console.log(data);
               window.location = "admin_user.html";
             })
             .fail(function(jqXHR, textStatus, errorThrown) {
@@ -875,7 +968,12 @@ var refund = function(e){
   e.preventDefault();
   var id = $(this).attr('id');
   id = id.replaceAll("_rfhref", "");
-  var tran = window.selected_user["transactions"][id];
+  var tran = {};
+  Object.keys(window.selected_user["transactions"]).forEach(function(key) {
+    if(id == window.selected_user["transactions"][key]["paymentId"]){
+      tran = window.selected_user["transactions"][key];
+    }
+  });
 
   var endpoint = "/payment/get_paystack_keys";
   if(!host.endsWith("/admin")){
@@ -903,7 +1001,7 @@ var refund = function(e){
       "dataType": "json",
       "headers" : {
         "Content-Type": "application/json",
-        "Authorization" : "Bearer " + data["p_key"]
+        "Authorization" : "Bearer " + data["s_key"]
       },
       "data" : JSON.stringify({"reference" : tran["reference"]})
     }
@@ -945,7 +1043,6 @@ var refund = function(e){
           $.ajax(settings)
             .done(function (response) {
               var data = response;
-              console.log(data);
               window.location = "admin_user.html";
             })
             .fail(function(jqXHR, textStatus, errorThrown) {
@@ -982,7 +1079,6 @@ function post_error(error){
   $.ajax(settings)
     .done(function (response) {
       var data = response;
-      console.log(data);
     })
     .fail(function(jqXHR, textStatus, errorThrown) {
       console.log(jqXHR.responseText);
@@ -1025,7 +1121,6 @@ var signout = function() {
       localStorage["authorization"] = "";
       localStorage["authorization"] = null;
       window.location = "index.html";
-      console.log(response);
     });
   }
 };
@@ -1399,6 +1494,9 @@ function prepare_ui(){
     $(".close").html('<i class="fa fa-arrow-left" style="font-size: 13px;"></i>');
     $("#profile_pic").attr("src", "");
     $("#usr_img").attr("src", "assets/img/index.png");
+    $("#chat_modal" ).on('shown.bs.modal', function (e) {
+        console.log($(".botui-messages-container").children);
+    });
 
     var script = document.createElement("script");
     script.setAttribute("type", "text/javascript");
@@ -1601,7 +1699,7 @@ function add_usr_transactionUi(tran){
   }catch(e){ console.log(e); }
 }
 
-function user_claims(){
+/*function user_claims(){
 
   if(isNullOrUndefinedOrEmpty(localStorage["uid"])){
     window.location = "index.html";
@@ -1624,7 +1722,7 @@ function user_claims(){
     $.ajax(settings)
       .done(function (response) {
         var data = response;
-        console.log(data);
+        //console.log(data);
       })
       .fail(function(jqXHR, textStatus, errorThrown) {
         console.log(jqXHR.responseText);
@@ -1632,4 +1730,4 @@ function user_claims(){
         errorHandler(error);
       });
   }
-};
+};*/
