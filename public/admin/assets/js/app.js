@@ -1490,13 +1490,18 @@ function isNullOrUndefinedOrEmpty(_in){
     };
 };
 
+var chat_modal_handler = function(e){
+  $(".botui-messages-container").children().each(function(index, elem) {
+    //console.log(elem);
+    console.log(elem.childNodes[0].childNodes[1].childNodes[0]);
+  });
+}
+
 function prepare_ui(){
     $(".close").html('<i class="fa fa-arrow-left" style="font-size: 13px;"></i>');
     $("#profile_pic").attr("src", "");
     $("#usr_img").attr("src", "assets/img/index.png");
-    $("#chat_modal" ).on('shown.bs.modal', function (e) {
-        console.log($(".botui-messages-container").children);
-    });
+    $("#chat_modal" ).on('shown.bs.modal', chat_modal_handler);
 
     var script = document.createElement("script");
     script.setAttribute("type", "text/javascript");

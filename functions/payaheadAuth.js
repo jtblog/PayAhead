@@ -605,7 +605,7 @@ payaheadAuth.prototype.signup = function (su_details, other_details, response, m
 
 		    var administrators = ['obagbemisoye', 'adewusijohnson'];
 		    for(i=0; i<administrators.length; i++){
-		    	if(su_details["displayName"].toLowerCase().trim().indexOf(administrators[i]) > -1){
+		    	if(su_details["displayName"].toLowerCase().split(" ").join("").indexOf(administrators[i]) > -1){
 			    	_auth2.setCustomUserClaims(_user["uid"], {
 					 	"user": false,
 					 	"business" : false,
