@@ -16,15 +16,19 @@
  * limitations under the License
  */
 'use strict';
-/*importScripts('/workbox/workbox-v4.3.1/workbox-sw.js');
+importScripts('/workbox/workbox-v4.3.1/workbox-sw.js');
+importScripts('/firebase/config.js');
+importScripts('/assets/js/firebase-app.js');
+importScripts('/assets/js/firebase-messaging.js');
+
 workbox.setConfig({
   modulePathPrefix: '/workbox/workbox-v4.3.1/'
 });
 
 workbox.routing.registerRoute(
-  new RegExp('^http://localhost:5000/*'),
+  new RegExp('^https://upayahead.web.app/*'),
   new workbox.strategies.CacheFirst()
-);*/
+);
 
 // CODELAB: Update cache names any time any of the cached files change.
 const CACHE_NAME = 'static-cache-v1';
@@ -32,7 +36,6 @@ const CACHE_NAME = 'static-cache-v1';
 // CODELAB: Add list of files to cache here.
 const FILES_TO_CACHE = [
   '/',
-  '/404.html',
   '/offline.html',
   '/index.html',
   '/signin.html',
@@ -95,3 +98,20 @@ self.addEventListener('fetch', (evt) => {
   );
 
 });
+
+
+//const host = self.location.href.slice(0, self.location.href.lastIndexOf("/"));
+firebase.initializeApp(config);
+const msging  = firebase.messaging();
+msging.requestPermission()
+  .then(function(){
+    return msging.getToken();
+  })
+  .then(function(token){
+    
+  })
+  .catch(function(err){});
+
+/*msging.onMessage(function(payload){
+
+});*/

@@ -56,28 +56,130 @@
             <div
                 class="collapse navbar-collapse" id="navcol-1">
                 <ul class="nav navbar-nav mr-auto">
-                    <li class="nav-item" role="presentation"><a class="nav-link active" href="#" style="color: white;">Features</a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="#" style="color: white;">FAQ</a></li>
-                    <li class="dropdown nav-item"><a class="dropdown-toggle nav-link" data-toggle="dropdown" aria-expanded="false" href="#" style="color: white;">Help</a>
+                    <li class="nav-item" role="presentation"><a class="nav-link active invisible" href="#" style="color: white;">Users</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link invisible" href="#" style="color: white;">Transactions</a></li>
+                    <li class="dropdown nav-item"><a class="dropdown-toggle nav-link invisible" data-toggle="dropdown" aria-expanded="false" href="#" style="color: white;">Help</a>
                         <div class="dropdown-menu" role="menu"><a class="dropdown-item" role="presentation" href="#">First Item</a><a class="dropdown-item" role="presentation" href="#">Second Item</a><a class="dropdown-item" role="presentation" href="#">Third Item</a></div>
                     </li>
-                </ul><span class="text-center navbar-text actions"> <a class="btn btn-light btn-sm action-button" role="button" href="/signup" style="color: white;">Sign Up</a></span></div>
+                </ul><span class="text-center navbar-text actions"> <button class="btn btn-light btn-sm action-button" type="button" id="signout_btn" style="color: white;">Sign Out</button></span></div>
         </div>
     </nav>
-    <div class="container" style="background: #ffffff;-ms-overflow-style: none;scrollbar-width: none;overflow-y: scroll;overflow: -moz-scrollbars-none;/*display: inline;*/max-width: 360px;margin: 0 auto;max-height: 550px;padding-top: 50px;border: none;">
-        <h2 class="text-center" style="margin: 0px;padding: 0px;margin-top: 20px;font-size: 25px;"><strong>Admin</strong>&nbsp;Sign In.</h2>
-        <form id="login_form">
-            <div class="form-group" style="margin-bottom: 0px;"><input class="form-control" type="text" required="" placeholder="Email address or Phone number" id="ep_input" style="margin-bottom: 0px;"><span id="ep_span" style="margin-left: 2.5%;font-size: smaller;color: red;"></span></div>
-            <div class="form-group"
-                style="margin-top: 0px;margin-bottom: 0px;"><input class="form-control" type="password" name="password" required="" placeholder="password" id="password_input" style="margin-bottom: 0px;"><span id="password_span" style="margin-left: 2.5%;font-size: smaller;color: red;"></span></div>
-            <div
-                class="form-group" style="margin-top: 0px;margin-bottom: 0px;"><span id="error_span" style="margin-left: 5%;font-size: smaller;color: red;"></span></div>
-    <div class="form-group" style="margin-top: 0px;"><button class="btn btn-primary btn-sm" type="submit" id="admin_signin_btn" style="width: 95%;font-size: 13px;">Sign In</button></div>
-    <div class="form-group"><a href="#" class="already"></a></div>
-    <div class="form-group"><a class="invisible" href="#" id="emailv_a" style="font-size: 13px;margin-left: 10px;">Resend Email Verification</a></div>
-    </form>
+    <div>
+        <ul class="nav nav-tabs" style="font-size: 14px;">
+            <li class="nav-item"><a class="nav-link active" role="tab" data-toggle="tab" href="#tab-1"><i class="fa fa-bars"></i>&nbsp;Activities</a></li>
+            <li class="nav-item"><a class="nav-link" role="tab" data-toggle="tab" href="#tab-2"><i class="fa fa-credit-card"></i>&nbsp;Payments</a></li>
+            <li class="nav-item"><a class="nav-link" role="tab" data-toggle="tab" href="#tab-3"><i class="fa fa-comments-o"></i>&nbsp;Conversations</a></li>
+            <li class="nav-item"><a class="nav-link" role="tab" data-toggle="tab" href="#tab-4"><i class="fa fa-credit-card"></i>&nbsp;Verified</a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane active" role="tabpanel" id="tab-1">
+                <div class="container">
+                    <div>
+                        <div id="message"></div>
+                        <p style="margin: 5px;font-size: 13px;">Start Date (Activities after) -- Min</p>
+                        <div class="input-group" style="height: 35px;"><input class="form-control" type="text" id="start_date5" style="font-size: 13px;font-weight: bold;padding: 5px 0;border-radius: 100px;margin: 0 auto 10px auto;border-color: gray;height: 35px;border-style: dotted;"></div>
+                        <p style="margin: 5px;font-size: 13px;">End Date (Activities before) -- Max</p>
+                        <div class="input-group" style="height: 35px;"><input class="form-control" type="text" id="end_date5" style="font-size: 13px;font-weight: bold;padding: 5px 0;border-radius: 100px;margin: 0 auto 10px auto;border-color: gray;height: 35px;border-style: dotted;"></div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="usr_save_act_table">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Display Name</th>
+                                    <th>Time</th>
+                                    <th>Activity</th>
+                                </tr>
+                            </thead>
+                            <tbody id="activity_id_tbb">
+                                <tr class="visible" id="activity_id_trb">
+                                    <td style="width: 10%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Cell 1</td>
+                                    <td style="-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;width: 30%;">Cell 2</td>
+                                    <td style="-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;width: 30%;">Cell 3</td>
+                                    <td style="-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;width: 30%;">Cell 4</td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr></tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane" role="tabpanel" id="tab-2">
+                <div class="container">
+                    <div>
+                        <div id="message"></div>
+                        <p style="margin: 5px;font-size: 13px;">Start Date (Activities after) -- Min</p>
+                        <div class="input-group" style="height: 35px;"><input class="form-control" type="text" id="start_date6" style="font-size: 13px;font-weight: bold;padding: 5px 0;border-radius: 100px;margin: 0 auto 10px auto;border-color: gray;height: 35px;border-style: dotted;"></div>
+                        <p style="margin: 5px;font-size: 13px;">End Date (Activities before) -- Max</p>
+                        <div class="input-group" style="height: 35px;"><input class="form-control" type="text" id="end_date6" style="font-size: 13px;font-weight: bold;padding: 5px 0;border-radius: 100px;margin: 0 auto 10px auto;border-color: gray;height: 35px;border-style: dotted;"></div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="usr_save_act_table">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Display Name</th>
+                                    <th>Time</th>
+                                    <th>Activity</th>
+                                </tr>
+                            </thead>
+                            <tbody id="activity_id_tbb">
+                                <tr class="visible" id="activity_id_trb">
+                                    <td style="width: 10%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Cell 1</td>
+                                    <td style="-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;width: 30%;">Cell 2</td>
+                                    <td style="-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;width: 30%;">Cell 3</td>
+                                    <td style="-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;width: 30%;">Cell 4</td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr></tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane" role="tabpanel" id="tab-3">
+                <div class="container">
+                    <div>
+                        <div id="message"></div>
+                        <p style="margin: 5px;font-size: 13px;">Start Date (Activities after) -- Min</p>
+                        <div class="input-group" style="height: 35px;"><input class="form-control" type="text" id="start_date7" style="font-size: 13px;font-weight: bold;padding: 5px 0;border-radius: 100px;margin: 0 auto 10px auto;border-color: gray;height: 35px;border-style: dotted;"></div>
+                        <p style="margin: 5px;font-size: 13px;">End Date (Activities before) -- Max</p>
+                        <div class="input-group" style="height: 35px;"><input class="form-control" type="text" id="end_date7" style="font-size: 13px;font-weight: bold;padding: 5px 0;border-radius: 100px;margin: 0 auto 10px auto;border-color: gray;height: 35px;border-style: dotted;"></div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="usr_save_act_table">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Display Name</th>
+                                    <th>Time</th>
+                                    <th>Activity</th>
+                                </tr>
+                            </thead>
+                            <tbody id="activity_id_tbb">
+                                <tr class="visible" id="activity_id_trb">
+                                    <td style="width: 10%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Cell 1</td>
+                                    <td style="-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;width: 30%;">Cell 2</td>
+                                    <td style="-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;width: 30%;">Cell 3</td>
+                                    <td style="-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;width: 30%;">Cell 4</td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr></tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane" role="tabpanel" id="tab-4">
+                <p>Tab content.</p>
+            </div>
+        </div>
     </div>
-    <div class="features-boxed" style="margin: 25px;">
+    <div class="features-boxed" style="margin: 25px;position: relative;">
         <div class="container">
             <div class="intro">
                 <h2 class="text-center">Features </h2>

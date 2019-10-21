@@ -7,8 +7,12 @@ var organizations = {};
 var users = {};
 var transactions = {};
 
+var botMessage = '<div class="botui-message message_id_msg"><div class = "message_id_msg"><div class="botui-message-content text message_id_msg"><span id="message_id_msg">message_content</span></div></div></div>';
+var humanMessage = '<div class="botui-message message_id_msg"><div class = "message_id_msg"><div class="human botui-message-content text message_id_msg"><span id="message_id_msg">message_content</span></div></div></div>';
+var selected_messages = [];
+
 window._prepare = function(){
-  
+  $('iframe').remove();
   $(".copyright").html("PayAhead © " + new Date().getFullYear());
   var site = window.location.href + "";
 
@@ -93,6 +97,10 @@ var addOrUpdateUser = function(e){
       endpoint = "/admin" + endpoint;
   }
 
+  if(isNullOrUndefinedOrEmpty(window.selected_user)){
+    window.selected_user = {};
+  }
+
   window.au_details = {
     'displayName' : $("#usr_fn_input").val() + " " + $("#usr_ln_input").val(),
     'industry' : $('#usr_industry_input option:selected').text(),
@@ -105,6 +113,11 @@ var addOrUpdateUser = function(e){
     'addedBy' : window.user_json["uid"],
     'business_name' : window.user_json["business_name"]
   }
+
+  if(!$("#usr_img").attr("src").indexOf("firebase") > -1){
+    window.au_details["photoURL"] = "";
+  }
+
   window.selected_user["newdata"] = window.au_details;
 
   var settings = {
@@ -124,7 +137,7 @@ var addOrUpdateUser = function(e){
     $.ajax(settings)
       .done(function (response) {
         var data = response;
-        
+        $("#usr_error_span").text("Successfull");
       })
       .fail(function(jqXHR, textStatus, errorThrown) {
         populate_industry();
@@ -137,90 +150,133 @@ var update_profile = function(e){
   e.preventDefault();
   reset_all_span();
 
-  var storageRef = firebase.storage();
-  var uploadTask = storageRef.ref('profilePictures/' + window.profilePicture["name"]).put(window.profilePicture);
+  if(!isNullOrUndefinedOrEmpty(window.profilePicture)){
+    var storageRef = firebase.storage();
+    var uploadTask = storageRef.ref('profilePictures/' + window.user_json["uid"]+"."+window.profilePicture["name"].split(".")[1]).put(window.profilePicture);
 
-  // Listen for state changes, errors, and completion of the upload.
-  uploadTask.on(firebase.storage.TaskEvent.STATE_CHANGED, // or 'state_changed'
-    function(snapshot) {
-      // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-      var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-      console.log('Upload is ' + progress + '% done');
-      switch (snapshot.state) {
-        case firebase.storage.TaskState.PAUSED: // or 'paused'
-          console.log('Upload is paused');
+    // Listen for state changes, errors, and completion of the upload.
+    uploadTask.on(firebase.storage.TaskEvent.STATE_CHANGED, // or 'state_changed'
+      function(snapshot) {
+        // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+        var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        console.log('Upload is ' + progress + '% done');
+        /*switch (snapshot.state) {
+          case firebase.storage.TaskState.PAUSED: // or 'paused'
+            console.log('Upload is paused');
+            break;
+          case firebase.storage.TaskState.RUNNING: // or 'running'
+            console.log('Upload is running');
+            break;
+        }*/
+      }, function(error) {
+        errorHandler(error);
+      // A full list of error codes is available at https://firebase.google.com/docs/storage/web/handle-errors
+      /*switch (error.code) {
+        case 'storage/unauthorized':
+          // User doesn't have permission to access the object
           break;
-        case firebase.storage.TaskState.RUNNING: // or 'running'
-          console.log('Upload is running');
+        case 'storage/canceled':
+          // User canceled the upload
           break;
-      }
-    }, function(error) {
-      errorHandler(error);
-    // A full list of error codes is available at https://firebase.google.com/docs/storage/web/handle-errors
-    /*switch (error.code) {
-
-      case 'storage/unauthorized':
-        // User doesn't have permission to access the object
-        break;
-      case 'storage/canceled':
-        // User canceled the upload
-        break;
-      case 'storage/unknown':
-        // Unknown error occurred, inspect error.serverResponse
-        break;
-    }*/
-  }, function() {
-    // Upload completed successfully, now we can get the download URL
-    uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
-      var endpoint = "/auth/update_profile";
-      if(!host.endsWith("/admin")){
-          endpoint = "/admin" + endpoint;
-      }
-
-      window.up_details = {
-        'displayName' : $("#fn_input").val() + " " + $("#ln_input").val(),
-        'industry' : $('#industry_input option:selected').text(),
-        'password' : $("#password_input").val(),
-        'bvn' : $("#bvn_input").val(),
-        'email' : $("#email_input").val(),
-        'phoneNumber' : pno_input.getNumber(),
-        'photoURL' : downloadURL
-      }
-      window.user_json["newdata"] = window.up_details;
-
-      var settings = {
-          "async": true,
-          "crossDomain": true,
-          "url": host+endpoint,
-          "method": "POST",
-          "contentType": "application/json",
-          "dataType": "json",
-          "headers": {
-            "Content-Type": "application/json",
-            "authorization" : window.authorization
-          },
-          "data": JSON.stringify(window.user_json)
+        case 'storage/unknown':
+          // Unknown error occurred, inspect error.serverResponse
+          break;
+      }*/
+    }, function() {
+      // Upload completed successfully, now we can get the download URL
+      uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+        var endpoint = "/auth/update_profile";
+        if(!host.endsWith("/admin")){
+            endpoint = "/admin" + endpoint;
         }
 
-        $.ajax(settings)
-          .done(function (response) {
-            var data = response;
-            signout();
-          })
-          .fail(function(jqXHR, textStatus, errorThrown) {
-            var uploadTask = storageRef.child('profilePictures/' + window.profilePicture["name"]).delete();
-            populate_industry();
-            var error = JSON.parse(jqXHR.responseText);
-            errorHandler(error);
-          });
+        window.up_details = {
+          'displayName' : $("#fn_input").val() + " " + $("#ln_input").val(),
+          'industry' : $('#industry_input option:selected').text(),
+          'password' : $("#password_input").val(),
+          'bvn' : $("#bvn_input").val(),
+          'email' : $("#email_input").val(),
+          'phoneNumber' : pno_input.getNumber(),
+          'photoURL' : downloadURL
+        }
+        window.user_json["newdata"] = window.up_details;
 
+        var settings = {
+            "async": true,
+            "crossDomain": true,
+            "url": host+endpoint,
+            "method": "POST",
+            "contentType": "application/json",
+            "dataType": "json",
+            "headers": {
+              "Content-Type": "application/json",
+              "authorization" : window.authorization
+            },
+            "data": JSON.stringify(window.user_json)
+          }
+
+          $.ajax(settings)
+            .done(function (response) {
+              var data = response;
+              signout();
+            })
+            .fail(function(jqXHR, textStatus, errorThrown) {
+              populate_industry();
+              var error = JSON.parse(jqXHR.responseText);
+              errorHandler(error);
+            });
+
+      });
     });
 
-  });
+  }else{
+    var endpoint = "/auth/update_profile";
+    if(!host.endsWith("/admin")){
+        endpoint = "/admin" + endpoint;
+    }
+
+    window.up_details = {
+      'displayName' : $("#fn_input").val() + " " + $("#ln_input").val(),
+      'industry' : $('#industry_input option:selected').text(),
+      'password' : $("#password_input").val(),
+      'bvn' : $("#bvn_input").val(),
+      'email' : $("#email_input").val(),
+      'phoneNumber' : pno_input.getNumber(),
+      'photoURL' : $("#profile_pic").attr("src")
+    }
+    window.user_json["newdata"] = window.up_details;
+
+    var settings = {
+        "async": true,
+        "crossDomain": true,
+        "url": host+endpoint,
+        "method": "POST",
+        "contentType": "application/json",
+        "dataType": "json",
+        "headers": {
+          "Content-Type": "application/json",
+          "authorization" : window.authorization
+        },
+        "data": JSON.stringify(window.user_json)
+      }
+
+      $.ajax(settings)
+        .done(function (response) {
+          var data = response;
+          signout();
+        })
+        .fail(function(jqXHR, textStatus, errorThrown) {
+          populate_industry();
+          var error = JSON.parse(jqXHR.responseText);
+          errorHandler(error);
+        });
+  }
+
 };
 
 function get_profile(){
 
+  $('iframe').remove();
   if(isNullOrUndefinedOrEmpty(localStorage["uid"])){
     window.location = "index.html";
   }else{
@@ -291,13 +347,13 @@ function preset(){
       .done(function (response) {
         var data = response;
         firebase.initializeApp(data.preset);
-        var db = firebase.database();
-        db.ref(data.refEndpoint).on("value", function(data) {
+        window.db = firebase.database();
+        window.db.ref(data.refEndpoint).on("value", function(data) {
             get_profile();
         });
-        db.ref(data.refEndpoint.split("/")[0]).on("value", function(data) {
+        /*db.ref(data.refEndpoint.split("/")[0]).on("value", function(data) {
             get_profile();
-        });
+        });*/
         try{
           window.last_clicked.click();
         }catch(e){};
@@ -341,6 +397,16 @@ function populate_user_view(){
       $("#ln_input").val(window.user_json['displayName'].split(" ")[1]);
       $("#password_input").val(window.user_json['password']);
       $("#bvn_input").val(window.user_json['bvn']);
+      if(window.user_json["isStaff"]){
+        if(!isNullOrUndefinedOrEmpty(window.user_json["branch"])){
+          $("#branch_input").val(window.user_json["branch"]);
+        }
+        $("#branch_input").attr("disabled", "disabled");
+      }else{
+        if(!isNullOrUndefinedOrEmpty(window.user_json["branch"])){
+          $("#branch_input").val(window.user_json["branch"]);
+        }
+      }
 
       if( isNullOrUndefinedOrEmpty(window.user_json['email'])){
        $("#email_input").val(""); 
@@ -507,6 +573,7 @@ function get_users(){
         var data = response;
         window.users = data;
         populate_users_view();
+        chat_modal_handler();
       })
       .fail(function(jqXHR, textStatus, errorThrown) {
         console.log(jqXHR.responseText);
@@ -603,12 +670,54 @@ var disable_user = function(e){
           .fail(function(jqXHR, textStatus, errorThrown) {
             //populate_industry();
             var error = JSON.parse(jqXHR.responseText);
+            try{
+              alert(error.message);
+            }catch(e){ console.log(e); }
+            
             //handle_user_error(error);
           });
     }
   })
-  //
 };
+
+var delete_user = function(e){
+  e.preventDefault();
+  var id = $(this).attr('id');
+  id = id.replaceAll("_dlhref", "");
+  window.selected_user = window.users[id];
+  var pURL = window.selected_user["photoURL"];
+
+  var endpoint = "/auth/deleteUser";
+  if(!host.endsWith("/admin")){
+      endpoint = "/admin" + endpoint;
+  }
+
+  var settings = {
+      "async": true,
+      "crossDomain": true,
+      "url": host+endpoint,
+      "method": "POST",
+      "contentType": "application/json",
+      "dataType": "json",
+      "headers": {
+        "Content-Type": "application/json",
+        "authorization" : window.authorization
+      },
+      "data": JSON.stringify(window.selected_user)
+    }
+
+    $.ajax(settings)
+      .done(function (response) {
+        var storageRef = firebase.storage();
+        storageRef.refFromURL(pURL).delete();
+      })
+      .fail(function(jqXHR, textStatus, errorThrown) {
+        var error = JSON.parse(jqXHR.responseText);
+        try{
+          alert(error.message);
+        }catch(e){ console.log(e); }
+      });
+}
 
 var chat = function(e){
   e.preventDefault();
@@ -621,43 +730,25 @@ var chat = function(e){
   window.chat_ui = new BotUI("chat_body");
   
   window.selected_user = window.users[id];
+  localStorage["chateeId"] = id;
+  localStorage["chatee"] = window.users[id]["displayName"];
   try{clicked_user();}catch(e){}
 
   $("#chatee_img").attr("src", window.selected_user["photoURL"]);
   $("#chatee_h6").html(window.selected_user["displayName"]);
   $("#chatee_p").html("Last seen at " + toDate(window.selected_user["lastLoginAt"]));
-  var chats = {};
+  window.chats = {};
   try{
     chats = window.user_json["conversations"][id];
   }catch(e){};
-  if(!isNullOrUndefinedOrEmpty(chats)){
-    Object.keys(chats).forEach(function(key) {
-      if(chats[key]["senderId"] == window.user_json["uid"]){
-        window.chat_ui.message.human({
-          content: chats[key]["content"]
-        });
-      }else{
-        window.chat_ui.message.bot({
-          content: chats[key]["content"]
-        });
-      }
-    });
-    window.chat_ui.action.text({
-      autoHide: true,
-      addMessage: false,
-      action: {
-        placeholder: 'Type here'
-      }
-    }).then(save_chat);
-  }else{
-    window.chat_ui.action.text({
-      autoHide: true,
-      addMessage: false,
-      action: {
-        placeholder: 'Type here'
-      }
-    }).then(save_chat);
-  }
+
+  window.chat_ui.action.text({
+    autoHide: true,
+    addMessage: false,
+    action: {
+      placeholder: 'Type here'
+    }
+  }).then(save_chat);
 
   $("#chat_modal").modal("show");
 }
@@ -674,14 +765,18 @@ var save_chat = function(res){
     "senderId" : window.user_json["uid"],
     "sender" : window.user_json["displayName"],
     "delivered" : true,
-    "read" : false,
+    "seen" : false,
     "epochSent" : Date.now()
   }
   Object.keys(res).forEach(function(key) {
     _c[key] = res[key];
   });
-
-  var settings = {
+  if(isNullOrUndefinedOrEmpty(_c["recieverId"])){
+    _c["recieverId"] = localStorage["chateeId"];
+    _c["reciever"] = localStorage["chatee"];
+  }
+  if(!isNullOrUndefinedOrEmpty(_c["recieverId"])){
+    var settings = {
       "async": true,
       "crossDomain": true,
       "url": host+endpoint,
@@ -698,17 +793,15 @@ var save_chat = function(res){
     $.ajax(settings)
       .done(function (response) {
         var data = response;
-        window.chat_ui.message.human({
-          content: res.value
-        }).then(function(){
-          window.chat_ui.action.text({
+        var my_msg = window.humanMessage.replaceAll("message_id", _c["epochSent"]).replaceAll("message_content", _c["content"]);
+        $(".botui-messages-container").append(my_msg);
+        window.chat_ui.action.text({
             autoHide: true,
             addMessage: false,
             action: {
               placeholder: 'Type here'
             }
           }).then(save_chat);
-        });
       })
       .fail(function(jqXHR, textStatus, errorThrown) {
         var error = JSON.parse(jqXHR.responseText);
@@ -722,6 +815,89 @@ var save_chat = function(res){
             }
           }).then(save_chat);
       });
+  }else{
+    $("#chat_error_lbl").html("Error sending message. Please try again");
+    window.chat_ui.action.text({
+        autoHide: true,
+        addMessage: false,
+        action: {
+          placeholder: 'Type here'
+        }
+      }).then(save_chat);
+  }
+  
+}
+
+var message_clicked = function(e){
+  e.preventDefault();
+  var id = $(this).attr('id');
+  id = id.replaceAll("_msg", "");
+
+  if($("#chat_longclicked").hasClass("invisible")){
+    $("#chat_longclicked").removeClass("invisible");
+  }else{
+    if($.inArray(id, window.selected_messages) > -1){
+      window.selected_messages = window.selected_messages.filter(function(value, index, arr){
+        return !(value == id);
+      });
+      $(this).parent().parent().parent().css('background-color', 'white');
+    }else{
+      window.selected_messages.push(id); 
+      $(this).parent().parent().parent().css('background-color', 'aqua');
+    }
+  }
+
+  if(window.selected_messages.length == 0){
+    $("#chatee_profileUi").removeClass("invisible");
+    $("#chat_longclicked").addClass("invisible");
+    window.message_longpressed = false;
+  }
+  /*if(window.message_longpressed){
+    if(window.selected_messages.length == 1){
+      if($.inArray(id, window.selected_messages) > -1){
+        //window.selected_messages.pop(id); 
+        //$(this).parent().parent().parent().css('background-color', 'white');
+        //$("#chatee_profileUi").removeClass("invisible");
+        //$("#chat_longclicked").addClass("invisible");
+        window.message_longpressed = false;
+      }else{
+        window.selected_messages.push(id); 
+        $(this).parent().parent().parent().css('background-color', 'aqua');
+      }
+    }else if(window.selected_messages.length > 1){
+      window.selected_messages.push(id); 
+      $(this).parent().parent().parent().css('background-color', 'aqua');
+    }
+  }*/
+}
+
+var message_longclicked = function(e){
+  e.preventDefault();
+  var id = $(this).attr('id');
+  id = id.replaceAll("_msg", "");
+
+  if(window.message_longpressed){
+
+  }else{
+    $("#chatee_profileUi").addClass("invisible");
+    window.selected_messages.push(id); 
+    $(this).parent().parent().parent().css('background-color', 'aqua');
+    window.message_longpressed = true;
+  }
+
+  if(window.selected_messages.length == 0){
+    $("#chatee_profileUi").removeClass("invisible");
+    $("#chat_longclicked").addClass("invisible");
+    window.message_longpressed = false;
+  }
+}
+
+var delete_messages = function(e){
+  //localStorage["last_chat_with"] = window.selected_user["uid"];
+  for(var i=0; i < window.selected_messages.length; i++){
+    var path = "users/" + user_json["uid"] + "/conversations/" + window.selected_user["uid"] + "/" + window.selected_messages[i];
+    window.db.ref(path).remove();
+  }
 }
 
 var popup_pic = function(e){
@@ -882,86 +1058,113 @@ var verify = function(e){
       tran = window.selected_user["transactions"][key];
     }
   });
+  localStorage["sub_details1"] = JSON.stringify(tran);
+  $("#verifier_modal").modal("show");
+  $("#verifier_error").text("");
 
-  var endpoint = "/payment/get_paystack_keys";
-  if(!host.endsWith("/admin")){
-    endpoint = "/admin" + endpoint;
-  }
-  var settings = {
-    "async": true,
-    "crossDomain": true,
-    "url": host + endpoint,
-    "method": "GET",
-    "headers": {
-      "authorization": window.authorization
-    }
-  }
+  $("#verifier_btn").click(function(e){
+    $("#verifier_error").text("");
+    if($("#verifier_input").val() == JSON.parse(localStorage["sub_details1"])["paymentId"]){
+      $("#verifier_error").text("");
 
-  $.ajax(settings).done(function (response) {
-    var data = response;
-
-    var settings = {
-      "async": true,
-      "crossDomain": true,
-      "url": "https://api.paystack.co/transaction/verify/" + tran["reference"],
-      "method": "POST",
-      "contentType": "application/json",
-      "dataType": "json",
-      "headers" : {
-        "Content-Type": "application/json",
-        "Authorization" : "Bearer " + data["s_key"]
-      }
-    }
-
-    $.ajax(settings)
-      .done(function (response) {
-        var data = response["data"];
-
-        var endpoint = "/payment/update_transaction";
+      var tran = JSON.parse(localStorage["sub_details1"]);
+      if(tran["condition"] == "verified"){
+        $("#verifier_error").text("Payment has already been verified");
+      }else{
+        
+        var endpoint = "/payment/get_paystack_keys";
         if(!host.endsWith("/admin")){
           endpoint = "/admin" + endpoint;
         }
-
-        Object.keys(data).forEach(function(key) {
-          tran[key] = data[key];
-        });
-        tran["verifiedAt"] = window.user_json["branch"];
-        tran["verifiedBy"] = window.user_json["displayName"];
-        tran["verifierId"] = window.user_json["uid"];
-        tran["epochVerified"] = Date.now();
-        tran["epochLatest"] = tran["epochVerified"];
-        tran["condition"] = "verified"
-
         var settings = {
+          "async": true,
+          "crossDomain": true,
+          "url": host + endpoint,
+          "method": "GET",
+          "headers": {
+            "authorization": window.authorization
+          }
+        }
+
+        $.ajax(settings).done(function (response) {
+          var data = response;
+
+          var settings = {
             "async": true,
             "crossDomain": true,
-            "url": host+endpoint,
-            "method": "POST",
+            "url": "https://api.paystack.co/transaction/verify/" + tran["reference"],
+            "method": "GET",
             "contentType": "application/json",
-            "dataType": "json",
+            //"dataType": "json",
             "headers" : {
-              "Content-Type": "application/json",
-              "authorization" : window.authorization
-            },
-            "data": JSON.stringify(tran)
+              //"Content-Type": "application/json",
+              "Authorization" : "Bearer " + data["s_key"]
+            }
           }
 
           $.ajax(settings)
             .done(function (response) {
-              var data = response;
-              window.location = "admin_user.html";
+              var data = response["data"];
+
+              var endpoint = "/payment/update_transaction";
+              if(!host.endsWith("/admin")){
+                endpoint = "/admin" + endpoint;
+              }
+
+              if(!isNullOrUndefinedOrEmpty(data)){
+                Object.keys(data).forEach(function(key) {
+                  tran[key] = data[key];
+                });
+              }
+
+              tran["verifiedAt"] = window.user_json["branch"];
+              tran["verifiedBy"] = window.user_json["displayName"];
+              tran["verifierId"] = window.user_json["uid"];
+              tran["epochVerified"] = Date.now();
+              tran["epochLatest"] = tran["epochVerified"];
+              tran["condition"] = "verified";
+              tran["seen"] = false;
+
+              var settings = {
+                  "async": true,
+                  "crossDomain": true,
+                  "url": host+endpoint,
+                  "method": "POST",
+                  "contentType": "application/json",
+                  "dataType": "json",
+                  "headers" : {
+                    "Content-Type": "application/json",
+                    "authorization" : window.authorization
+                  },
+                  "data": JSON.stringify(tran)
+                }
+
+                $.ajax(settings)
+                  .done(function (response) {
+                    var data = response;
+                    localStorage["sub_details1"] = "";
+                    $("#verifier_error").text("Verification Successfull");
+                    $("#verifier_modal").modal("hide");
+                  })
+                  .fail(function(jqXHR, textStatus, errorThrown) {
+                    var error = JSON.parse(jqXHR.responseText);
+                    $("#verifier_error").text("Could not verify payment. Please try again later");
+                    errorHandler(error);
+                  });
+
             })
             .fail(function(jqXHR, textStatus, errorThrown) {
               var error = JSON.parse(jqXHR.responseText);
               errorHandler(error);
             });
+        });
 
-      })
-      .fail(function(jqXHR, textStatus, errorThrown) {
-        var error = JSON.parse(jqXHR.responseText);
-        errorHandler(error);
-      });
-  }); 
+      }
+      
+    }else{
+      $("#verifier_error").text("Invalid ID. Cannot verify payment");
+    }
+  });
 };
 
 var refund = function(e){
@@ -975,87 +1178,95 @@ var refund = function(e){
     }
   });
 
-  var endpoint = "/payment/get_paystack_keys";
-  if(!host.endsWith("/admin")){
-    endpoint = "/admin" + endpoint;
-  }
-  var settings = {
-    "async": true,
-    "crossDomain": true,
-    "url": host + endpoint,
-    "method": "GET",
-    "headers": {
-      "authorization": window.authorization
+  if(tran["condition"] == "refunded"){
+    alert("Payment has already been refunded");
+  }else{
+    var endpoint = "/payment/get_paystack_keys";
+    if(!host.endsWith("/admin")){
+      endpoint = "/admin" + endpoint;
     }
-  }
-
-  $.ajax(settings).done(function (response) {
-    var data = response;
-
     var settings = {
       "async": true,
       "crossDomain": true,
-      "url": "https://api.paystack.co/refund",
-      "method": "POST",
-      "contentType": "application/json",
-      "dataType": "json",
-      "headers" : {
-        "Content-Type": "application/json",
-        "Authorization" : "Bearer " + data["s_key"]
-      },
-      "data" : JSON.stringify({"reference" : tran["reference"]})
+      "url": host + endpoint,
+      "method": "GET",
+      "headers": {
+        "authorization": window.authorization
+      }
     }
 
-    $.ajax(settings)
-      .done(function (response) {
-        var data = response["data"];
+    $.ajax(settings).done(function (response) {
+      var data = response;
 
-        var endpoint = "/payment/update_transaction";
-        if(!host.endsWith("/admin")){
-          endpoint = "/admin" + endpoint;
-        }
+      var settings = {
+        "async": true,
+        "crossDomain": true,
+        "url": "https://api.paystack.co/refund",
+        "method": "POST",
+        "contentType": "application/json",
+        "dataType": "json",
+        "headers" : {
+          "Content-Type": "application/json",
+          "Authorization" : "Bearer " + data["s_key"]
+        },
+        "data" : JSON.stringify({"transaction" : tran["reference"]})
+      }
 
-        Object.keys(data["transaction"]).forEach(function(key) {
-          tran[key] = data["transaction"][key];
-        });
-        tran["dispute"] = data["dispute"];
-        tran["refundedAt"] = window.user_json["branch"];
-        tran["refundedBy"] = window.user_json["displayName"];
-        tran["refunderId"] = window.user_json["uid"];
-        tran["epochRefunded"] = Date.now();
-        tran["epochLatest"] = tran["epochRefunded"];
-        tran["condition"] = "refunded"
+      $.ajax(settings)
+        .done(function (response) {
+          var data = response["data"];
 
-        var settings = {
-            "async": true,
-            "crossDomain": true,
-            "url": host+endpoint,
-            "method": "POST",
-            "contentType": "application/json",
-            "dataType": "json",
-            "headers" : {
-              "Content-Type": "application/json",
-              "authorization" : window.authorization
-            },
-            "data": JSON.stringify(tran)
+          var endpoint = "/payment/update_transaction";
+          if(!host.endsWith("/admin")){
+            endpoint = "/admin" + endpoint;
           }
 
-          $.ajax(settings)
-            .done(function (response) {
-              var data = response;
-              window.location = "admin_user.html";
-            })
-            .fail(function(jqXHR, textStatus, errorThrown) {
-              var error = JSON.parse(jqXHR.responseText);
-              errorHandler(error);
+          if(!isNullOrUndefinedOrEmpty(data)){
+            Object.keys(data).forEach(function(key) {
+              tran[key] = data[key];
             });
+          }
+          
+          tran["refundedAt"] = window.user_json["branch"];
+          tran["refundedBy"] = window.user_json["displayName"];
+          tran["refunderId"] = window.user_json["uid"];
+          tran["epochRefunded"] = Date.now();
+          tran["epochLatest"] = tran["epochRefunded"];
+          tran["condition"] = "refunded";
+          tran["seen"] = false;
 
-      })
-      .fail(function(jqXHR, textStatus, errorThrown) {
-        var error = JSON.parse(jqXHR.responseText);
-        errorHandler(error);
-      });
-  }); 
+          var settings = {
+              "async": true,
+              "crossDomain": true,
+              "url": host+endpoint,
+              "method": "POST",
+              "contentType": "application/json",
+              "dataType": "json",
+              "headers" : {
+                "Content-Type": "application/json",
+                "authorization" : window.authorization
+              },
+              "data": JSON.stringify(tran)
+            }
+
+            $.ajax(settings)
+              .done(function (response) {
+                var data = response;
+                alert("Refund Successfull");
+                window.location = "admin_user.html";
+              })
+              .fail(function(jqXHR, textStatus, errorThrown) {
+                var error = JSON.parse(jqXHR.responseText);
+                errorHandler(error);
+              });
+
+        })
+        .fail(function(jqXHR, textStatus, errorThrown) {
+          var error = JSON.parse(jqXHR.responseText);
+          errorHandler(error);
+        });
+    }); 
+  }
 };
 
 function post_error(error){
@@ -1116,10 +1327,17 @@ var signout = function() {
     }
 
     $.ajax(settings).done(function (response) {
-      localStorage["uid"] = "";
-      localStorage["uid"]  = null;
-      localStorage["authorization"] = "";
-      localStorage["authorization"] = null;
+      Object.keys(localStorage).forEach(function(key) {
+        localStorage[key] = "";
+        localStorage[key] = null;
+      });
+      window.location = "index.html";
+      console.log(response);
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+      Object.keys(localStorage).forEach(function(key) {
+        localStorage[key] = "";
+        localStorage[key] = null;
+      });
       window.location = "index.html";
     });
   }
@@ -1171,7 +1389,7 @@ function populate_industry(){
   $.ajax(settings)
     .done(function (response) {
       var data = response;
-      for(i=0; i<data.length; i++){
+      for(var i=0; i<data.length; i++){
         opt = document.createElement('OPTION');
         opt.textContent = data[i];
         opt.value = data[i].trimmer();
@@ -1227,7 +1445,7 @@ function add_business(){
 
       $.ajax(settings)
         .done(function (response) {
-          
+          $("#biz_error_span").text("Business Account Created Successfully");
         })
         .fail(function(jqXHR, textStatus, errorThrown) {
           populate_industry();
@@ -1297,6 +1515,19 @@ var errorHandler = function(error) {
           break;
       case "auth/id-token-expired":
           signout();
+          Object.keys(localStorage).forEach(function(key) {
+            localStorage[key] = "";
+            localStorage[key] = null;
+          });
+          break;
+      case "app/network-error":
+          alert("No network");
+          Object.keys(localStorage).forEach(function(key) {
+            localStorage[key] = "";
+            localStorage[key] = null;
+          });
+          post_error(error);
+          signout();
           break;
       default:
           $("#error_span").html(error.message);
@@ -1344,6 +1575,19 @@ var handle_business_error = function(error) {
           break;
       case "auth/id-token-expired":
           signout();
+          Object.keys(localStorage).forEach(function(key) {
+            localStorage[key] = "";
+            localStorage[key] = null;
+          });
+          break;
+      case "app/network-error":
+          alert("No network");
+          Object.keys(localStorage).forEach(function(key) {
+            localStorage[key] = "";
+            localStorage[key] = null;
+          });
+          post_error(error);
+          signout();
           break;
       default:
           $("#biz_error_span").html(error.message);
@@ -1390,6 +1634,19 @@ var handle_user_error = function(error) {
           $("#usr_pno_span").html("Phone Number is invalid.");
           break;
       case "auth/id-token-expired":
+          signout();
+          Object.keys(localStorage).forEach(function(key) {
+            localStorage[key] = "";
+            localStorage[key] = null;
+          });
+          break;
+      case "app/network-error":
+          alert("No network");
+          Object.keys(localStorage).forEach(function(key) {
+            localStorage[key] = "";
+            localStorage[key] = null;
+          });
+          post_error(error);
           signout();
           break;
       default:
@@ -1472,6 +1729,12 @@ function isNullOrUndefinedOrEmpty(_in){
     case "undefined":
       return true;
       break;
+    case {}:
+      return true;
+      break;
+    case []:
+      return true;
+      break;
     default:
       if(typeof _check == "string"){
         if(_check.trim() == "" || _check.split(" ").join("") == ""){
@@ -1481,8 +1744,6 @@ function isNullOrUndefinedOrEmpty(_in){
         }
       }else if(typeof _check == "undefined"){
         return true;
-      }else if(_check == {}){
-        return true;
       }else{
         return false
       }
@@ -1490,18 +1751,98 @@ function isNullOrUndefinedOrEmpty(_in){
     };
 };
 
+var body_change_listener = function(e){
+  $('iframe').remove();
+}
+
 var chat_modal_handler = function(e){
-  $(".botui-messages-container").children().each(function(index, elem) {
-    //console.log(elem);
-    console.log(elem.childNodes[0].childNodes[1].childNodes[0]);
-  });
+  $("#chatee_profileUi").removeClass("invisible");
+  $("#chat_longclicked").addClass("invisible");
+  window.message_longpressed = false;
+
+  if(!isNullOrUndefinedOrEmpty(window.chats)){
+    $(".botui-messages-container").html("");
+    Object.keys(window.chats).forEach(function(key) {
+      if(window.chats[key]["senderId"] == window.user_json["uid"]){
+        var my_msg = window.humanMessage.replaceAll("message_id", key).replaceAll("message_content", chats[key]["content"]);
+        $(".botui-messages-container").append(my_msg);
+        document.getElementById(key+"_msg").addEventListener('long-press', message_longclicked);
+        $("#"+ key +"_msg").click(message_clicked);
+
+        var els = document.getElementsByClassName(key+"_msg");
+        for (var i = 0; i < els.length; i++) {
+          els[i].addEventListener('long-press', 
+            function(e){
+              Object.keys(window.chats).forEach(function(key) {
+                if($(this).hasClass(key+"_msg")){
+                  $("#"+ key +"_msg").click();
+                }
+              });
+            }
+          );
+        };
+        $("."+ key +"_msg").click(
+            function(e){
+              Object.keys(window.chats).forEach(function(key) {
+                if($(this).hasClass(key+"_msg")){
+                  $("#"+ key +"_msg").click();
+                }
+              });
+            }
+          );
+
+        
+      }else{
+        var other_msg = window.botMessage.replaceAll("message_id", key).replaceAll("message_content", chats[key]["content"]);
+        $(".botui-messages-container").append(other_msg);
+        document.getElementById(key+"_msg").addEventListener('long-press', message_longclicked);
+        $("#"+ key +"_msg").click(message_clicked);
+
+        var els = document.getElementsByClassName(key+"_msg");
+        for (var i = 0; i < els.length; i++) {
+          els[i].addEventListener('long-press', 
+            function(e){
+              Object.keys(window.chats).forEach(function(key) {
+                if($(this).hasClass(key+"_msg")){
+                  $("#"+ key +"_msg").click();
+                }
+              });
+            }
+          );
+        };
+        $("."+ key +"_msg").click(
+            function(e){
+              Object.keys(window.chats).forEach(function(key) {
+                if($(this).hasClass(key+"_msg")){
+                  $("#"+ key +"_msg").click();
+                }
+              });
+            }
+          );
+        
+      }
+    });
+  }
+  //modal_shown();
+}
+
+var modal_shown = function(){
+  window.top = $("body").scrollTop();
+  $("body").css("position", "fixed").css("overflow", "hidden").css("top", -top).css("width", "100%").css("height", top+5000);
+}
+
+var modal_hidden = function(){
+  window.top =$("body").position().top;
+  $("body").css("position", "relative").css("overflow", "auto").css("top", 0).scrollTop(-top);
 }
 
 function prepare_ui(){
+    $("body").change(body_change_listener);
     $(".close").html('<i class="fa fa-arrow-left" style="font-size: 13px;"></i>');
     $("#profile_pic").attr("src", "");
     $("#usr_img").attr("src", "assets/img/index.png");
-    $("#chat_modal" ).on('shown.bs.modal', chat_modal_handler);
+    $("#chat_modal").on('show.bs.modal', chat_modal_handler);//.on('hide.bs.modal', modal_hidden);
+    $("#del_msgs").click(delete_messages);
 
     var script = document.createElement("script");
     script.setAttribute("type", "text/javascript");
@@ -1522,9 +1863,9 @@ function prepare_ui(){
     removeElement("user_id_card-body");
 
     /*All user's tab (chat function) */
-    localStorage["chat_dbclicked"] = document.getElementById("chat_dbclicked").outerHTML
-    localStorage["chatee_profileUi"] = document.getElementById("chatee_profileUi").outerHTML
-    removeElement("chat_dbclicked");
+    //localStorage["chat_longclicked"] = document.getElementById("chat_longclicked").outerHTML
+    //localStorage["chatee_profileUi"] = document.getElementById("chatee_profileUi").outerHTML
+    //removeElement("chat_longclicked");
     window.chat_ui = new BotUI("chat_body");
 
 
@@ -1538,6 +1879,7 @@ function prepare_ui(){
     $("#start_date3").val("");
     $("#end_date3").val("");
     $("#usr_save_act_btn").click(function(e){$("#usr_save_act_modal").modal("show");});
+    //$("#usr_save_act_modal").on('show.bs.modal', modal_shown).on('hide.bs.modal', modal_hidden);
     localStorage["activity_id_card-bodyb"] = document.getElementById("activity_id_card-bodyb").outerHTML;
     localStorage["activity_id_trb"] = document.getElementById("activity_id_trb").outerHTML;
     removeElement("activity_id_card-bodyb");
@@ -1553,6 +1895,7 @@ function prepare_ui(){
     $("#start_date4").val("");
     $("#end_date4").val("");
     $("#usr_save_pay_btn").click(function(e){$("#usr_save_pay_modal").modal("show");});
+    //$("#usr_save_pay_modal").on('show.bs.modal', modal_shown).on('hide.bs.modal', modal_hidden);
     localStorage["payment_id_tr"] = document.getElementById("payment_id_tr").outerHTML;
     localStorage["payment_id_card-body"] = document.getElementById("payment_id_card-body").outerHTML
     removeElement("payment_id_card-body");
@@ -1576,6 +1919,7 @@ function add_userUi(user){
   $('#' + user["uid"] + "_chref").click(chat);
   $('#' + user["uid"] + "_cbdiv").click(clicked_user);
   $('#' + user["uid"] + "_dhref").click(disable_user);
+  //$('#' + user["uid"] + "_dlhref").click(delete_user);
   //$('#' + user["uid"] + "_btn").click(_dropdown);
   if(user["disabled"]){
     $('#' + user["uid"] + "_dhref").html("Enable User");
@@ -1587,6 +1931,10 @@ function add_userUi(user){
   if(isNullOrUndefinedOrEmpty(user["subaccount_code"])){
     removeElement(user["uid"] + "_phref");
   }
+  /* Only admin  can delete a user*/
+  if(!(window.user_json["isAdmin"] || window.user_json["isAdmin"] == "true")){
+    removeElement(user["uid"] + "_dlhref");
+  }
   /* User is not a staff and therefore has no branch. Remove branch*/
   if(isNullOrUndefinedOrEmpty(user["branch"])){
     removeElement(user["uid"] + "_brchlbl");
@@ -1595,6 +1943,7 @@ function add_userUi(user){
   if(user["uid"] == window.user_json["uid"]){
     removeElement(user["uid"] + "_chref");
     removeElement(user["uid"] + "_dhref");
+    removeElement(user["uid"] + "_dlhref");
   }
   if(!isNullOrUndefinedOrEmpty(user["business_name"])){
     if(user["isBusiness"] || user["isBusiness"] == "true"){
@@ -1645,13 +1994,15 @@ function add_usr_transactionUi(tran){
 
   appendElement(t_view, "usr_transactions_card");
 
-  $("#" + _id + "_idh6").html($("#" + _id + "_idh6").html() + _id);
+  $("#" + _id + "_idh6").html($("#" + _id + "_idh6").html() + tran["reference"]);
   $("#" + _id + "_toh6").html($("#" + _id + "_toh6").html() + tran["payee"]);
   $("#" + _id + "_byh6").html($("#" + _id + "_byh6").html() + tran["payer"]);
+  $("#" + _id + "_amounth6").html($("#" + _id + "_amounth6").html() + (parseFloat(tran["amount"]) / 100) + " NGN");
   $("#" + _id + "_timeh6").html($("#" + _id + "_timeh6").html() + toDate(tran["epochPayed"]) );
   $('#' + _id + "_rfhref").click(refund);
   $('#' + _id + "_vhref").click(verify);
   $("#" + _id + "_btn").click(_dropdown);
+
   switch(tran["condition"]){
     case "paid":
       $("#" + _id + "_vfrfdlbl").remove();
@@ -1659,15 +2010,15 @@ function add_usr_transactionUi(tran){
     case "verified":
       $('#' + _id + "_vhref").remove();
       $('#' + _id + "_rfhref").remove();
-      $("#" + _id + "_vfrfdlbl").html("Verified :" + toDate(tran["epochVerified"]) );
+      $("#" + _id + "_vfrfdlbl").html("Verified by " + tran["verifiedBy"] + " on: " + toDate(tran["epochVerified"]) );
       break;
     case "refunded":
       $('#' + _id + "_vhref").remove();
       $('#' + _id + "_rfhref").remove();
-      $("#" + _id + "_vfrfdlbl").html("Refunded :" + toDate(tran["epochRefunded"]) );
+      $("#" + _id + "_vfrfdlbl").html("Refunded by " + tran["refundedBy"] + " on: " + toDate(tran["epochRefunded"]) );
       break;
     case "refundRequested":
-      $("#" + _id + "_vfrfdlbl").html("Refund requested :" + toDate(tran["epochLatest"]) );
+      $("#" + _id + "_vfrfdlbl").html("Refund requested: " + toDate(tran["epochLatest"]) );
       break;
     default:
       $("#" + _id + "_vfrfdlbl").remove();
@@ -1680,25 +2031,27 @@ function add_usr_transactionUi(tran){
     tr_up = tr_up.replaceAll("Cell 1", tran["epochPayed"]);
     tr_up = tr_up.replaceAll("Cell 2", toDate(tran["epochPayed"]) );
     tr_up = tr_up.replaceAll("Cell 3", tran["payee"]);
+
     switch(tran["condition"]){
       case "refunded":
-        tr_up = tr_up.replaceAll("Cell 4", tran["refundedAt"]);
+        tr_up = tr_up.replaceAll("Cell 4", tran["refundedBy"] + " @ " + tran["refundedAt"]);
+        tr_up = tr_up.replaceAll("Cell 5", "Refunded: " + toDate(tran["epochLatest"]));
         break;
       case "verified":
-        tr_up = tr_up.replaceAll("Cell 4", tran["verifiedAt"]);
+        tr_up = tr_up.replaceAll("Cell 4", tran["verifiedBy"] + " @ " + tran["verifiedAt"]);
+        tr_up = tr_up.replaceAll("Cell 5", "Verified: " + toDate(tran["epochLatest"]));
         break;
       case "refundRequested":
-        tr_up = tr_up.replaceAll("Cell 4", tran["epochLatest"]);
+        tr_up = tr_up.replaceAll("Cell 4", "---");
+        tr_up = tr_up.replaceAll("Cell 5", "Refund Requested: " + toDate(tran["epochLatest"]));
         break;
       default:
         tr_up = tr_up.replaceAll("Cell 4", "---");
+        tr_up = tr_up.replaceAll("Cell 5", "---");
         break;
     }
-    if(!isNullOrUndefinedOrEmpty(tran["condition"])){
-      tr_up = tr_up.replaceAll("Cell 5", tran["condition"] + " : " + tran["epochLatest"]);
-    }else{
-      tr_up = tr_up.replaceAll("Cell 5", "");
-    }
+
+    tr_up = tr_up.replaceAll("invisible", "");
 
     appendElement(tr_up, "payment_id_tb");
   }catch(e){ console.log(e); }

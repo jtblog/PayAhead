@@ -51,6 +51,8 @@ mAuth.shareApp(payahead_auth, defaultApp, _db);
 //mDb.shareApp(payahead_db);
 mDb.shareApp(_db);
 
+var defaultPhotoURL = "https://firebasestorage.googleapis.com/v0/b/payahead-80360.appspot.com/o/index.png?alt=media&token=473d280c-967d-4253-8bfb-b6f033347371";
+
 var isNullOrUndefinedOrEmpty = function(_in){
   var _check = _in+"";
   switch(_check){
@@ -64,6 +66,18 @@ var isNullOrUndefinedOrEmpty = function(_in){
       return true;
       break;
     case "undefined":
+      return true;
+      break;
+    case "{}":
+      return true;
+      break;
+    case {}:
+      return true;
+      break;
+    case "[]":
+      return true;
+      break;
+    case []:
       return true;
       break;
     default:
@@ -109,6 +123,10 @@ function isAdmin(request, response, next){
 			//request.body["uid"] = _ctoken.uid;
 			request.uid = decodedToken["uid"];
 			request.email = decodedToken["email"];
+			request.admin = decodedToken["admin"];
+			request.business = decodedToken["business"];
+			request.user = decodedToken["user"];
+			request.staff = decodedToken["staff"];
 			return next();
 		}else{
 			response.status(401).send({"code": "auth/not-an-admin", "message" : "This Priviledge is only granted to PayAhead's admin users"});
@@ -126,6 +144,10 @@ function isBusiness(request, response, next){
 			//request.body["uid"] = _ctoken.uid;
 			request.uid = decodedToken["uid"];
 			request.email = decodedToken["email"];
+			request.admin = decodedToken["admin"];
+			request.business = decodedToken["business"];
+			request.user = decodedToken["user"];
+			request.staff = decodedToken["staff"];
 			return next();
 		}else{
 			response.status(401).send({"code": "auth/not-a-business", "message" : "This Priviledge is only granted to PayAhead's registered business owner(s)/vendor"});
@@ -143,6 +165,10 @@ function isStaff(request, response, next){
 			//request.body["uid"] = _ctoken.uid;
 			request.uid = decodedToken["uid"];
 			request.email = decodedToken["email"];
+			request.admin = decodedToken["admin"];
+			request.business = decodedToken["business"];
+			request.user = decodedToken["user"];
+			request.staff = decodedToken["staff"];
 			return next();
 		}else{
 			response.status(401).send({"code": "auth/not-a-staff", "message" : "This Priviledge is only granted to staffs of businesses registered on PayAhead's"});
@@ -160,6 +186,10 @@ function isBusinessOrStaff(request, response, next){
 			//request.body["uid"] = _ctoken.uid;
 			request.uid = decodedToken["uid"];
 			request.email = decodedToken["email"];
+			request.admin = decodedToken["admin"];
+			request.business = decodedToken["business"];
+			request.user = decodedToken["user"];
+			request.staff = decodedToken["staff"];
 			return next();
 		}else{
 			response.status(401).send({"code": "auth/not-a-BusinessOrStaff", "message" : "This Priviledge is only granted to PayAhead's registered business owner(s)/vendor or staffs of businesses registered on PayAhead"});
@@ -177,6 +207,10 @@ function isAdminOrBusiness(request, response, next){
 			//request.body["uid"] = _ctoken.uid;
 			request.uid = decodedToken["uid"];
 			request.email = decodedToken["email"];
+			request.admin = decodedToken["admin"];
+			request.business = decodedToken["business"];
+			request.user = decodedToken["user"];
+			request.staff = decodedToken["staff"];
 			return next();
 		}else{
 			response.status(401).send({"code": "auth/not-an-AdminOrBusiness", "message" : "This Priviledge is only granted to PayAhead's admin users or PayAhead's registered business owner(s)/vendor"});
@@ -190,13 +224,40 @@ function isAdminOrBusinessOrStaff(request, response, next){
 	var idToken = request.headers.authorization;
 
 	_auth.verifyIdToken(idToken).then(function(decodedToken) {
-		if(decodedToken["admin"] || decodedToken["business"] || decodedToken["business"]){
+		if(decodedToken["admin"] || decodedToken["business"] || decodedToken["staff"]){
 			//request.body["uid"] = _ctoken.uid;
 			request.uid = decodedToken["uid"];
 			request.email = decodedToken["email"];
+			request.admin = decodedToken["admin"];
+			request.business = decodedToken["business"];
+			request.user = decodedToken["user"];
+			request.staff = decodedToken["staff"];
 			return next();
 		}else{
 			response.status(401).send({"code": "auth/not-an-AdminOrBusinessOrStaff", "message" : "This Priviledge is only granted to PayAhead's admin users or PayAhead's registered business owner(s)/vendor as well as their staffs"});
+		}
+	  }).catch(function(error) {
+	    response.status(401).send(error);
+	  });
+};
+
+function isNotBusinessOrStaff(request, response, next){
+	var idToken = request.headers.authorization;
+
+	_auth.verifyIdToken(idToken).then(function(decodedToken) {
+		if(decodedToken["business"]){
+			response.status(401).send({"code": "auth/not-allowed", "message" : "This Priviledge is not granted to you. Contact PayAhead's customer care / administrators"});
+		}else if(decodedToken["staff"]){
+			response.status(401).send({"code": "auth/not-allowed", "message" : "This Priviledge is not granted to you. Contact PayAhead's customer care / administrators"});
+		}else{
+			//request.body["uid"] = _ctoken.uid;
+			request.uid = decodedToken["uid"];
+			request.email = decodedToken["email"];
+			request.admin = decodedToken["admin"];
+			request.business = decodedToken["business"];
+			request.user = decodedToken["user"];
+			request.staff = decodedToken["staff"];
+			return next();
 		}
 	  }).catch(function(error) {
 	    response.status(401).send(error);
@@ -275,18 +336,9 @@ app.post('/auth/signup', json_parser, function(request, response){
 	su_details["email"] = _details["email"];
 	su_details["password"] = _details["password"];
 	su_details["phoneNumber"] = _details["phoneNumber"];
-	su_details["photoURL"] = "https://firebasestorage.googleapis.com/v0/b/payahead-80360.appspot.com/o/index.png?alt=media&token=66c38ec1-6bb7-4aa6-ad09-8b394acd390f";
-	
-	var other_details = {};
-	if(isNullOrUndefinedOrEmpty(_details["bvn"])){
-		response.status(400).json( { "code" : "auth/bvn",
-			"message" : "BVN is not attached or is invalid. bvn cannot be null, empty or undefined"
-		});
-		response.end();
-	}else{
-		other_details["bvn"] = _details["bvn"];
-	}
+	su_details["photoURL"] = defaultPhotoURL;
 
+	var other_details = {};
 	if(isNullOrUndefinedOrEmpty(_details["industry"])){
 		response.status(400).json( { "code" : "auth/industry",
 			"message" : "Industry is not attached or is invalid. industry cannot be null, empty or undefined"
@@ -344,86 +396,155 @@ app.post('/auth/updateOrCreateUser', isAdminOrBusiness, json_parser, function(re
 	var _details = request.body;
 	var pass_key = randStr.generate(8);
 	var new_data = request.body["newdata"];
-	var isUpdate = false;
-	if(request.email == newdata["email"]){
-		response.status(400).json({ "code" : "auth/failed-to-createOrUpdate",
-			"message" : "You cannot perform an account creation or update through this means"
-		});
-		response.end();
-	}
-	if(_details["email"] == new_data["email"]){
-		isUpdate = true;
+	new_data["password"] = pass_key;
+
+	if(!isNullOrUndefinedOrEmpty(new_data)){
 		Object.keys(new_data).forEach(function(key) {
 			_details[key] = new_data[key];
 		});
 		_details["newdata"] = null;
-	}else{
-		isUpdate = false;
-		Object.keys(new_data).forEach(function(key) {
-			if(!isNullOrUndefinedOrEmpty(new_data[key])){
-				_details[key] = new_data[key];
-			}
-		});
-		_details["newdata"] = null;
-		if(!_details["email"].endsWith(request.email.split('@')[1])){
-			if(request.admin || request.user){
-			}else{
-				//Can only create user with the same organization email
-				response.status(400).json({ "code" : "auth/invalid-email-host",
-					"message" : "Can only create/update user with the same organization email"
+
+	_auth.getUserByEmail(_details['email'])
+	    .then(function(userRecord) {
+	    	//Update user
+	    	if(request.email == _details["email"]){
+				response.status(400).json({ "code" : "auth/failed-to-createOrUpdate",
+					"message" : "You cannot perform an account creation or update through this means"
 				});
 				response.end();
 			}
-		}
-	}
 
-	var u_details = {};
-	u_details["emailVerified"] = _details["emailVerified"];
-	u_details["disabled"] = _details["disabled"];
-	u_details["displayName"] = _details["displayName"];
-	u_details["email"] = _details["email"];
-	u_details["password"] = pass_key;
-	u_details["phoneNumber"] = _details["phoneNumber"];
-	if(!isNullOrUndefinedOrEmpty(_details["photoURL"])){
-		u_details["photoURL"] = _details["photoURL"];
+			var u_details = {};
+			u_details["emailVerified"] = _details["emailVerified"];
+			u_details["disabled"] = _details["disabled"];
+			u_details["displayName"] = _details["displayName"];
+			u_details["email"] = _details["email"];
+			u_details["password"] = pass_key;
+			u_details["phoneNumber"] = _details["phoneNumber"];
+			if(!isNullOrUndefinedOrEmpty(_details["photoURL"])){
+				u_details["photoURL"] = _details["photoURL"];
+			}else{
+				u_details["photoURL"] = defaultPhotoURL;
+			}
+			
+			var other_details = {};
+			Object.keys(_details).forEach(function(key) {
+				if(!(key == "photoURL" || key == "phoneNumber" || key == "password" || key == "email" || key == "displayName" || key == "disabled" || key == "emailVerified"))
+				other_details[key] = _details[key];
+			});
+
+			other_details["uid"] = _details["uid"];
+
+			if(!isNullOrUndefinedOrEmpty(_details["industry"])){
+				other_details["industry"] = _details["industry"];
+			}else{
+				response.status(400).json({ "code" : "auth/industry",
+					"message" : "Industry is not attached or is invalid. industry cannot be null, empty or undefined"
+				});
+				response.end();
+			}
+			mAuth.updateUser(u_details, other_details, response, request, mDb);
+	    })
+	    .catch(function(error) {
+	    	
+	    	_auth.getUserByPhoneNumber(_details['phoneNumber'])
+			    .then(function(userRecord) {
+			    	//Update user
+			    	if(request.email == _details["email"]){
+						response.status(400).json({ "code" : "auth/failed-to-createOrUpdate",
+							"message" : "You cannot perform an account creation or update through this means"
+						});
+						response.end();
+					}
+
+					var u_details = {};
+					u_details["emailVerified"] = _details["emailVerified"];
+					u_details["disabled"] = _details["disabled"];
+					u_details["displayName"] = _details["displayName"];
+					u_details["email"] = _details["email"];
+					u_details["password"] = pass_key;
+					u_details["phoneNumber"] = _details["phoneNumber"];
+					if(!isNullOrUndefinedOrEmpty(_details["photoURL"])){
+						u_details["photoURL"] = _details["photoURL"];
+					}else{
+						u_details["photoURL"] = defaultPhotoURL;
+					}
+					
+					
+					var other_details = {};
+					Object.keys(_details).forEach(function(key) {
+						if(!(key == "photoURL" || key == "phoneNumber" || key == "password" || key == "email" || key == "displayName" || key == "disabled" || key == "emailVerified"))
+						other_details[key] = _details[key];
+					});
+
+					other_details["uid"] = _details["uid"];
+
+					if(!isNullOrUndefinedOrEmpty(_details["industry"])){
+						other_details["industry"] = _details["industry"];
+					}else{
+						response.status(400).json({ "code" : "auth/industry",
+							"message" : "Industry is not attached or is invalid. industry cannot be null, empty or undefined"
+						});
+						response.end();
+					}
+					mAuth.updateUser(u_details, other_details, response, request, mDb);
+
+			    })
+			    .catch(function(error) {
+			    	//Create new user
+					if(!_details["email"].endsWith(request.email.split('@')[1])){
+						if(request.business || request.staff){
+							//Can only create user with the same organization email
+							response.status(400).json({ "code" : "auth/invalid-email-host",
+								"message" : "Can only create/update user from the same organization"
+							});
+							response.end();
+						}
+					}
+
+					var u_details = {};
+					u_details["emailVerified"] = _details["emailVerified"];
+					u_details["disabled"] = _details["disabled"];
+					u_details["displayName"] = _details["displayName"];
+					u_details["email"] = _details["email"];
+					u_details["password"] = pass_key;
+					u_details["phoneNumber"] = _details["phoneNumber"];
+					if(!isNullOrUndefinedOrEmpty(_details["photoURL"])){
+						u_details["photoURL"] = _details["photoURL"];
+					}else{
+						u_details["photoURL"] = defaultPhotoURL;
+					}
+					
+					
+					var other_details = {};
+					Object.keys(_details).forEach(function(key) {
+						if(!(key == "photoURL" || key == "phoneNumber" || key == "password" || key == "email" || key == "displayName" || key == "disabled" || key == "emailVerified"))
+						other_details[key] = _details[key];
+					});
+
+					other_details["uid"] = _details["uid"];
+
+					if(!isNullOrUndefinedOrEmpty(_details["industry"])){
+						other_details["industry"] = _details["industry"];
+					}else{
+						response.status(400).json({ "code" : "auth/industry",
+							"message" : "Industry is not attached or is invalid. industry cannot be null, empty or undefined"
+						});
+						response.end();
+					}
+					mAuth.createUser(u_details, other_details, response, request, mDb);
+			  	});
+
+	  	});
 	}else{
-		u_details["photoURL"] = "https://firebasestorage.googleapis.com/v0/b/payahead-80360.appspot.com/o/index.png?alt=media&token=66c38ec1-6bb7-4aa6-ad09-8b394acd390f";
-	}
-	
-	var other_details = {};
-	Object.keys(_details).forEach(function(key) {
-		if(!(key == "photoURL" || key == "phoneNumber" || key == "password" || key == "email" || key == "displayName" || key == "disabled" || key == "emailVerified"))
-		other_details[key] = _details[key];
-	});
-
-	other_details["uid"] = _details["uid"];
-
-	if(!isNullOrUndefinedOrEmpty(_details["bvn"])){
-		other_details["bvn"] = _details["bvn"];
-	}else{
-		response.status(400).json({ "code" : "auth/bvn",
-			"message" : "BVN is not attached or is invalid. bvn cannot be null, empty or undefined"
-		});
+		response.status(400).json({ "code" : "auth/no-new-data",
+									"message" : "No new information found"
+								});
 		response.end();
-	}
-
-	if(!isNullOrUndefinedOrEmpty(_details["industry"])){
-		other_details["industry"] = _details["industry"];
-	}else{
-		response.status(400).json({ "code" : "auth/industry",
-			"message" : "Industry is not attached or is invalid. industry cannot be null, empty or undefined"
-		});
-		response.end();
-	}
-
-	if(isUpdate){
-		mAuth.updateUser(u_details, other_details, response, request, mDb);
-	}else{
-		mAuth.createUser(u_details, other_details, response, request, mDb);
-	}
+	}	
 });
 
-app.post('/auth/update_profile', verifyToken, json_parser, function(request, response){
+app.post('/auth/update_profile', isNotBusinessOrStaff, json_parser, function(request, response){
 	var _details = request.body;
 	var pass_key = randStr.generate(8);
 	var new_data = request.body["newdata"];
@@ -444,7 +565,7 @@ app.post('/auth/update_profile', verifyToken, json_parser, function(request, res
 	if(!isNullOrUndefinedOrEmpty(_details["photoURL"])){
 		u_details["photoURL"] = _details["photoURL"];
 	}else{
-		u_details["photoURL"] = "https://firebasestorage.googleapis.com/v0/b/payahead-80360.appspot.com/o/index.png?alt=media&token=66c38ec1-6bb7-4aa6-ad09-8b394acd390f";
+		u_details["photoURL"] = defaultPhotoURL;
 	}
 	
 	var other_details = {};
@@ -455,15 +576,6 @@ app.post('/auth/update_profile', verifyToken, json_parser, function(request, res
 
 	other_details["uid"] = _details["uid"];
 
-	if(!isNullOrUndefinedOrEmpty(_details["bvn"])){
-		other_details["bvn"] = _details["bvn"];
-	}else{
-		response.status(400).json({ "code" : "auth/bvn",
-			"message" : "BVN is not attached or is invalid. bvn cannot be null, empty or undefined"
-		});
-		response.end();
-	}
-
 	if(!isNullOrUndefinedOrEmpty(_details["industry"])){
 		other_details["industry"] = _details["industry"];
 	}else{
@@ -472,7 +584,15 @@ app.post('/auth/update_profile', verifyToken, json_parser, function(request, res
 		});
 		response.end();
 	}
-	mAuth.updateUser(u_details, other_details, response, request, mDb);
+
+	if(!other_details["isAdmin"]){
+		mAuth.disableUser(u_details, other_details, response, request, mDb);
+	}else{
+		response.status(400).json({ "code" : "auth/not-authorized",
+			"message" : "You cannot disable an administrators"
+		});
+		response.end();
+	}
 });
 
 app.post('/auth/disableUser', isAdminOrBusiness, json_parser, function(request, response){
@@ -494,7 +614,7 @@ app.post('/auth/disableUser', isAdminOrBusiness, json_parser, function(request, 
 	if(!isNullOrUndefinedOrEmpty(_details["photoURL"])){
 		u_details["photoURL"] = _details["photoURL"];
 	}else{
-		u_details["photoURL"] = "https://firebasestorage.googleapis.com/v0/b/payahead-80360.appspot.com/o/index.png?alt=media&token=66c38ec1-6bb7-4aa6-ad09-8b394acd390f";
+		u_details["photoURL"] = defaultPhotoURL;
 	}
 	
 	
@@ -505,15 +625,6 @@ app.post('/auth/disableUser', isAdminOrBusiness, json_parser, function(request, 
 	});
 
 	other_details["uid"] = _details["uid"];
-
-	if(!isNullOrUndefinedOrEmpty(_details["bvn"])){
-		other_details["bvn"] = _details["bvn"];
-	}else{
-		response.status(400).json({ "code" : "auth/bvn",
-			"message" : "BVN is not attached or is invalid. bvn cannot be null, empty or undefined"
-		});
-		response.end();
-	}
 
 	if(!isNullOrUndefinedOrEmpty(_details["industry"])){
 		other_details["industry"] = _details["industry"];
@@ -1672,7 +1783,7 @@ app.post('/admin/register_business', isAdmin, json_parser, function(request, res
 	b_details["email"] = _details["email"];
 	b_details["password"] = pass_key;
 	b_details["phoneNumber"] = _details["phoneNumber"];
-	b_details["photoURL"] = "https://firebasestorage.googleapis.com/v0/b/payahead-80360.appspot.com/o/index.png?alt=media&token=66c38ec1-6bb7-4aa6-ad09-8b394acd390f";
+	b_details["photoURL"] = defaultPhotoURL;
 	
 	var other_details = {};
 	other_details["addedBy"] = request.uid;
@@ -1749,87 +1860,154 @@ app.post('/admin/auth/updateOrCreateUser', isAdminOrBusiness, json_parser, funct
 	var _details = request.body;
 	var pass_key = randStr.generate(8);
 	var new_data = request.body["newdata"];
-	var isUpdate = false;
-	if(request.email == newdata["email"]){
-		response.status(400).json({ "code" : "auth/failed-to-createOrUpdate",
-			"message" : "You cannot perform an account creation or update through this means"
-		});
-		response.end();
-	}
-	if(_details["email"] == new_data["email"]){
-		isUpdate = true;
+	new_data["password"] = pass_key;
+
+	if(!isNullOrUndefinedOrEmpty(new_data)){
 		Object.keys(new_data).forEach(function(key) {
 			_details[key] = new_data[key];
 		});
 		_details["newdata"] = null;
-	}else{
-		isUpdate = false;
-		Object.keys(new_data).forEach(function(key) {
-			if(!isNullOrUndefinedOrEmpty(new_data[key])){
-				_details[key] = new_data[key];
-			}
-		});
-		_details["newdata"] = null;
-		if(!_details["email"].endsWith(request.email.split('@')[1])){
-			if(request.admin || request.user){
-			}else{
-				//Can only create user with the same organization email
-				response.status(400).json({ "code" : "auth/invalid-email-host",
-					"message" : "Can only create/update user with the same organization email"
+
+	_auth.getUserByEmail(_details['email'])
+	    .then(function(userRecord) {
+	    	//Update user
+	    	if(request.email == _details["email"]){
+				response.status(400).json({ "code" : "auth/failed-to-createOrUpdate",
+					"message" : "You cannot perform an account creation or update through this means"
 				});
 				response.end();
 			}
-		}
-	}
 
-	var u_details = {};
-	u_details["emailVerified"] = _details["emailVerified"];
-	u_details["disabled"] = _details["disabled"];
-	u_details["displayName"] = _details["displayName"];
-	u_details["email"] = _details["email"];
-	u_details["password"] = pass_key;
-	u_details["phoneNumber"] = _details["phoneNumber"];
-	if(!isNullOrUndefinedOrEmpty(_details["photoURL"])){
-		u_details["photoURL"] = _details["photoURL"];
+			var u_details = {};
+			u_details["emailVerified"] = _details["emailVerified"];
+			u_details["disabled"] = _details["disabled"];
+			u_details["displayName"] = _details["displayName"];
+			u_details["email"] = _details["email"];
+			u_details["password"] = pass_key;
+			u_details["phoneNumber"] = _details["phoneNumber"];
+			if(!isNullOrUndefinedOrEmpty(_details["photoURL"])){
+				u_details["photoURL"] = _details["photoURL"];
+			}else{
+				u_details["photoURL"] = defaultPhotoURL;
+			}
+			var other_details = {};
+			Object.keys(_details).forEach(function(key) {
+				if(!(key == "photoURL" || key == "phoneNumber" || key == "password" || key == "email" || key == "displayName" || key == "disabled" || key == "emailVerified"))
+				other_details[key] = _details[key];
+			});
+
+			other_details["uid"] = _details["uid"];
+
+			if(!isNullOrUndefinedOrEmpty(_details["industry"])){
+				other_details["industry"] = _details["industry"];
+			}else{
+				response.status(400).json({ "code" : "auth/industry",
+					"message" : "Industry is not attached or is invalid. industry cannot be null, empty or undefined"
+				});
+				response.end();
+			}
+			mAuth.updateUser(u_details, other_details, response, request, mDb);
+	    })
+	    .catch(function(error) {
+	    	
+	    	_auth.getUserByPhoneNumber(_details['phoneNumber'])
+			    .then(function(userRecord) {
+			    	//Update user
+			    	if(request.email == _details["email"]){
+						response.status(400).json({ "code" : "auth/failed-to-createOrUpdate",
+							"message" : "You cannot perform an account creation or update through this means"
+						});
+						response.end();
+					}
+
+					var u_details = {};
+					u_details["emailVerified"] = _details["emailVerified"];
+					u_details["disabled"] = _details["disabled"];
+					u_details["displayName"] = _details["displayName"];
+					u_details["email"] = _details["email"];
+					u_details["password"] = pass_key;
+					u_details["phoneNumber"] = _details["phoneNumber"];
+					if(!isNullOrUndefinedOrEmpty(_details["photoURL"])){
+						u_details["photoURL"] = _details["photoURL"];
+					}else{
+						u_details["photoURL"] = defaultPhotoURL;
+					}
+					
+					
+					var other_details = {};
+					Object.keys(_details).forEach(function(key) {
+						if(!(key == "photoURL" || key == "phoneNumber" || key == "password" || key == "email" || key == "displayName" || key == "disabled" || key == "emailVerified"))
+						other_details[key] = _details[key];
+					});
+
+					other_details["uid"] = _details["uid"];
+
+					if(!isNullOrUndefinedOrEmpty(_details["industry"])){
+						other_details["industry"] = _details["industry"];
+					}else{
+						response.status(400).json({ "code" : "auth/industry",
+							"message" : "Industry is not attached or is invalid. industry cannot be null, empty or undefined"
+						});
+						response.end();
+					}
+					mAuth.updateUser(u_details, other_details, response, request, mDb);
+
+			    })
+			    .catch(function(error) {
+			    	//Create new user
+					if(!_details["email"].endsWith(request.email.split('@')[1])){
+						if(request.business || request.staff){
+							//Can only create user with the same organization email
+							response.status(400).json({ "code" : "auth/invalid-email-host",
+								"message" : "Can only create/update user from the same organization"
+							});
+							response.end();
+						}
+					}
+
+					var u_details = {};
+					u_details["emailVerified"] = _details["emailVerified"];
+					u_details["disabled"] = _details["disabled"];
+					u_details["displayName"] = _details["displayName"];
+					u_details["email"] = _details["email"];
+					u_details["password"] = pass_key;
+					u_details["phoneNumber"] = _details["phoneNumber"];
+					if(!isNullOrUndefinedOrEmpty(_details["photoURL"])){
+						u_details["photoURL"] = _details["photoURL"];
+					}else{
+						u_details["photoURL"] = defaultPhotoURL;
+					}
+					
+					
+					var other_details = {};
+					Object.keys(_details).forEach(function(key) {
+						if(!(key == "photoURL" || key == "phoneNumber" || key == "password" || key == "email" || key == "displayName" || key == "disabled" || key == "emailVerified"))
+						other_details[key] = _details[key];
+					});
+
+					other_details["uid"] = _details["uid"];
+
+					if(!isNullOrUndefinedOrEmpty(_details["industry"])){
+						other_details["industry"] = _details["industry"];
+					}else{
+						response.status(400).json({ "code" : "auth/industry",
+							"message" : "Industry is not attached or is invalid. industry cannot be null, empty or undefined"
+						});
+						response.end();
+					}
+					mAuth.createUser(u_details, other_details, response, request, mDb);
+			  	});
+
+	  	});
 	}else{
-		u_details["photoURL"] = "https://firebasestorage.googleapis.com/v0/b/payahead-80360.appspot.com/o/index.png?alt=media&token=66c38ec1-6bb7-4aa6-ad09-8b394acd390f";
-	}
-	
-	
-	var other_details = {};
-	Object.keys(_details).forEach(function(key) {
-		if(!(key == "photoURL" || key == "phoneNumber" || key == "password" || key == "email" || key == "displayName" || key == "disabled" || key == "emailVerified"))
-		other_details[key] = _details[key];
-	});
-
-	other_details["uid"] = _details["uid"];
-
-	if(!isNullOrUndefinedOrEmpty(_details["bvn"])){
-		other_details["bvn"] = _details["bvn"];
-	}else{
-		response.status(400).json({ "code" : "auth/bvn",
-			"message" : "BVN is not attached or is invalid. bvn cannot be null, empty or undefined"
-		});
+		response.status(400).json({ "code" : "auth/no-new-data",
+									"message" : "No new information found"
+								});
 		response.end();
-	}
-
-	if(!isNullOrUndefinedOrEmpty(_details["industry"])){
-		other_details["industry"] = _details["industry"];
-	}else{
-		response.status(400).json({ "code" : "auth/industry",
-			"message" : "Industry is not attached or is invalid. industry cannot be null, empty or undefined"
-		});
-		response.end();
-	}
-
-	if(isUpdate){
-		mAuth.updateUser(u_details, other_details, response, request, mDb);
-	}else{
-		mAuth.createUser(u_details, other_details, response, request, mDb);
-	}
+	}	
 });
 
-app.post('/admin/auth/update_profile', isAdmin, json_parser, function(request, response){
+app.post('/admin/auth/update_profile', verifyToken, json_parser, function(request, response){
 	var _details = request.body;
 	var pass_key = randStr.generate(8);
 	var new_data = request.body["newdata"];
@@ -1850,7 +2028,7 @@ app.post('/admin/auth/update_profile', isAdmin, json_parser, function(request, r
 	if(!isNullOrUndefinedOrEmpty(_details["photoURL"])){
 		u_details["photoURL"] = _details["photoURL"];
 	}else{
-		u_details["photoURL"] = "https://firebasestorage.googleapis.com/v0/b/payahead-80360.appspot.com/o/index.png?alt=media&token=66c38ec1-6bb7-4aa6-ad09-8b394acd390f";
+		u_details["photoURL"] = defaultPhotoURL;
 	}
 	
 	var other_details = {};
@@ -1860,15 +2038,6 @@ app.post('/admin/auth/update_profile', isAdmin, json_parser, function(request, r
 	});
 
 	other_details["uid"] = _details["uid"];
-
-	if(!isNullOrUndefinedOrEmpty(_details["bvn"])){
-		other_details["bvn"] = _details["bvn"];
-	}else{
-		response.status(400).json({ "code" : "auth/bvn",
-			"message" : "BVN is not attached or is invalid. bvn cannot be null, empty or undefined"
-		});
-		response.end();
-	}
 
 	if(!isNullOrUndefinedOrEmpty(_details["industry"])){
 		other_details["industry"] = _details["industry"];
@@ -1901,7 +2070,7 @@ app.post('/admin/auth/disableUser', isAdminOrBusiness, json_parser, function(req
 	if(!isNullOrUndefinedOrEmpty(_details["photoURL"])){
 		u_details["photoURL"] = _details["photoURL"];
 	}else{
-		u_details["photoURL"] = "https://firebasestorage.googleapis.com/v0/b/payahead-80360.appspot.com/o/index.png?alt=media&token=66c38ec1-6bb7-4aa6-ad09-8b394acd390f";
+		u_details["photoURL"] = defaultPhotoURL;
 	}
 	
 	var other_details = {};
@@ -1912,15 +2081,6 @@ app.post('/admin/auth/disableUser', isAdminOrBusiness, json_parser, function(req
 
 	other_details["uid"] = _details["uid"];
 
-	if(!isNullOrUndefinedOrEmpty(_details["bvn"])){
-		other_details["bvn"] = _details["bvn"];
-	}else{
-		response.status(400).json({ "code" : "auth/bvn",
-			"message" : "BVN is not attached or is invalid. bvn cannot be null, empty or undefined"
-		});
-		response.end();
-	}
-
 	if(!isNullOrUndefinedOrEmpty(_details["industry"])){
 		other_details["industry"] = _details["industry"];
 	}else{
@@ -1930,7 +2090,27 @@ app.post('/admin/auth/disableUser', isAdminOrBusiness, json_parser, function(req
 		response.end();
 	}
 
-	mAuth.disableUser(u_details, other_details, response, request, mDb);
+	if(!other_details["isAdmin"]){
+		mAuth.disableUser(u_details, other_details, response, request, mDb);
+	}else{
+		response.status(400).json({ "code" : "auth/not-authorized",
+			"message" : "You cannot disable an administrators"
+		});
+		response.end();
+	}
+});
+
+app.post('/admin/auth/deleteUser', isAdmin, json_parser, function(request, response){
+	var _details = request.body;
+	if(isNullOrUndefinedOrEmpty(_details["uid"])){
+		var error = {
+    		"code": "db/bad-uid",
+    		"message": "UserID is not attached or is invalid. uid cannot be empty, null or undefined"
+		}
+		response.status(400).json(error);
+	}else{
+		mAuth.deleteUser(_details, response, request, mDb);
+	}
 });
 
 /*app.post('/admin/reset_password', json_parser, isAdminOrBusiness, function(request, response){
@@ -1968,6 +2148,23 @@ app.post('/admin/chat/save_conversation', verifyToken, json_parser, function(req
 
 app.get('/admin/get_credentials', verifyToken, function(request, response){
 	response.status(200).json({ "preset" : config, "refEndpoint" : "users/"+request.uid });
+});
+
+
+app.post('/test', json_parser, function(request, response){
+	var _details = request.body;
+	var pass_key = randStr.generate(8);
+	var new_data = request.body["newdata"];
+
+	Object.keys(new_data).forEach(function(key) {
+		_details[key] = new_data[key];
+	});
+	_details["newdata"] = null;
+
+	response.status(200).json(_details);
+
+	//var administrators = ['obagbemisoye', 'adewusijohnson'];
+	//response.status(200).send(`${ request.params["name"].toLowerCase().split(" ").join("").indexOf(administrators[1]) }`);
 });
 
 /*

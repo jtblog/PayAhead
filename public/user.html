@@ -86,20 +86,22 @@
                     class="form-group" style="margin-top: 0px;"><select class="form-control" id="industry_input" style="padding: 0px;"><optgroup label="Industry" id="industry_group"></optgroup></select></div>
             <div class="form-group" style="margin-bottom: 0px;"><input class="form-control" type="password" name="password" disabled="" required="" placeholder="password" id="password_input" style="margin-bottom: 0px;"><span id="password_span" style="margin-left: 2.5%;color: red;font-size: smaller;height: 15px;"></span></div>
             <div
-                class="form-group" style="margin-top: 0px;"><input class="form-control" type="text" name="bvn" placeholder="BVN" autocomplete="on" id="bvn_input"></div>
-        <div class="form-group"><button class="btn btn-primary btn-sm" type="submit" id="update_btn" style="width: 95%;font-size: 13px;">Update</button><button class="btn btn-primary btn-sm" type="button" id="signout_btn" style="margin-top: 15px;width: 95%;font-size: 13px;">Sign Out</button></div>
+                class="form-group" style="margin-top: 0px;"><input class="form-control" type="text" name="bvn" placeholder="BVN" autocomplete="on" id="bvn_input" style="margin: 0 2.5%;"></div>
+        <div class="form-group" style="margin-bottom: 0px;"><span id="error_span" style="margin-left: 2.5%;color: red;font-size: smaller;height: 15px;"></span></div>
+        <div class="form-group" style="margin: 0 2.5%;"><button class="btn btn-primary btn-sm" type="submit" id="update_btn" style="width: 95%;font-size: 13px;">Update</button><button class="btn btn-primary btn-sm" type="button" id="signout_btn" style="margin-top: 15px;width: 95%;font-size: 13px;">Sign Out</button></div>
         <input
             class="invisible" type="file" accept=".jpg, .jpeg, .png" id="pic_input"></form>
     </div>
     </div>
     <div class="tab-pane" role="tabpanel" id="tab-2" style="margin-bottom: 50px;">
         <div class="d-xl-flex align-items-stretch align-items-xl-center" style="padding: 0px;"><button class="btn btn-primary" type="button" id="save_pays_btn" style="font-size: 13px;padding-top: 0px;padding-bottom: 0px;padding-right: 3px;padding-left: 3px;margin: 0px;">Save</button></div>
-        <div class="modal" role="dialog" tabindex="-1" id="save_pays_modal">
+        <div class="modal" role="dialog" tabindex="-1" id="save_pays_modal"
+            style="margin: 0 auto;">
             <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h6 class="modal-title"></h6><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>
-                    <div class="modal-body">
+                    <div class="modal-body" style="-ms-overflow-style: none;scrollbar-width: none;overflow-y: scroll;overflow: -moz-scrollbars-none;max-height: 550px;margin-bottom: 50px;height: auto;-webkit-overflow-scrolling: touch;">
                         <div>
                             <div id="example"></div>
                             <p class="text-center" style="margin: 5px;font-size: 13px;">Start Date</p>
@@ -141,13 +143,15 @@
         <div class="card border-white" id="transactions_card">
             <div class="card-body text-left invisible" id="payment_id_card-body" style="padding: 0px;margin-top: 10px;padding-left: 3px;">
                 <h6 class="text-muted card-subtitle mb-2" id="payment_id_idh6" style="font-size: 12px;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Payment ID:&nbsp;</h6>
+                <h6 class="text-muted card-subtitle mb-2" id="payment_id_refh6" style="font-size: 12px;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Reference:&nbsp;</h6>
                 <h6 class="text-muted card-subtitle mb-2" id="payment_id_toh6" style="font-size: 12px;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Payed to:&nbsp;</h6>
-                <h6 class="text-muted card-subtitle mb-2" id="payment_id_byh6" style="font-size: 12px;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Payed by:&nbsp;</h6>
+                <h6 class="text-muted card-subtitle mb-2" id="payment_id_amounth6" style="font-size: 12px;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Amount paid:&nbsp;</h6>
                 <h6 class="text-muted card-subtitle mb-2" id="payment_id_timeh6" style="font-size: 12px;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Time of pay:&nbsp;</h6>
                 <div><a class="btn btn-primary btn-block" data-toggle="collapse" aria-expanded="false" aria-controls="collapse-1" role="button" href="#collapse-1" id="payment_id_btn" style="width: 100%;padding: 0px;height: 3px;margin: 0px;font-size: 11px;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">...</a>
                     <div
                         class="collapse" id="collapse-1">
-                        <div><a href="#" id="payment_id_rrfhref" style="font-size: 13px;margin: 0px;">Request refund</a></div><label id="payment_id_vfrfdlbl" style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;margin-bottom: 0px;">Verified on:&nbsp;<br></label></div>
+                        <div><a href="#" id="payment_id_rrfhref" style="font-size: 13px;margin: 0px;">Request refund</a></div>
+                        <h6 class="text-muted mb-2" id="payment_id_byh6" style="font-size: 12px;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Payed by:&nbsp;</h6><label id="payment_id_vfrfdlbl" style="font-size: 12px;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Verified on:&nbsp;<br></label></div>
             </div>
         </div>
     </div>
@@ -155,15 +159,15 @@
     <div class="tab-pane" role="tabpanel" id="tab-4" style="margin-bottom: 50px;">
         <div class="d-xl-flex align-items-stretch align-items-xl-center" style="padding: 0px;"><button class="btn btn-primary visible" type="button" disabled="disabled" id="users_save_btn" style="font-size: 13px;padding-top: 0px;padding-bottom: 0px;padding-right: 3px;padding-left: 3px;margin: 0px;">Save</button></div>
         <div class="modal fade"
-            role="dialog" tabindex="-1" id="img_modal" style="max-width: 360px;">
+            role="dialog" tabindex="-1" id="img_modal" style="max-width: 360px;margin: 0 auto;">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header d-flex align-items-stretch" style="padding: 0px;display: -ms-flexbox;display: flex;-ms-flex-wrap: wrap;flex-wrap: wrap;"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>
-                    <div class="modal-body d-flex justify-content-center align-items-center" style="padding: 0px;"><img id="u_img" style="width: 320px;height: 320px;margin: 0 auto;"></div>
+                    <div class="modal-body d-flex justify-content-center align-items-center" style="padding: 0px;"><img id="u_img" style="width: 360px;height: 360px;margin: 0 auto;"></div>
                 </div>
             </div>
         </div>
-        <div class="modal fade" role="dialog" tabindex="-1" id="chat_modal" style="max-width: 360px;">
+        <div class="modal fade" role="dialog" tabindex="-1" id="chat_modal" style="-ms-overflow-style: none;scrollbar-width: none;overflow-y: scroll;overflow: -moz-scrollbars-none;max-height: 550px;margin: 0 auto;height: auto;-webkit-overflow-scrolling: touch;">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header d-flex align-items-stretch" id="chat_header" style="padding: 0px;display: -ms-flexbox;display: flex;-ms-flex-wrap: wrap;flex-wrap: wrap;"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>
@@ -176,9 +180,16 @@
                                 </div>
                                 <div class="d-flex float-left justify-content-center align-items-center"><img class="rounded-circle" src="assets/img/index.png" width="50px" height="50px" id="chatee_img"></div>
                             </div>
-                            <div class="card-body float-left" id="chat_dbclicked" style="padding: 0px;width: 100%;"><i class="fa fa-reply"></i><i class="fa fa-star" style="margin: 0 15px;"></i><i class="fa fa-remove" style="margin: 0 15px;"></i><i class="fa fa-copy" style="margin: 0 15px;"></i><i class="fa fa-share" style="padding: 0 15px;"></i></div>
+                            <div class="card-body float-left invisible" id="chat_longclicked" style="padding: 0px;width: 100%;"><button class="btn btn-primary border-white invisible" type="button" style="margin: 0px;padding: 0px;background-color: rgb(255,255,255);color: rgb(0,0,0);font-size: 14px;"><i class="fa fa-reply" style="margin: 0 15px;"></i></button>
+                                <button
+                                    class="btn btn-primary border-white invisible" type="button" style="margin: 0px;padding: 0px;background-color: rgb(255,255,255);color: rgb(0,0,0);font-size: 14px;"><i class="fa fa-star" style="margin: 0 20px;"></i></button><button class="btn btn-primary border-white invisible" type="button" style="margin: 0px;padding: 0px;background-color: rgb(255,255,255);color: rgb(0,0,0);font-size: 14px;"><i class="fa fa-exclamation-circle" style="margin: 0 20px;"></i></button>
+                                    <button
+                                        class="btn btn-primary border-white" type="button" id="del_msgs" style="margin: 0px;padding: 0px;background-color: rgb(255,255,255);color: rgb(0,0,0);font-size: 14px;"><i class="fas fa-trash" style="margin: 0 20px;"></i></button><button class="btn btn-primary border-white invisible" type="button" style="padding: 0px;margin: 0px;background-color: rgb(255,255,255);color: rgb(0,0,0);font-size: 14px;"><i class="fa fa-copy" style="margin: 0 20px;"></i></button>
+                                        <button
+                                            class="btn btn-primary border-white invisible" type="button" style="margin: 0 1px;padding: 0px;background-color: rgb(255,255,255);color: rgb(0,0,0);"><i class="fa fa-share" style="padding: 0 15px;font-size: 14px;"></i></button>
+                            </div>
                         </div>
-                        <div class="container" id="chat_body" style="-ms-overflow-style: none;scrollbar-width: none;overflow-y: scroll;overflow: -moz-scrollbars-none;max-width: 360px;max-height: 550px;margin-bottom: 50px;height: auto;"><bot-ui></bot-ui></div>
+                        <div class="container" id="chat_body" style="-ms-overflow-style: none;scrollbar-width: none;overflow-y: scroll;overflow: -moz-scrollbars-none;max-width: 360px;max-height: 550px;margin-bottom: 50px;height: auto;-webkit-overflow-scrolling: touch;"><bot-ui></bot-ui></div>
                     </div>
                     <div class="modal-footer" style="height: 60px;"><label id="chat_error_lbl" style="margin-left: 2.5%;color: red;font-size: smaller;"></label></div>
                 </div>
@@ -222,12 +233,13 @@
     </div>
     <div class="tab-pane" role="tabpanel" id="tab-3" style="margin-bottom: 50px;">
         <div class="d-xl-flex align-items-stretch align-items-xl-center" style="padding: 0px;"><button class="btn btn-primary" type="button" id="save_act_btn" style="font-size: 13px;padding-top: 0px;padding-bottom: 0px;padding-right: 3px;padding-left: 3px;margin: 0px;">Save</button></div>
-        <div class="modal" role="dialog" tabindex="-1" id="save_act_modal">
+        <div class="modal" role="dialog" tabindex="-1" id="save_act_modal"
+            style="margin: 0 auto;">
             <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h6 class="modal-title"></h6><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>
-                    <div class="modal-body">
+                    <div class="modal-body" style="-ms-overflow-style: none;scrollbar-width: none;overflow-y: scroll;overflow: -moz-scrollbars-none;max-height: 550px;margin-bottom: 50px;height: auto;-webkit-overflow-scrolling: touch;">
                         <div>
                             <div id="message"></div>
                             <p class="text-center" style="margin: 5px;font-size: 13px;">Start Date (Activities after) -- Min</p>
@@ -373,6 +385,7 @@
     <script src="assets/js/firebase-app.js"></script>
     <script src="assets/js/firebase-database.js"></script>
     <script src="assets/js/firebase-storage.js"></script>
+    <script src="assets/js/long-press-event.min.js"></script>
     <script src="assets/js/app.js"></script>
 </body>
 

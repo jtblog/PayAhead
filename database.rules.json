@@ -18,7 +18,7 @@
         "transactions":{
           "$epoch": {
             ".read": "true",
-            ".write": "$uid === newData.child('payerId').val() || $uid === newData.child('payeeId').val()"
+            ".write": "$uid === newData.child('payerId').val() || $uid === newData.child('payeeId').val() || $uid === newData.child('verifierId').val() || $uid === newData.child('refunderId').val()"
           }
         },
         "conversations":{
@@ -57,7 +57,7 @@
       "$uid": {
         "$epoch" : {
           ".read": "true",
-          ".write": "$uid === newData.child('payerId').val() || $uid === newData.child('payerId').val()"
+          ".write": "$uid === newData.child('payerId').val() || $uid === newData.child('payerId').val() || $uid === newData.child('verifierId').val() || $uid === newData.child('refunderId').val()"
         }
       }
     },

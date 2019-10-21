@@ -16,15 +16,15 @@
  * limitations under the License
  */
 'use strict';
-/*importScripts('/workbox/workbox-v4.3.1/workbox-sw.js');
+importScripts('/workbox/workbox-v4.3.1/workbox-sw.js');
 workbox.setConfig({
   modulePathPrefix: '/workbox/workbox-v4.3.1/'
 });
 
 workbox.routing.registerRoute(
-  new RegExp('^http://localhost:5000/*'),
+  new RegExp('^https://a-payahead.web.app/*'),
   new workbox.strategies.CacheFirst()
-);*/
+);
 
 // CODELAB: Update cache names any time any of the cached files change.
 const CACHE_NAME = 'static-cache-v1';

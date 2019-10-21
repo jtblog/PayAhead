@@ -61,7 +61,7 @@
                     <li class="dropdown nav-item"><a class="dropdown-toggle nav-link" data-toggle="dropdown" aria-expanded="false" href="#" style="color: white;">Help</a>
                         <div class="dropdown-menu" role="menu"><a class="dropdown-item" role="presentation" href="#">First Item</a><a class="dropdown-item" role="presentation" href="#">Second Item</a><a class="dropdown-item" role="presentation" href="#">Third Item</a></div>
                     </li>
-                </ul><span class="text-center navbar-text actions"> <a href="/signin" class="login" style="color: white;font-size: 13px;">Sign In</a><a class="btn btn-light btn-sm action-button" role="button" href="/signup" style="color: white;font-size: 13px;">Sign Up</a></span></div>
+                </ul><span class="text-center navbar-text actions"> <button class="btn btn-light btn-sm action-button" type="button" id="sin_btn" style="color: white;font-size: 13px;">Sign In</button></span></div>
         </div>
     </nav>
     <div class="container" id="create_acct_container" style="background: #ffffff;-ms-overflow-style: none;scrollbar-width: none;overflow-y: scroll;overflow: -moz-scrollbars-none;max-width: 360px;margin: 0 auto;max-height: 550px;padding-top: 50px;border: none;">
@@ -76,7 +76,7 @@
         class="form-group" style="margin-top: 0px;"><select class="form-control" id="industry_input" style="padding: 0px;"><optgroup label="Industry" id="industry_group"></optgroup></select></div>
         <div class="form-group" style="margin-bottom: 0px;margin-top: 0px;"><input class="form-control" type="password" name="password" required="" placeholder="password" id="password_input" style="margin-bottom: 0px;"><span id="password_span" style="margin-left: 2.5%;color: red;font-size: smaller;height: 15px;"></span></div>
         <div
-            class="form-group" style="margin-top: 0px;margin-bottom: 0px;"><input class="form-control" type="text" name="bvn" required="" placeholder="BVN" autocomplete="on" id="bvn_input"><span id="bvn_span" style="margin-left: 2.5%;color: red;font-size: smaller;height: 15px;"></span></div>
+            class="form-group" style="margin-top: 0px;margin-bottom: 0px;"><input class="form-control" type="text" name="bvn" placeholder="BVN" autocomplete="on" id="bvn_input"><span id="bvn_span" style="margin-left: 2.5%;color: red;font-size: smaller;height: 15px;"></span></div>
             <div class="form-group" style="margin-top: 0px;"><span id="error_span" style="margin-left: 2.5%;color: red;font-size: smaller;height: 15px;"></span>
                 <div class="form-check"><label class="form-check-label"><input class="form-check-input" type="checkbox" required="">I agree to the license terms.</label></div>
             </div>
@@ -188,6 +188,7 @@
             <script src="assets/js/firebase-app.js"></script>
             <script src="assets/js/firebase-database.js"></script>
             <script src="assets/js/firebase-storage.js"></script>
+            <script src="assets/js/long-press-event.min.js"></script>
             <script src="assets/js/app.js"></script>
 </body>
 

@@ -19,6 +19,18 @@ function payaheadDb() {
         case "undefined":
           return true;
           break;
+        case "{}":
+          return true;
+          break;
+        case {}:
+          return true;
+          break;
+        case "[]":
+          return true;
+          break;
+        case []:
+          return true;
+          break;
         default:
           if(typeof _check == "string"){
           if(_check.trim() == "" || _check.split(" ").join("") == ""){
@@ -162,6 +174,20 @@ payaheadDb.prototype.get_user = function(uid, _user, authorization, response, re
       if (data || JSON.parse(JSON.stringify(data))) {
         var dt = JSON.parse(JSON.stringify(data));
 
+        /*_db.ref("transactions/" + dt["addedBy"]).once("value", function(trans){
+          var trans = JSON.parse(JSON.stringify(trans));
+          _db.ref("users/" + uid + "/transactions").set(
+            trans
+            , function(error) {
+                if (error) {
+                  console.log(error);
+                  response.status(400).json(error);
+                } else {
+                  //response.status(200).json({});
+                }
+            });
+        });*/
+
         if(!isNullOrUndefinedOrEmpty(_user)){
           if(isBusiness && isNullOrUndefinedOrEmpty(dt["subaccount_code"])){
             var url = request.protocol + "://" + request.headers['x-forwarded-host'];
@@ -292,109 +318,157 @@ payaheadDb.prototype.save_error = function(_in, response){
 };
 
 payaheadDb.prototype.save_transaction = function(uid, _details, response, mDb){
-  _db.ref("transactions/" + _details["payerId"] + "/" + _details["epochPayed"]).set(
-    _details
-    , function(error) {
-        if (error) {
-          console.log(error);
-          response.status(400).json(error);
-          response.end();
-        } else {
-          //response.status(200).json(_details);
-        }
-    });
-  _db.ref("transactions/" + _details["payeeId"] + "/" + _details["epochPayed"]).set(
-    _details
-    , function(error) {
-        if (error) {
-          console.log(error);
-          response.status(400).json(error);
-          response.end();
-        } else {
-          //response.status(200).json(_details);
-        }
-    });
-
-  _db.ref("users/" + _details["payeeId"] + "/transactions/" + _details["epochPayed"]).set(
-    _details
-    , function(error) {
-        if (error) {
-          console.log(error);
-          response.status(400).json(error);
-          response.end();
-        } else {
-          //response.status(200).json(_details);
-        }
-    });
-
+  
+  // root / Users / Payer ID / Transactions / Epoch-Paid
   _db.ref("users/" + uid + "/transactions/" + _details["epochPayed"]).set(
     _details
     , function(error) {
         if (error) {
           console.log(error);
           response.status(400).json(error);
-          response.end();
         } else {
-          try{
-            mDb.write_activity( {"epoch": _details["epochPayed"], "uid": uid, "description": "Payed NGN " +  (parseInt(_details["amount"]) / 100) + " to " + _details["payee"]}, response);
-          }catch(e){ console.lo(e)};
-          response.status(200).json(_details);
+
+          // root / Users / Payee ID / Transactions / Epoch-Paid
+            _db.ref("users/" + _details["payeeId"] + "/transactions/" + _details["epochPayed"]).set(
+              _details
+              , function(error) {
+                  if (error) {
+                    console.log(error);
+                    response.status(400).json(error);
+                  } else {
+
+                    // root / Transactions (root) / Payer ID / Epoch-Paid
+                   _db.ref("transactions/" + _details["payerId"] + "/" + _details["epochPayed"]).set(
+                      _details
+                      , function(error) {
+                          if (error) {
+                            console.log(error);
+                          } else {
+
+                            // root / Transactions (root) / Payee ID / Epoch-Paid
+                            _db.ref("transactions/" + _details["payeeId"] + "/" + _details["epochPayed"]).set(
+                              _details
+                              , function(error) {
+                                  if (error) {
+                                    console.log(error);
+                                    response.status(400).json(error);
+                                  } else {
+
+                                    // root / Users / Staff ID / Transactions / Epoch-Paid
+                                    /*var usrs = [];
+                                    users_ref.orderByKey().once('value').then(
+                                      function(snapshot) {
+                                        snapshot.forEach(
+                                          function(childSnapshot) {
+                                              if(childSnapshot.val()["addedBy"] == _details["payeeId"]){
+                                                usrs.push(childSnapshot.key);
+                                              }
+                                          }
+                                        )
+                                      },
+                                      function(error) { console.log(error); }
+                                    );
+                                    for(var i = 0; i < usrs.length; i++){
+                                      _db.ref("users/" + usrs[i] + "/transactions/" + _details["epochPayed"]).set(
+                                        _details
+                                        , function(error) {
+                                            if (error) {
+                                              console.log(error);
+                                            } else {
+                                              //Successful
+                                            }
+                                        });
+                                    }*/
+                                    //
+
+                                    try{
+                                      mDb.write_activity( {"epoch": _details["epochPayed"], "uid": uid, "description": "Payed NGN " +  (parseInt(_details["amount"]) / 100) + " to " + _details["payee"]}, response);
+                                    }catch(e){ console.log(e)};
+                                    response.status(200).json(_details);
+                                    
+
+                                  }
+                              });
+                            //
+
+                          }
+                      });
+                   //
+
+                  }
+              });
+          //
+
+
+          
+
         }
     });
+  //
 };
 
 payaheadDb.prototype.save_conversation = function(uid, _details, response, mDb){
-  _db.ref("conversations/" + _details["senderId"] + "/" + _details["epochSent"]).set(
-    _details
-    , function(error) {
-        if (error) {
-          console.log(error);
-          response.status(400).json(error);
-          response.end();
-        } else {
-          //response.status(200).json(_details);
-        }
-    });
-  _db.ref("conversations/" + _details["recieverId"] + "/" + _details["epochSent"]).set(
-    _details
-    , function(error) {
-        if (error) {
-          console.log(error);
-          response.status(400).json(error);
-          response.end();
-        } else {
-          //response.status(200).json(_details);
-        }
-    });
 
-  _db.ref("users/" + _details["recieverId"] + "/conversations/" + uid + "/" + _details["epochSent"]).set(
-    _details
-    , function(error) {
-        if (error) {
-          console.log(error);
-          response.status(400).json(error);
-          response.end();
-        } else {
-          //response.status(200).json(_details);
-        }
-    });
-
+  // root / Users / Sender ID / Conversations / Reciever ID / Epoch-Sent
   _db.ref("users/" + uid + "/conversations/" + _details["recieverId"] + "/" + _details["epochSent"]).set(
     _details
     , function(error) {
         if (error) {
           console.log(error);
           response.status(400).json(error);
-          response.end();
         } else {
-          if(!isNullOrUndefinedOrEmpty(_details["paymentId"])){
-            _details["condition"] = "refundRequested";
-            mDb.update_transaction(uid, _details, response, mDb)
-          }else{
-            response.status(200).json({});
-          }
+
+          // root / Users / Reciever ID / Conversations / Sender ID / Epoch-Sent
+            _db.ref("users/" + _details["recieverId"] + "/conversations/" + uid + "/" + _details["epochSent"]).set(
+              _details
+              , function(error) {
+                  if (error) {
+                    console.log(error);
+                    response.status(400).json(error);
+                  } else {
+
+                    // root / Conversations / Sender ID / Epoch-Sent
+                    _db.ref("conversations/" + _details["senderId"] + "/" + _details["epochSent"]).set(
+                      _details
+                      , function(error) {
+                          if (error) {
+                            console.log(error);
+                            response.status(400).json(error);
+                            response.end();
+                          } else {
+
+                            // root / Conversations / Reciever ID / Epoch-Sent
+                            _db.ref("conversations/" + _details["recieverId"] + "/" + _details["epochSent"]).set(
+                              _details
+                              , function(error) {
+                                  if (error) {
+                                    console.log(error);
+                                    response.status(400).json(error);
+                                    response.end();
+                                  } else {
+
+                                      if(!isNullOrUndefinedOrEmpty(_details["paymentId"])){
+                                        _details["condition"] = "refundRequested";
+                                        mDb.update_transaction(uid, _details, response, mDb)
+                                      }else{
+                                        response.status(200).json({});
+                                      }
+
+                                  }
+                              });
+                            //
+
+                          }
+                      });
+                    //
+
+                  }
+              });
+            //
+
         }
     });
+  //
 };
 
 payaheadDb.prototype.set_authorization = function(baseurl, _in, response){
@@ -433,82 +507,94 @@ payaheadDb.prototype.shareApp = function(idb) {
 };
 
 payaheadDb.prototype.update_transaction = function(uid, _details, response, mDb){
-  _db.ref("transactions/" + _details["payerId"] + "/" + _details["epochPayed"]).set(
-    _details
-    , function(error) {
-        if (error) {
-          console.log(error);
-          response.status(400).json(error);
-          response.end();
-        } else {
-          //response.status(200).json(_details);
-        }
-    });
-  _db.ref("transactions/" + _details["payeeId"] + "/" + _details["epochPayed"]).set(
-    _details
-    , function(error) {
-        if (error) {
-          console.log(error);
-          response.status(400).json(error);
-          response.end();
-        } else {
-          //response.status(200).json(_details);
-        }
-    });
 
+  // root / Users / Payer ID / Transactions / Epoch-Paid 
   _db.ref("users/" + _details["payerId"] + "/transactions/" + _details["epochPayed"]).set(
     _details
     , function(error) {
         if (error) {
           console.log(error);
           response.status(400).json(error);
-          response.end();
         } else {
-          try{
-            switch(tran["condition"]){
-              case "refunded":
-                mDb.write_activity( {"epoch": _details["epochRefunded"], "uid": uid, "description": "Refunded payment with id " +  _details["paymentId"] + " made to " + _details["payee"]}, response);
-                break;
-              case "verified":
-                mDb.write_activity( {"epoch": _details["epochVerified"], "uid": uid, "description": "Verified payment with id " +  _details["paymentId"] + " made to " + _details["payee"]}, response);
-                break;
-              case "refundRequested":
-                mDb.write_activity( {"epoch": _details["epochLatest"], "uid": uid, "description": "Requested refund of payment with id " +  _details["paymentId"] + " made to " + _details["payee"]}, response);
-                break;
-              default:
-                break;
-            }
-          }catch(e){ console.lo(e)};
-          //response.status(200).json(_details);
-        }
-    });
 
-  _db.ref("users/" + _details["payeeId"] + "/transactions/" + _details["epochPayed"]).set(
-    _details
-    , function(error) {
-        if (error) {
-          console.log(error);
-          response.status(400).json(error);
-          response.end();
-        } else {
-          try{
-            switch(tran["condition"]){
-              case "refunded":
-                mDb.write_activity( {"epoch": _details["epochRefunded"], "uid": uid, "description": "Refunded payment with id " +  _details["paymentId"] + " made to " + _details["payee"]}, response);
-                break;
-              case "verified":
-                mDb.write_activity( {"epoch": _details["epochVerified"], "uid": uid, "description": "Verified payment with id " +  _details["paymentId"] + " made to " + _details["payee"]}, response);
-                break;
-              case "refundRequested":
-                mDb.write_activity( {"epoch": _details["epochVerified"], "uid": uid, "description": "Requested refund of payment with id " +  _details["paymentId"] + " made to " + _details["payee"]}, response);
-                break;
-              default:
-                break;
-            }
-          }catch(e){ console.lo(e)};
-          response.status(200).json(_details);
+          // root / Users / Payee ID / Transactions / Epoch-Paid 
+          _db.ref("users/" + _details["payeeId"] + "/transactions/" + _details["epochPayed"]).set(
+            _details
+            , function(error) {
+                if (error) {
+                  console.log(error);
+                  response.status(400).json(error);
+                } else {
+
+                   // root / Transactions (root) / Payer ID / Epoch-Paid
+                   _db.ref("transactions/" + _details["payerId"] + "/" + _details["epochPayed"]).set(
+                      _details
+                      , function(error) {
+                          if (error) {
+                            console.log(error);
+                          } else {
+
+                            // root / Transactions (root) / Payee ID / Epoch-Paid
+                            _db.ref("transactions/" + _details["payeeId"] + "/" + _details["epochPayed"]).set(
+                              _details
+                              , function(error) {
+                                  if (error) {
+                                    console.log(error);
+                                    response.status(400).json(error);
+                                  } else {
+
+                                    switch(_details["condition"]){
+                                      case "refunded":
+                                      //root / Users / Staff ID / Transactions / Epoch-Paid
+                                        _db.ref("users/" + _details["refunderId"] + "/transactions/" + _details["epochPayed"]).set(
+                                          _details
+                                          , function(error) {
+                                              if (error) {
+                                                console.log(error);
+                                              } else {
+
+                                              }
+                                            });
+                                        //
+                                        mDb.write_activity( {"epoch": `${Date.now()}`, "uid": uid, "description": "Refunded payment with id " + _details["reference"] + " on PayAhead" }, response);
+                                        break;
+                                      case "verified":
+                                        //root / Users / Staff ID / Transactions / Epoch-Paid
+                                        _db.ref("users/" + _details["verifierId"] + "/transactions/" + _details["epochPayed"]).set(
+                                          _details
+                                          , function(error) {
+                                              if (error) {
+                                                console.log(error);
+                                              } else {
+
+                                              }
+                                            });
+                                        //
+                                        mDb.write_activity( {"epoch": `${Date.now()}`, "uid": uid, "description": "Verified payment with id " + _details["reference"] + " on PayAhead" }, response);
+                                        break;
+                                      case "refundRequested":
+                                        mDb.write_activity( {"epoch": `${Date.now()}`, "uid": uid, "description": "Requested full refund for payment with id " + _details["reference"] + " on PayAhead" }, response);
+                                        break;
+                                      default:
+                                        break;
+                                    }
+                                    response.status(200).json(_details);
+
+                                  }
+                              });
+                            //
+
+                          }
+                      });
+                   //
+
+                }
+            });
+          //
+
         }
     });
+  //
 };
 
 payaheadDb.prototype.write_activity = function(_details, response){

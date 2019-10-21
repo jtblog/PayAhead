@@ -22,7 +22,7 @@
  
 
       <!-- Added link rel manifest -->
-      <!--<link rel="manifest" href="/manifest.json">-->
+      <link rel="manifest" href="/manifest.json">
 
       <!-- Description -->
       <meta name="description" content="Pay ahead with PayAhead">
@@ -39,14 +39,14 @@
 
       <script defer >
       // CODELAB: Register service worker.
-      /*if ('serviceWorker' in navigator) {
+      if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('/service-worker.js')
               .then((reg) => {
                 console.log('Service worker registered.', reg);
               });
         });
-      }*/
+      }
       </script>
 </head>
 
@@ -58,6 +58,7 @@
                 <ul class="nav navbar-nav mr-auto">
                     <li class="nav-item" role="presentation"><a class="nav-link active invisible" href="#" style="color: white;">Users</a></li>
                     <li class="nav-item" role="presentation"><a class="nav-link invisible" href="#" style="color: white;">Transactions</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" target="_blank"><button class="btn btn-primary border rounded-0 border-white invisible" type="button" id="audit">Audit</button></a></li>
                     <li class="dropdown nav-item"><a class="dropdown-toggle nav-link invisible" data-toggle="dropdown" aria-expanded="false" href="#" style="color: white;">Help</a>
                         <div class="dropdown-menu" role="menu"><a class="dropdown-item" role="presentation" href="#">First Item</a><a class="dropdown-item" role="presentation" href="#">Second Item</a><a class="dropdown-item" role="presentation" href="#">Third Item</a></div>
                     </li>
@@ -90,183 +91,249 @@
                                     class="form-group" style="margin-top: 0px;"><select class="form-control" id="industry_input" style="padding: 0px;"><optgroup label="Industry" id="industry_group"></optgroup></select></div>
                             <div class="form-group" style="margin-bottom: 0px;"><input class="form-control" type="password" name="password" disabled="" required="" placeholder="password" id="password_input" style="margin-bottom: 0px;"><span id="password_span" style="margin-left: 2.5%;color: red;font-size: smaller;height: 15px;"></span></div>
                             <div
-                                class="form-group" style="margin-top: 0px;"><input class="form-control" type="text" name="bvn" placeholder="BVN" autocomplete="on" id="bvn_input"></div>
-                        <div class="form-group"><button class="btn btn-primary btn-sm" type="submit" id="update_btn" style="width: 95%;font-size: 13px;">Update</button></div><input class="invisible" type="file" accept=".jpg, .jpeg, .png" id="pic_input"></form>
-                    </div>
-                </div>
-                <div class="tab-pane" role="tabpanel" id="tab-6">
-                    <div class="card border-white visible" id="reports_card">
-                        <div class="card-body text-left invisible" id="activity_id_card-body" style="padding: 0px;margin-top: 3px;padding-left: 3px;word-wrap: break-word;word-wrap: anywhere;">
-                            <div><a class="btn btn-primary btn-block btn-sm text-center bg-white border rounded d-xl-flex justify-content-xl-center align-items-xl-start" data-toggle="collapse" aria-expanded="false" aria-controls="collapse-1" role="button"
-                                    href="#collapse-1" id="activity_id_btn" style="width: 100%;padding: 0px;height: 20px;margin: 0px;font-size: 11px;color: rgb(0,0,0);-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Signed in to PayAhead</a>
-                                <div
-                                    class="collapse" id="collapse-1"><label id="activity_id_ephlbl" style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;margin-bottom: 0px;"><br></label></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="tab-pane" role="tabpanel" id="tab-7">
-                <form id="create_biz_form">
-                    <h2 class="text-center" style="font-size: 25px;padding: 0px;margin-top: 20px;margin-bottom: 0px;">Add business</h2>
-                    <div class="form-group"><input class="form-control" type="text" name="firstname" required="" placeholder="First Name" autocomplete="on" id="biz_fn_input"></div>
-                    <div class="form-group"><input class="form-control" type="text" name="lastname" required="" placeholder="Last Name" autocomplete="on" id="biz_ln_input"></div>
-                    <div class="form-group" style="margin-bottom: 0px;"><input class="form-control" type="text" required="" placeholder="Email address" autocomplete="on" inputmode="email" id="biz_email_input" style="margin-bottom: 0px;"><span id="biz_email_span" style="margin-left: 2.5%;color: red;font-size: smaller;"></span></div>
-                    <div
-                        class="form-group" style="margin-bottom: 0px;margin-top: 0px;"><input class="form-control" type="text" required="" placeholder="Organization Name" autocomplete="on" id="biz_name_input" style="margin-bottom: 0px;"><span id="biz_name_span" style="margin-left: 2.5%;color: red;font-size: smaller;"></span></div>
-            <div
-                class="form-group" style="margin-bottom: 0px;margin-top: 0px;"><input class="form-control" type="tel" required="" placeholder="Phone number" autocomplete="on" inputmode="tel" id="biz_pno_input" style="margin-bottom: 0px;"><span id="biz_pno_span" style="margin-left: 2.5%;color: red;font-size: smaller;"></span></div>
-        <div
-            class="form-group" style="margin-bottom: 0px;margin-top: 0px;"><input class="form-control" type="tel" required="" placeholder="Percentage Charge" autocomplete="on" inputmode="numeric" id="biz_pc_input" style="margin-bottom: 0px;"><span id="biz_pc_span" style="margin-left: 2.5%;color: red;font-size: smaller;"></span></div>
-    <div
-        class="form-group" style="margin-top: 0px;"><select class="form-control" id="biz_industry_input" style="padding: 0px;"><optgroup label="Industry" id="biz_industry_group"></optgroup></select></div>
-        <div class="form-group" style="margin-top: 0px;"><span id="biz_error_span" style="margin-left: 2.5%;color: red;font-size: smaller;height: 15px;"></span></div>
-        <div class="form-group"><button class="btn btn-primary btn-sm" type="submit" id="create_biz_btn" style="width: 95%;font-size: 13px;">Add</button></div>
-        </form>
-        </div>
-        </div>
-        </div>
-        </div>
-        <div class="col-sm-6 col-md-5 col-lg-4 item" style="background: #ffffff;max-width: 360px;max-height: 550px;border: none;margin-bottom: 70px;position: relative;">
-            <div>
-                <ul class="nav nav-tabs">
-                    <li class="nav-item"><a class="nav-link active" role="tab" data-toggle="tab" href="#tab-4" style="font-size: 14px;padding: 6px 6px;"><i class="fa fa-users"></i>&nbsp;Users</a></li>
-                    <li class="nav-item"><a class="nav-link" role="tab" data-toggle="tab" href="#tab-8" style="padding: 6px 6px;font-size: 14px;"><i class="fas fa-user-edit"></i>&nbsp;Create/Update</a></li>
-                </ul>
-                <div class="tab-content" style="background: #ffffff;-ms-overflow-style: none;scrollbar-width: none;overflow-y: scroll;overflow: -moz-scrollbars-none;max-width: 360px;max-height: 550px;border: none;margin-bottom: 30px;">
-                    <div class="tab-pane active" role="tabpanel" id="tab-4">
-                        <div class="d-xl-flex align-items-stretch align-items-xl-center" style="padding: 0px;"><button class="btn btn-primary visible" type="button" disabled="disabled" id="users_save_btn" style="font-size: 13px;padding-top: 0px;padding-bottom: 0px;padding-right: 3px;padding-left: 3px;margin: 0px;">Save</button></div>
+                                class="form-group" style="margin: 0 2.5%;"><input class="form-control" type="text" name="bvn" placeholder="BVN" autocomplete="on" id="bvn_input"><input class="form-control" type="text" name="lastname" required="" placeholder="Branch / Station" autocomplete="on" id="branch_input"></div>
                         <div
-                            class="modal fade" role="dialog" tabindex="-1" id="img_modal" style="max-width: 360px;">
-                            <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header d-flex align-items-stretch" style="padding: 0px;display: -ms-flexbox;display: flex;-ms-flex-wrap: wrap;flex-wrap: wrap;"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>
-                                    <div class="modal-body d-flex justify-content-center align-items-center" style="padding: 0px;"><img id="u_img" style="width: 320px;height: 320px;margin: 0 auto;"></div>
-                                </div>
-                            </div>
-                    </div>
-                    <div class="modal fade" role="dialog" tabindex="-1" id="chat_modal" style="max-width: 360px;">
-                        <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header d-flex align-items-stretch" id="chat_header" style="padding: 0px;display: -ms-flexbox;display: flex;-ms-flex-wrap: wrap;flex-wrap: wrap;"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>
-                                <div class="modal-body">
-                                    <div class="card">
-                                        <div class="card-body" id="chatee_profileUi" style="padding: 0px;width: 100%;">
-                                            <div class="float-right" style="overflow-x: hidden;position: absolute;margin-left: 50px;width: 80%;">
-                                                <h6 id="chatee_h6" style="overflow: hidden;text-overflow: ellipsis;white-space: nowrap;overflow: hidden;">displayName</h6>
-                                                <p id="chatee_p" style="margin: 0px;text-overflow: ellipsis;white-space: nowrap;overflow: hidden;">last login at&nbsp;</p>
-                                            </div>
-                                            <div class="d-flex float-left justify-content-center align-items-center"><img class="rounded-circle" src="assets/img/index.png" width="50px" height="50px" id="chatee_img"></div>
-                                        </div>
-                                        <div class="card-body float-left" id="chat_dbclicked" style="padding: 0px;width: 100%;"><i class="fa fa-reply"></i><i class="fa fa-star" style="margin: 0 15px;"></i><i class="fa fa-remove" style="margin: 0 15px;"></i><i class="fa fa-copy" style="margin: 0 15px;"></i><i class="fa fa-share" style="padding: 0 15px;"></i></div>
-                                    </div>
-                                    <div class="container" id="chat_body" style="-ms-overflow-style: none;scrollbar-width: none;overflow-y: scroll;overflow: -moz-scrollbars-none;max-width: 360px;max-height: 550px;margin-bottom: 50px;height: auto;"><bot-ui></bot-ui></div>
-                                </div>
-                                <div class="modal-footer" style="height: 60px;"><label id="chat_error_lbl" style="margin-left: 2.5%;color: red;font-size: smaller;"></label></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal" role="dialog" tabindex="-1" id="save_users_modal">
-                        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h6 class="modal-title"></h6><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>
-                                <div class="modal-body">
-                                    <div>
-                                        <div id="message"></div>
-                                        <p style="margin: 5px;font-size: 13px;">Start Date (Users created after) -- Min</p>
-                                        <div class="input-group" style="height: 35px;"><input class="form-control" type="text" id="start_date2" style="font-size: 13px;font-weight: bold;padding: 5px 0;border-radius: 100px;margin: 0 auto 10px auto;border-color: gray;height: 35px;border-style: dotted;"></div>
-                                        <p
-                                            style="margin: 5px;font-size: 13px;">End Date (Users created before) --Max</p>
-                                            <div class="input-group" style="height: 35px;"><input class="form-control" type="text" id="end_date2" style="font-size: 13px;font-weight: bold;padding: 5px 0;border-radius: 100px;margin: 0 auto 10px auto;border-color: gray;height: 35px;border-style: dotted;"></div>
-                                    </div>
-                                </div>
-                                <div class="modal-footer"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card border-white" id="users_card">
-                        <div class="card-body text-left invisible" id="user_id_card-body" style="margin: 0px;padding: 0px;margin-top: 5px;align-items: stretch!important;-ms-flex-wrap: wrap!important;flex-wrap: wrap!important;padding-left: 3px;padding-right: 3px;word-wrap: break-word;word-wrap: anywhere;">
-                            <div class="d-xl-flex justify-content-xl-start" style="display: flex!important;">
-                                <div class="container d-xl-flex align-items-xl-center" style="width: 50px;margin-right: auto;margin-left: 0px;padding: 0px;padding-left: 0px;display: block;float: left;align-items: center;"><img class="border rounded-circle" src="assets/img/index.png" id="user_id_img" style="width: 50px;height: 50px;margin-top: 0px;margin-right: 0px;"></div>
-                                <div class="container d-block" id="user_id_cbdiv" style="height: 100%;padding: 2px;margin-left: 5px;margin-right: 0px;font-size: small;align-items: center;float: right;display: block;">
-                                    <h6 class="text-muted mb-2" id="user_id_h6" style="margin: 0px;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">displayName</h6><label id="user_id_bnlbl" style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;margin: 0px;">Business:&nbsp;</label>
-                                    <label
-                                        id="user_id_elbl" style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;margin: 0px;">Email:&nbsp;</label>
-                                </div>
-                            </div>
-                            <div><a class="btn btn-primary btn-sm" data-toggle="collapse" aria-expanded="false" aria-controls="collapse-1" role="button" href="#collapse-1" id="user_id_btn" style="width: 100%;padding: 0px;height: 3px;margin: 0px;font-size: 11px;">...</a>
-                                <div
-                                    class="collapse" id="collapse-1">
-                                    <div><a href="#" id="user_id_chref" style="font-size: 13px;">Chat</a><a href="#" target="_blank" id="user_id_phref" style="font-size: 13px;margin-left: 10px;" disabled="disabled">Pay</a><a href="#" target="_blank" id="user_id_dhref"
-                                            style="font-size: 13px;margin-left: 10px;" disabled="disabled">Disable User</a></div><label id="user_id_indlbl" style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;margin: 0px;">Industry:&nbsp;</label>
-                                    <label
-                                        id="user_id_brchlbl" style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;margin: 0px;">Branch:&nbsp;</label><label id="user_id_phlbl" style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;margin: 0px;">Phone:&nbsp;</label></div>
-                        </div>
+                            class="form-group" style="margin: 0 2.5%;"><span id="error_span" style="margin-left: 2.5%;color: red;font-size: smaller;height: 15px;"></span></div>
+                    <div class="form-group" style="margin: 0 2.5%;"><button class="btn btn-primary btn-sm" type="submit" id="update_btn" style="width: 95%;font-size: 13px;">Update</button></div><input class="invisible" type="file" accept=".jpg, .jpeg, .png" id="pic_input"></form>
+                </div>
+            </div>
+            <div class="tab-pane" role="tabpanel" id="tab-6">
+                <div class="card border-white visible" id="reports_card">
+                    <div class="card-body text-left invisible" id="activity_id_card-body" style="padding: 0px;margin-top: 3px;padding-left: 3px;word-wrap: break-word;word-wrap: anywhere;">
+                        <div><a class="btn btn-primary btn-block btn-sm text-center bg-white border rounded d-xl-flex justify-content-xl-center align-items-xl-start" data-toggle="collapse" aria-expanded="false" aria-controls="collapse-1" role="button" href="#collapse-1"
+                                id="activity_id_btn" style="width: 100%;padding: 0px;height: 20px;margin: 0px;font-size: 11px;color: rgb(0,0,0);-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Signed in to PayAhead</a>
+                            <div
+                                class="collapse" id="collapse-1"><label id="activity_id_ephlbl" style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;margin-bottom: 0px;"><br></label></div>
                     </div>
                 </div>
             </div>
-            <div class="tab-pane" role="tabpanel" id="tab-8">
-                <form class="text-center" id="create_user_form">
-                    <h2 class="text-center" style="font-size: 25px;padding-top: 0px;margin: 0px;margin-top: 20px;"><strong>Create/Update&nbsp;</strong>User.</h2><img class="rounded-circle profile-pic" src="assets/img/index.png" id="usr_img">
-                    <div class="form-group"><input class="form-control" type="text" name="firstname" required="" placeholder="First Name" autocomplete="on" id="usr_fn_input"></div>
-                    <div class="form-group"><input class="form-control" type="text" name="lastname" required="" placeholder="Last Name" autocomplete="on" id="usr_ln_input"></div>
-                    <div class="form-group" style="margin-bottom: 0px;"><input class="form-control" type="text" required="" placeholder="Email address" autocomplete="on" inputmode="email" id="usr_email_input" style="margin-bottom: 0px;"><span id="usr_email_span" style="margin-left: 2.5%;color: red;font-size: smaller;"></span></div>
-                    <div
-                        class="form-group" style="margin-bottom: 0px;margin-top: 0px;"><input class="form-control" type="tel" required="" placeholder="Phone number" autocomplete="on" inputmode="tel" id="usr_pno_input" style="margin-bottom: 0px;"><span id="usr_pno_span" style="margin-left: 2.5%;color: red;font-size: smaller;"></span></div>
-            <div
-                class="form-group" style="margin-top: 0px;"><select class="form-control" id="usr_industry_input" style="padding: 0px;"><optgroup label="Industry" id="usr_industry_group"></optgroup></select></div>
-        <div class="form-group" style="margin-bottom: 0px;margin-top: 0px;"><input class="form-control" type="password" name="password" required="" placeholder="password" id="usr_password_input" style="margin-bottom: 0px;"><span id="usr_password_span" style="margin-left: 2.5%;color: red;font-size: smaller;height: 15px;"></span></div>
+        </div>
+        <div class="tab-pane" role="tabpanel" id="tab-7">
+            <form id="create_biz_form">
+                <h2 class="text-center" style="font-size: 25px;padding: 0px;margin-top: 20px;margin-bottom: 0px;">Add business</h2>
+                <div class="form-group"><input class="form-control" type="text" name="firstname" required="" placeholder="First Name" autocomplete="on" id="biz_fn_input"></div>
+                <div class="form-group"><input class="form-control" type="text" name="lastname" required="" placeholder="Last Name" autocomplete="on" id="biz_ln_input"></div>
+                <div class="form-group" style="margin-bottom: 0px;"><input class="form-control" type="text" required="" placeholder="Email address" autocomplete="on" inputmode="email" id="biz_email_input" style="margin-bottom: 0px;"><span id="biz_email_span" style="margin-left: 2.5%;color: red;font-size: smaller;"></span></div>
+                <div
+                    class="form-group" style="margin-bottom: 0px;margin-top: 0px;"><input class="form-control" type="text" required="" placeholder="Organization Name" autocomplete="on" id="biz_name_input" style="margin-bottom: 0px;"><span id="biz_name_span" style="margin-left: 2.5%;color: red;font-size: smaller;"></span></div>
         <div
-            class="form-group" style="margin-top: 0px;margin-bottom: 0px;"><input class="form-control" type="text" name="bvn" required="" placeholder="BVN" autocomplete="on" id="usr_bvn_input"><span id="usr_bvn_span" style="margin-left: 2.5%;color: red;font-size: smaller;height: 15px;"></span></div><input class="form-control"
-                type="text" name="lastname" required="" placeholder="Branch" autocomplete="on" id="usr_branch_input">
-            <div class="form-group" style="margin-top: 0px;"><span id="usr_error_span" style="margin-left: 2.5%;color: red;font-size: smaller;height: 15px;"></span></div>
-            <div class="form-group"><button class="btn btn-primary btn-sm" type="submit" id="create_user_btn" style="width: 95%;font-size: 13px;">Create/Update</button></div>
+            class="form-group" style="margin-bottom: 0px;margin-top: 0px;"><input class="form-control" type="tel" required="" placeholder="Phone number" autocomplete="on" inputmode="tel" id="biz_pno_input" style="margin-bottom: 0px;"><span id="biz_pno_span" style="margin-left: 2.5%;color: red;font-size: smaller;"></span></div>
+    <div
+        class="form-group" style="margin-bottom: 0px;margin-top: 0px;"><input class="form-control" type="tel" required="" placeholder="Percentage Charge" autocomplete="on" inputmode="numeric" id="biz_pc_input" style="margin-bottom: 0px;"><span id="biz_pc_span" style="margin-left: 2.5%;color: red;font-size: smaller;"></span></div>
+        <div
+            class="form-group" style="margin-top: 0px;"><select class="form-control" id="biz_industry_input" style="padding: 0px;"><optgroup label="Industry" id="biz_industry_group"></optgroup></select></div>
+            <div class="form-group" style="margin-top: 0px;"><span id="biz_error_span" style="margin-left: 2.5%;color: red;font-size: smaller;height: 15px;"></span></div>
+            <div class="form-group"><button class="btn btn-primary btn-sm" type="submit" id="create_biz_btn" style="width: 95%;font-size: 13px;">Add</button></div>
             </form>
             </div>
             </div>
             </div>
             </div>
-            <div class="col-sm-6 col-md-5 col-lg-4 item" style="background: #ffffff;max-width: 360px;margin: 0 auto;max-height: 550px;border: none;margin-bottom: 70px;position: relative;">
+            <div class="col-sm-6 col-md-5 col-lg-4 item" style="background: #ffffff;max-width: 360px;max-height: 550px;border: none;margin-bottom: 70px;position: relative;">
                 <div>
+                    <ul class="nav nav-tabs">
+                        <li class="nav-item"><a class="nav-link active" role="tab" data-toggle="tab" href="#tab-4" style="font-size: 14px;padding: 6px 6px;"><i class="fa fa-users"></i>&nbsp;Users</a></li>
+                        <li class="nav-item"><a class="nav-link" role="tab" data-toggle="tab" href="#tab-8" style="padding: 6px 6px;font-size: 14px;"><i class="fas fa-user-edit"></i>&nbsp;Create/Update</a></li>
+                    </ul>
+                    <div class="tab-content" style="background: #ffffff;-ms-overflow-style: none;scrollbar-width: none;overflow-y: scroll;overflow: -moz-scrollbars-none;max-width: 360px;max-height: 550px;border: none;margin-bottom: 30px;">
+                        <div class="tab-pane active" role="tabpanel" id="tab-4">
+                            <div class="d-xl-flex align-items-stretch align-items-xl-center" style="padding: 0px;"><button class="btn btn-primary visible" type="button" disabled="disabled" id="users_save_btn" style="font-size: 13px;padding-top: 0px;padding-bottom: 0px;padding-right: 3px;padding-left: 3px;margin: 0px;">Save</button></div>
+                            <div
+                                class="modal fade" role="dialog" tabindex="-1" id="img_modal" style="margin: 0 auto;width: 360px;">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header d-flex align-items-stretch" style="padding: 0px;display: -ms-flexbox;display: flex;-ms-flex-wrap: wrap;flex-wrap: wrap;"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>
+                                        <div class="modal-body d-flex justify-content-center align-items-center" style="padding: 0px;"><img id="u_img" style="width: 360px;height: 360px;margin: 0 auto;"></div>
+                                    </div>
+                                </div>
+                        </div>
+                        <div class="modal fade" role="dialog" tabindex="-1" id="chat_modal" style="-ms-overflow-style: none;scrollbar-width: none;overflow-y: scroll;overflow: -moz-scrollbars-none;max-height: 550px;margin: 0 auto;height: auto;-webkit-overflow-scrolling: touch;">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header d-flex align-items-stretch" id="chat_header" style="padding: 0px;display: -ms-flexbox;display: flex;-ms-flex-wrap: wrap;flex-wrap: wrap;"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>
+                                    <div class="modal-body">
+                                        <div class="card">
+                                            <div class="card-body" id="chatee_profileUi" style="padding: 0px;width: 100%;">
+                                                <div class="float-right" style="overflow-x: hidden;position: absolute;margin-left: 50px;width: 80%;">
+                                                    <h6 id="chatee_h6" style="overflow: hidden;text-overflow: ellipsis;white-space: nowrap;overflow: hidden;">displayName</h6>
+                                                    <p id="chatee_p" style="margin: 0px;text-overflow: ellipsis;white-space: nowrap;overflow: hidden;">last login at&nbsp;</p>
+                                                </div>
+                                                <div class="d-flex float-left justify-content-center align-items-center"><img class="rounded-circle" src="assets/img/index.png" width="50px" height="50px" id="chatee_img"></div>
+                                            </div>
+                                            <div class="card-body float-left invisible" id="chat_longclicked" style="padding: 0px;width: 100%;"><button class="btn btn-primary border-white invisible" type="button" style="margin: 0px;padding: 0px;background-color: rgb(255,255,255);color: rgb(0,0,0);font-size: 14px;"><i class="fa fa-reply" style="margin: 0 15px;"></i></button>
+                                                <button
+                                                    class="btn btn-primary border-white invisible" type="button" style="margin: 0px;padding: 0px;background-color: rgb(255,255,255);color: rgb(0,0,0);font-size: 14px;"><i class="fa fa-star" style="margin: 0 20px;"></i></button><button class="btn btn-primary border-white invisible" type="button" style="margin: 0px;padding: 0px;background-color: rgb(255,255,255);color: rgb(0,0,0);font-size: 14px;"><i class="fa fa-exclamation-circle" style="margin: 0 20px;"></i></button>
+                                                    <button
+                                                        class="btn btn-primary border-white" type="button" id="del_msgs" style="margin: 0px;padding: 0px;background-color: rgb(255,255,255);color: rgb(0,0,0);font-size: 14px;"><i class="fas fa-trash" style="margin: 0 20px;"></i></button><button class="btn btn-primary border-white invisible" type="button" style="padding: 0px;margin: 0px;background-color: rgb(255,255,255);color: rgb(0,0,0);font-size: 14px;"><i class="fa fa-copy" style="margin: 0 20px;"></i></button>
+                                                        <button
+                                                            class="btn btn-primary border-white invisible" type="button" style="margin: 0 1px;padding: 0px;background-color: rgb(255,255,255);color: rgb(0,0,0);"><i class="fa fa-share" style="padding: 0 15px;font-size: 14px;"></i></button>
+                                            </div>
+                                        </div>
+                                        <div class="container" id="chat_body" style="-ms-overflow-style: none;scrollbar-width: none;overflow-y: scroll;overflow: -moz-scrollbars-none;max-width: 360px;max-height: 550px;margin-bottom: 50px;height: auto;-webkit-overflow-scrolling: touch;"><bot-ui></bot-ui></div>
+                                    </div>
+                                    <div class="modal-footer" style="height: 60px;"><label id="chat_error_lbl" style="margin-left: 2.5%;color: red;font-size: smaller;"></label></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal" role="dialog" tabindex="-1" id="save_users_modal" style="margin: 0 auto;">
+                            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h6 class="modal-title"></h6><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>
+                                    <div class="modal-body">
+                                        <div style="-ms-overflow-style: none;scrollbar-width: none;overflow-y: scroll;overflow: -moz-scrollbars-none;max-height: 550px;margin-bottom: 50px;height: auto;">
+                                            <div id="message"></div>
+                                            <p style="margin: 5px;font-size: 13px;">Start Date (Users created after) -- Min</p>
+                                            <div class="input-group" style="height: 35px;"><input class="form-control" type="text" id="start_date2" style="font-size: 13px;font-weight: bold;padding: 5px 0;border-radius: 100px;margin: 0 auto 10px auto;border-color: gray;height: 35px;border-style: dotted;"></div>
+                                            <p
+                                                style="margin: 5px;font-size: 13px;">End Date (Users created before) --Max</p>
+                                                <div class="input-group" style="height: 35px;"><input class="form-control" type="text" id="end_date2" style="font-size: 13px;font-weight: bold;padding: 5px 0;border-radius: 100px;margin: 0 auto 10px auto;border-color: gray;height: 35px;border-style: dotted;"></div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card border-white" id="users_card">
+                            <div class="card-body text-left invisible" id="user_id_card-body" style="margin: 0px;padding: 0px;margin-top: 5px;align-items: stretch!important;-ms-flex-wrap: wrap!important;flex-wrap: wrap!important;padding-left: 3px;padding-right: 3px;word-wrap: break-word;word-wrap: anywhere;">
+                                <div class="d-xl-flex justify-content-xl-start" style="display: flex!important;">
+                                    <div class="container d-xl-flex align-items-xl-center" style="width: 50px;margin-right: auto;margin-left: 0px;padding: 0px;padding-left: 0px;display: block;float: left;align-items: center;"><img class="border rounded-circle" src="assets/img/index.png" id="user_id_img" style="width: 50px;height: 50px;margin-top: 0px;margin-right: 0px;"></div>
+                                    <div class="container d-block" id="user_id_cbdiv" style="height: 100%;padding: 2px;margin-left: 5px;margin-right: 0px;font-size: small;align-items: center;float: right;display: block;">
+                                        <h6 class="text-muted mb-2" id="user_id_h6" style="margin: 0px;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">displayName</h6><label id="user_id_bnlbl" style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;margin: 0px;">Business:&nbsp;</label>
+                                        <label
+                                            id="user_id_elbl" style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;margin: 0px;">Email:&nbsp;</label>
+                                    </div>
+                                </div>
+                                <div><a class="btn btn-primary btn-sm" data-toggle="collapse" aria-expanded="false" aria-controls="collapse-1" role="button" href="#collapse-1" id="user_id_btn" style="width: 100%;padding: 0px;height: 3px;margin: 0px;font-size: 11px;">...</a>
+                                    <div
+                                        class="collapse" id="collapse-1">
+                                        <div><a href="#" id="user_id_chref" style="font-size: 13px;">Chat</a><a target="_blank" id="user_id_phref" style="font-size: 13px;margin-left: 10px;" disabled="disabled">Pay</a><a href="#" target="_blank" id="user_id_dhref"
+                                                style="font-size: 13px;margin-left: 10px;">Disable User</a><a href="#" target="_blank" id="user_id_dlhref" style="font-size: 13px;margin-left: 10px;">Delete User</a></div><label id="user_id_indlbl" style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;margin: 0px;">Industry:&nbsp;</label>
+                                        <label
+                                            id="user_id_brchlbl" style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;margin: 0px;">Branch:&nbsp;</label><label id="user_id_phlbl" style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;margin: 0px;">Phone:&nbsp;</label></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane" role="tabpanel" id="tab-8">
+                    <form class="text-center" id="create_user_form">
+                        <h2 class="text-center" style="font-size: 25px;padding-top: 0px;margin: 0px;margin-top: 20px;"><strong>Create/Update&nbsp;</strong>User.</h2><img class="rounded-circle profile-pic" src="assets/img/index.png" id="usr_img">
+                        <div class="form-group"><input class="form-control" type="text" name="firstname" required="" placeholder="First Name" autocomplete="on" id="usr_fn_input"></div>
+                        <div class="form-group"><input class="form-control" type="text" name="lastname" required="" placeholder="Last Name" autocomplete="on" id="usr_ln_input"></div>
+                        <div class="form-group" style="margin-bottom: 0px;"><input class="form-control" type="text" required="" placeholder="Email address" autocomplete="on" inputmode="email" id="usr_email_input" style="margin-bottom: 0px;"><span id="usr_email_span" style="margin-left: 2.5%;color: red;font-size: smaller;"></span></div>
+                        <div
+                            class="form-group" style="margin-bottom: 0px;margin-top: 0px;"><input class="form-control" type="tel" required="" placeholder="Phone number" autocomplete="on" inputmode="tel" id="usr_pno_input" style="margin-bottom: 0px;"><span id="usr_pno_span" style="margin-left: 2.5%;color: red;font-size: smaller;"></span></div>
+                <div
+                    class="form-group" style="margin-top: 0px;"><select class="form-control" id="usr_industry_input" style="padding: 0px;"><optgroup label="Industry" id="usr_industry_group"></optgroup></select></div>
+            <div class="form-group" style="margin-bottom: 0px;margin-top: 0px;"><input class="form-control" type="password" name="password" required="" placeholder="password" id="usr_password_input" style="margin-bottom: 0px;"><span id="usr_password_span" style="margin-left: 2.5%;color: red;font-size: smaller;height: 15px;"></span></div>
+            <div
+                class="form-group" style="margin-top: 0px;margin-bottom: 0px;"><input class="form-control" type="text" name="bvn" placeholder="BVN" autocomplete="on" id="usr_bvn_input"><span id="usr_bvn_span" style="margin-left: 2.5%;color: red;font-size: smaller;height: 15px;"></span></div><input class="form-control"
+                    type="text" name="lastname" required="" placeholder="Branch / Station" autocomplete="on" id="usr_branch_input">
+                <div class="form-group" style="margin-top: 0px;"><span id="usr_error_span" style="margin-left: 2.5%;color: red;font-size: smaller;height: 15px;"></span></div>
+                <div class="form-group"><button class="btn btn-primary btn-sm" type="submit" id="create_user_btn" style="width: 95%;font-size: 13px;">Create/Update</button></div>
+                </form>
+                </div>
+                </div>
+                </div>
+                </div>
+                <div class="col-sm-6 col-md-5 col-lg-4 item" style="background: #ffffff;max-width: 360px;margin: 0 auto;max-height: 550px;border: none;margin-bottom: 70px;position: relative;">
                     <div>
-                        <ul class="nav nav-tabs">
-                            <li class="nav-item"><a class="nav-link active" role="tab" data-toggle="tab" href="#tab-1" style="font-size: 14px;padding: 6px 6px;padding-right: 8px;padding-left: 8px;">&nbsp;<i class="fa fa-bars"></i>&nbsp; Report</a></li>
-                            <li class="nav-item"><a class="nav-link" role="tab" data-toggle="tab" href="#tab-2" style="font-size: 14px;padding: 6px 6px;padding-right: 8px;padding-left: 8px;">&nbsp;<i class="fa fa-credit-card"></i>&nbsp;Payments</a></li>
-                        </ul>
-                        <div class="tab-content" style="background: #ffffff;-ms-overflow-style: none;scrollbar-width: none;overflow-y: scroll;overflow: -moz-scrollbars-none;max-width: 360px;margin: 0 auto;max-height: 550px;border: none;margin-bottom: 30px;">
-                            <div class="tab-pane active" role="tabpanel" id="tab-1">
-                                <div class="d-xl-flex align-items-stretch align-items-xl-center" style="padding: 0px;"><button class="btn btn-primary" type="button" id="usr_save_act_btn" style="font-size: 13px;padding-top: 0px;padding-bottom: 0px;padding-right: 3px;padding-left: 3px;margin: 0px;">Save</button></div>
+                        <div>
+                            <ul class="nav nav-tabs">
+                                <li class="nav-item"><a class="nav-link active" role="tab" data-toggle="tab" href="#tab-1" style="font-size: 14px;padding: 6px 6px;padding-right: 8px;padding-left: 8px;">&nbsp;<i class="fa fa-bars"></i>&nbsp; Report</a></li>
+                                <li class="nav-item"><a class="nav-link" role="tab" data-toggle="tab" href="#tab-2" style="font-size: 14px;padding: 6px 6px;padding-right: 8px;padding-left: 8px;">&nbsp;<i class="fa fa-credit-card"></i>&nbsp;Payments</a></li>
+                            </ul>
+                            <div class="tab-content" style="background: #ffffff;-ms-overflow-style: none;scrollbar-width: none;overflow-y: scroll;overflow: -moz-scrollbars-none;max-width: 360px;margin: 0 auto;max-height: 550px;border: none;margin-bottom: 30px;">
+                                <div class="tab-pane active" role="tabpanel" id="tab-1">
+                                    <div class="d-xl-flex align-items-stretch align-items-xl-center" style="padding: 0px;"><button class="btn btn-primary" type="button" id="usr_save_act_btn" style="font-size: 13px;padding-top: 0px;padding-bottom: 0px;padding-right: 3px;padding-left: 3px;margin: 0px;">Save</button></div>
+                                    <div class="modal"
+                                        role="dialog" tabindex="-1" id="usr_save_act_modal" style="margin: 0 auto;">
+                                        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h6 class="modal-title"></h6><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>
+                                                <div class="modal-body" style="-ms-overflow-style: none;scrollbar-width: none;overflow-y: scroll;overflow: -moz-scrollbars-none;max-height: 550px;margin-bottom: 50px;height: auto;-webkit-overflow-scrolling: touch;">
+                                                    <div>
+                                                        <div id="message"></div>
+                                                        <p style="margin: 5px;font-size: 13px;">Start Date (Activities after) -- Min</p>
+                                                        <div class="input-group" style="height: 35px;"><input class="form-control" type="text" id="start_date3" style="font-size: 13px;font-weight: bold;padding: 5px 0;border-radius: 100px;margin: 0 auto 10px auto;border-color: gray;height: 35px;border-style: dotted;"></div>
+                                                        <p
+                                                            style="margin: 5px;font-size: 13px;">End Date (Activities before) -- Max</p>
+                                                            <div class="input-group" style="height: 35px;"><input class="form-control" type="text" id="end_date3" style="font-size: 13px;font-weight: bold;padding: 5px 0;border-radius: 100px;margin: 0 auto 10px auto;border-color: gray;height: 35px;border-style: dotted;"></div>
+                                                    </div>
+                                                    <div class="table-responsive">
+                                                        <table class="table table-hover" id="usr_save_act_table">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th></th>
+                                                                    <th>Display Name</th>
+                                                                    <th>Time</th>
+                                                                    <th>Activity</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="activity_id_tbb">
+                                                                <tr class="invisible" id="activity_id_trb">
+                                                                    <td style="width: 10%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Cell 1</td>
+                                                                    <td style="-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;width: 30%;">Cell 2</td>
+                                                                    <td style="-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;width: 30%;">Cell 3</td>
+                                                                    <td style="-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;width: 30%;">Cell 4</td>
+                                                                </tr>
+                                                            </tbody>
+                                                            <tfoot>
+                                                                <tr></tr>
+                                                            </tfoot>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card border-white visible" id="usr_reports_card" style="word-wrap: break-word;word-wrap: anywhere;">
+                                        <div class="card-body text-left invisible" id="activity_id_card-bodyb" style="padding: 0px;margin-top: 3px;padding-left: 3px;">
+                                            <div><a class="btn btn-primary btn-block btn-sm text-center bg-white border rounded d-xl-flex justify-content-xl-center align-items-xl-start" data-toggle="collapse" aria-expanded="false" aria-controls="collapse-1"
+                                                    role="button" href="#collapse-1" id="activity_id_btnb" style="width: 100%;padding: 0px;height: 20px;margin: 0px;font-size: 11px;color: rgb(0,0,0);-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Signed in to PayAhead</a>
+                                                <div
+                                                    class="collapse" id="collapse-1"><label id="activity_id_ephlblb" style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;margin-bottom: 0px;"><br></label></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane" role="tabpanel" id="tab-2">
+                                <div class="d-xl-flex align-items-stretch align-items-xl-center" style="padding: 0px;"><button class="btn btn-primary" type="button" id="usr_save_pay_btn" style="font-size: 13px;padding-top: 0px;padding-bottom: 0px;padding-right: 3px;padding-left: 3px;margin: 0px;">Save</button></div>
                                 <div class="modal" role="dialog"
-                                    tabindex="-1" id="usr_save_act_modal">
+                                    tabindex="-1" id="usr_save_pay_modal" style="margin: 0 auto;">
                                     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
                                         <div class="modal-content">
                                             <div class="modal-header">
                                                 <h6 class="modal-title"></h6><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>
-                                            <div class="modal-body">
+                                            <div class="modal-body" style="-ms-overflow-style: none;scrollbar-width: none;overflow-y: scroll;overflow: -moz-scrollbars-none;max-height: 550px;margin-bottom: 50px;height: auto;-webkit-overflow-scrolling: touch;">
                                                 <div>
                                                     <div id="message"></div>
-                                                    <p style="margin: 5px;font-size: 13px;">Start Date (Activities after) -- Min</p>
-                                                    <div class="input-group" style="height: 35px;"><input class="form-control" type="text" id="start_date3" style="font-size: 13px;font-weight: bold;padding: 5px 0;border-radius: 100px;margin: 0 auto 10px auto;border-color: gray;height: 35px;border-style: dotted;"></div>
+                                                    <p style="margin: 5px;font-size: 13px;">Start Date (Payments after) -- Min</p>
+                                                    <div class="input-group" style="height: 35px;"><input class="form-control" type="text" id="start_date4" style="font-size: 13px;font-weight: bold;padding: 5px 0;border-radius: 100px;margin: 0 auto 10px auto;border-color: gray;height: 35px;border-style: dotted;"></div>
                                                     <p
-                                                        style="margin: 5px;font-size: 13px;">End Date (Activities before) -- Max</p>
-                                                        <div class="input-group" style="height: 35px;"><input class="form-control" type="text" id="end_date3" style="font-size: 13px;font-weight: bold;padding: 5px 0;border-radius: 100px;margin: 0 auto 10px auto;border-color: gray;height: 35px;border-style: dotted;"></div>
+                                                        style="margin: 5px;font-size: 13px;">End Date (Payments before) -- Max</p>
+                                                        <div class="input-group" style="height: 35px;"><input class="form-control" type="text" id="end_date4" style="font-size: 13px;font-weight: bold;padding: 5px 0;border-radius: 100px;margin: 0 auto 10px auto;border-color: gray;height: 35px;border-style: dotted;"></div>
                                                 </div>
                                                 <div class="table-responsive">
-                                                    <table class="table table-hover" id="usr_save_act_table">
+                                                    <table class="table table-hover table-sm" id="usr_save_pay_table">
                                                         <thead>
                                                             <tr>
                                                                 <th></th>
-                                                                <th>Display Name</th>
-                                                                <th>Time</th>
-                                                                <th>Activity</th>
+                                                                <th>Time payed</th>
+                                                                <th>Paid to</th>
+                                                                <th>Attended to (@branch)</th>
+                                                                <th>Status</th>
                                                             </tr>
                                                         </thead>
-                                                        <tbody id="activity_id_tbb">
-                                                            <tr class="invisible" id="activity_id_trb">
+                                                        <tbody id="payment_id_tb">
+                                                            <tr class="visible" id="payment_id_tr">
                                                                 <td style="width: 10%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Cell 1</td>
-                                                                <td style="-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;width: 30%;">Cell 2</td>
-                                                                <td style="-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;width: 30%;">Cell 3</td>
-                                                                <td style="-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;width: 30%;">Cell 4</td>
+                                                                <td style="width: 22.5%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Cell 2</td>
+                                                                <td style="width: 22.5%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Cell 3</td>
+                                                                <td style="width: 22.5%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Cell 4</td>
+                                                                <td style="width: 22.5%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Cell 5</td>
                                                             </tr>
                                                         </tbody>
                                                         <tfoot>
@@ -279,186 +346,143 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="card border-white visible" id="usr_reports_card" style="word-wrap: break-word;word-wrap: anywhere;">
-                                    <div class="card-body text-left invisible" id="activity_id_card-bodyb" style="padding: 0px;margin-top: 3px;padding-left: 3px;">
-                                        <div><a class="btn btn-primary btn-block btn-sm text-center bg-white border rounded d-xl-flex justify-content-xl-center align-items-xl-start" data-toggle="collapse" aria-expanded="false" aria-controls="collapse-1" role="button"
-                                                href="#collapse-1" id="activity_id_btnb" style="width: 100%;padding: 0px;height: 20px;margin: 0px;font-size: 11px;color: rgb(0,0,0);-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Signed in to PayAhead</a>
-                                            <div
-                                                class="collapse" id="collapse-1"><label id="activity_id_ephlblb" style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;margin-bottom: 0px;"><br></label></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="tab-pane" role="tabpanel" id="tab-2">
-                            <div class="d-xl-flex align-items-stretch align-items-xl-center" style="padding: 0px;"><button class="btn btn-primary" type="button" id="usr_save_pay_btn" style="font-size: 13px;padding-top: 0px;padding-bottom: 0px;padding-right: 3px;padding-left: 3px;margin: 0px;">Save</button></div>
-                            <div class="modal" role="dialog"
-                                tabindex="-1" id="usr_save_pay_modal">
-                                <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h6 class="modal-title"></h6><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>
-                                        <div class="modal-body">
-                                            <div>
-                                                <div id="message"></div>
-                                                <p style="margin: 5px;font-size: 13px;">Start Date (Payments after) -- Min</p>
-                                                <div class="input-group" style="height: 35px;"><input class="form-control" type="text" id="start_date4" style="font-size: 13px;font-weight: bold;padding: 5px 0;border-radius: 100px;margin: 0 auto 10px auto;border-color: gray;height: 35px;border-style: dotted;"></div>
-                                                <p
-                                                    style="margin: 5px;font-size: 13px;">End Date (Payments before) -- Max</p>
-                                                    <div class="input-group" style="height: 35px;"><input class="form-control" type="text" id="end_date4" style="font-size: 13px;font-weight: bold;padding: 5px 0;border-radius: 100px;margin: 0 auto 10px auto;border-color: gray;height: 35px;border-style: dotted;"></div>
+                                <div class="modal" role="dialog" tabindex="-1" id="verifier_modal" style="margin: 0 auto;">
+                                    <div class="modal-dialog modal-sm" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h6 class="modal-title"></h6><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>
+                                            <div class="modal-body"><input type="text" placeholder="Payment ID" inputmode="numeric" id="verifier_input" style="font-size: 13px;font-weight: bold;padding: 5px 0;border-radius: 100px;margin: 0 auto 10px auto;border-color: gray;height: 35px;border-style: dotted;width: 100%;padding: 5px;">
+                                                <div><span class="text-danger" id="verifier_error" style="font-size: smaller;"></span></div>
                                             </div>
-                                            <div class="table-responsive">
-                                                <table class="table table-hover table-sm" id="usr_save_pay_table">
-                                                    <thead>
-                                                        <tr>
-                                                            <th></th>
-                                                            <th>Time payed</th>
-                                                            <th>Paid to</th>
-                                                            <th>Attended to (@branch)</th>
-                                                            <th>Status</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody id="payment_id_tb">
-                                                        <tr class="visible" id="payment_id_tr">
-                                                            <td style="width: 10%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Cell 1</td>
-                                                            <td style="width: 22.5%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Cell 2</td>
-                                                            <td style="width: 22.5%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Cell 3</td>
-                                                            <td style="width: 22.5%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Cell 4</td>
-                                                            <td style="width: 22.5%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Cell 5</td>
-                                                        </tr>
-                                                    </tbody>
-                                                    <tfoot>
-                                                        <tr></tr>
-                                                    </tfoot>
-                                                </table>
-                                            </div>
+                                            <div class="modal-footer"><button class="btn btn-primary" type="button" id="verifier_btn">Verify</button></div>
                                         </div>
-                                        <div class="modal-footer"></div>
+                                    </div>
+                                </div>
+                                <div class="card border-white visible" id="usr_transactions_card">
+                                    <div class="card-body text-left invisible" id="payment_id_card-body" style="padding: 0px;margin-top: 10px;padding-left: 3px;">
+                                        <h6 class="text-muted card-subtitle mb-2" id="payment_id_idh6" style="font-size: 12px;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Payment ID:&nbsp;</h6>
+                                        <h6 class="text-muted card-subtitle mb-2" id="payment_id_toh6" style="font-size: 12px;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Payed to:&nbsp;</h6>
+                                        <h6 class="text-muted card-subtitle mb-2" id="payment_id_amounth6" style="font-size: 12px;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Amount paid:&nbsp;</h6>
+                                        <h6 class="text-muted card-subtitle mb-2" id="payment_id_timeh6" style="font-size: 12px;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Time of pay:&nbsp;</h6>
+                                        <div><a class="btn btn-primary btn-block" data-toggle="collapse" aria-expanded="false" aria-controls="collapse-1" role="button" href="#collapse-1" id="payment_id_btn" style="width: 100%;padding: 0px;height: 3px;margin: 0px;font-size: 11px;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">...</a>
+                                            <div
+                                                class="collapse" id="collapse-1">
+                                                <div><a href="#" id="payment_id_rfhref" style="font-size: 13px;margin: 0px;">Refund</a><a href="#" id="payment_id_vhref" style="font-size: 13px;margin: 0px;margin-left: 5px;">Verify</a></div>
+                                                <h6 class="text-muted mb-2"
+                                                    id="payment_id_byh6" style="font-size: 12px;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Payed by:&nbsp;</h6><label id="payment_id_vfrfdlbl" style="font-size: 12px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Verified on:&nbsp;<br></label></div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="card border-white visible" id="usr_transactions_card">
-                                <div class="card-body text-left invisible" id="payment_id_card-body" style="padding: 0px;margin-top: 10px;padding-left: 3px;">
-                                    <h6 class="text-muted card-subtitle mb-2" id="payment_id_idh6" style="font-size: 12px;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Payment ID:&nbsp;</h6>
-                                    <h6 class="text-muted card-subtitle mb-2" id="payment_id_toh6" style="font-size: 12px;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Payed to:&nbsp;</h6>
-                                    <h6 class="text-muted card-subtitle mb-2" id="payment_id_byh6" style="font-size: 12px;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Payed by:&nbsp;</h6>
-                                    <h6 class="text-muted card-subtitle mb-2" id="payment_id_timeh6" style="font-size: 12px;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Time of pay:&nbsp;</h6>
-                                    <div><a class="btn btn-primary btn-block" data-toggle="collapse" aria-expanded="false" aria-controls="collapse-1" role="button" href="#collapse-1" id="payment_id_btn" style="width: 100%;padding: 0px;height: 3px;margin: 0px;font-size: 11px;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">...</a>
-                                        <div
-                                            class="collapse" id="collapse-1">
-                                            <div><a href="#" id="payment_id_rfhref" style="font-size: 13px;margin: 0px;">Refund</a><a href="#" id="payment_id_vhref" style="font-size: 13px;margin: 0px;margin-left: 5px;">Verify</a></div><label id="payment_id_vfrfdlbl"
-                                                style="font-size: 13px;width: 100%;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;margin-bottom: 0px;">Verified on:&nbsp;<br></label></div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+                </div>
+                </div>
+                </div>
+                </div>
+                <div class="features-boxed" style="margin: 25px;position: relative;">
+                    <div class="container">
+                        <div class="intro">
+                            <h2 class="text-center">Features </h2>
+                        </div>
+                        <div class="row justify-content-center features" style="background-color: #ffffff;">
+                            <div class="col-sm-6 col-md-5 col-lg-4 item">
+                                <div class="text-center box">
+                                    <h3 class="name" style="/*font-size: 18px;*/"><br><strong>What is PayAhead?</strong><br></h3>
+                                    <p class="description"><br>PayAhead is a product designed to solve the problem of long queues in shopping malls, at filling stations etc thereby drive transparency, accuracy and accountability while taking away the bottleneck around reconciliation.&nbsp;<br></p>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-md-5 col-lg-4 item">
+                                <div class="text-center box">
+                                    <h3 class="name"><br><strong>Who is the product designed for?</strong><br></h3>
+                                    <p class="description"><br>The product is actually designed for those with retail stores, filling stations, shopping malls etc. &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+                                        &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+                                        &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+                                        &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<br></p>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-md-5 col-lg-4 item">
+                                <div class="text-center box">
+                                    <h3 class="name"><br><strong>Who developed PayAhead?</strong><br></h3>
+                                    <p class="description"><br>PayAhead is created/developed and maintained by Uridium Technologies Ltd &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+                                        &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+                                        &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+                                        &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<br></p>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-md-5 col-lg-4 invisible item" style="height: 0px;">
+                                <div class="box">
+                                    <h3 class="name">Organic </h3>
+                                    <p class="description">Aenean tortor est, vulputate quis leo in, vehicula rhoncus lacus. Praesent aliquam in tellus eu.</p>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-md-5 col-lg-4 invisible item" style="height: 0px;">
+                                <div class="box">
+                                    <h3 class="name">Fast </h3>
+                                    <p class="description">Aenean tortor est, vulputate quis leo in, vehicula rhoncus lacus. Praesent aliquam in tellus eu.</p>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-md-5 col-lg-4 invisible item" style="height: 0px;">
+                                <div class="box">
+                                    <h3 class="name">Mobile-first</h3>
+                                    <p class="description">Aenean tortor est, vulputate quis leo in, vehicula rhoncus lacus. Praesent aliquam in tellus eu.</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            </div>
-            </div>
-            </div>
-            </div>
-            </div>
-            <div class="features-boxed" style="margin: 25px;position: relative;">
-                <div class="container">
-                    <div class="intro">
-                        <h2 class="text-center">Features </h2>
-                    </div>
-                    <div class="row justify-content-center features" style="background-color: #ffffff;">
-                        <div class="col-sm-6 col-md-5 col-lg-4 item">
-                            <div class="box">
-                                <h3 class="name" style="/*font-size: 18px;*/"><br><strong>What is PayAhead?</strong><br></h3>
-                                <p class="description"><br>PayAhead is a product designed to solve the problem of long queues in shopping malls, at filling stations etc thereby drive transparency, accuracy and accountability while taking away the bottleneck around reconciliation.&nbsp;<br></p>
+                <div class="footer-dark" style="background-color: #5f9ea0;">
+                    <footer>
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-sm-6 col-md-3 item">
+                                    <h3>Services</h3>
+                                    <ul>
+                                        <li><a href="#">Web design</a></li>
+                                        <li><a href="#">Development</a></li>
+                                        <li><a href="#">Hosting</a></li>
+                                    </ul>
+                                </div>
+                                <div class="col-sm-6 col-md-3 item">
+                                    <h3>About</h3>
+                                    <ul>
+                                        <li><a href="#">Company</a></li>
+                                        <li><a href="#">Team</a></li>
+                                        <li><a href="#">Careers</a></li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6 item text">
+                                    <h3>PayAhead</h3>
+                                    <p class="invisible">Praesent sed lobortis mi. Suspendisse vel placerat ligula. Vivamus ac sem lacus. Ut vehicula rhoncus elementum. Etiam quis tristique lectus. Aliquam in arcu eget velit pulvinar dictum vel in justo.</p>
+                                </div>
+                                <div class="col item social"><a href="#"><i class="icon ion-social-facebook"></i></a><a href="#"><i class="icon ion-social-twitter"></i></a><a href="#"><i class="icon ion-social-snapchat"></i></a><a href="#"><i class="icon ion-social-instagram"></i></a></div>
                             </div>
+                            <p class="copyright">PayAhead © 2019</p>
                         </div>
-                        <div class="col-sm-6 col-md-5 col-lg-4 item">
-                            <div class="box">
-                                <h3 class="name"><br><strong>Who is the product designed for?</strong><br></h3>
-                                <p class="description"><br>The product is actually designed for those with retail stores, filling stations, shopping malls etc. &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
-                                    &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
-                                    &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
-                                    &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<br></p>
-                            </div>
-                        </div>
-                        <div class="col-sm-6 col-md-5 col-lg-4 item">
-                            <div class="box">
-                                <h3 class="name"><br><strong>Who developed PayAhead?</strong><br></h3>
-                                <p class="description"><br>PayAhead is created/developed and maintained by Uridium Technologies Ltd &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
-                                    &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
-                                    &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
-                                    &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<br></p>
-                            </div>
-                        </div>
-                        <div class="col-sm-6 col-md-5 col-lg-4 invisible item" style="height: 0px;">
-                            <div class="box">
-                                <h3 class="name">Organic </h3>
-                                <p class="description">Aenean tortor est, vulputate quis leo in, vehicula rhoncus lacus. Praesent aliquam in tellus eu.</p>
-                            </div>
-                        </div>
-                        <div class="col-sm-6 col-md-5 col-lg-4 invisible item" style="height: 0px;">
-                            <div class="box">
-                                <h3 class="name">Fast </h3>
-                                <p class="description">Aenean tortor est, vulputate quis leo in, vehicula rhoncus lacus. Praesent aliquam in tellus eu.</p>
-                            </div>
-                        </div>
-                        <div class="col-sm-6 col-md-5 col-lg-4 invisible item" style="height: 0px;">
-                            <div class="box">
-                                <h3 class="name">Mobile-first</h3>
-                                <p class="description">Aenean tortor est, vulputate quis leo in, vehicula rhoncus lacus. Praesent aliquam in tellus eu.</p>
-                            </div>
-                        </div>
-                    </div>
+                    </footer>
                 </div>
-            </div>
-            <div class="footer-dark" style="background-color: #5f9ea0;">
-                <footer>
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-sm-6 col-md-3 item">
-                                <h3>Services</h3>
-                                <ul>
-                                    <li><a href="#">Web design</a></li>
-                                    <li><a href="#">Development</a></li>
-                                    <li><a href="#">Hosting</a></li>
-                                </ul>
-                            </div>
-                            <div class="col-sm-6 col-md-3 item">
-                                <h3>About</h3>
-                                <ul>
-                                    <li><a href="#">Company</a></li>
-                                    <li><a href="#">Team</a></li>
-                                    <li><a href="#">Careers</a></li>
-                                </ul>
-                            </div>
-                            <div class="col-md-6 item text">
-                                <h3>PayAhead</h3>
-                                <p class="invisible">Praesent sed lobortis mi. Suspendisse vel placerat ligula. Vivamus ac sem lacus. Ut vehicula rhoncus elementum. Etiam quis tristique lectus. Aliquam in arcu eget velit pulvinar dictum vel in justo.</p>
-                            </div>
-                            <div class="col item social"><a href="#"><i class="icon ion-social-facebook"></i></a><a href="#"><i class="icon ion-social-twitter"></i></a><a href="#"><i class="icon ion-social-snapchat"></i></a><a href="#"><i class="icon ion-social-instagram"></i></a></div>
-                        </div>
-                        <p class="copyright">PayAhead © 2019</p>
-                    </div>
-                </footer>
-            </div>
-            <script src="assets/js/jquery.min.js"></script>
-            <script src="assets/bootstrap/js/bootstrap.min.js"></script>
-            <script src="assets/js/install.js"></script>
-            <script src="assets/js/intlTelInput-jquery.min.js"></script>
-            <script src="assets/js/intlTelInput.js"></script>
-            <script src="assets/js/utils.js"></script>
-            <script src="assets/js/jquery.dataTables.min.js"></script>
-            <script src="assets/js/dataTables.buttons.min.js"></script>
-            <script src="assets/js/jszip.min.js"></script>
-            <script src="assets/js/pdfmake.min.js"></script>
-            <script src="assets/js/vfs_fonts.js"></script>
-            <script src="assets/js/buttons.html5.min.js"></script>
-            <script src="assets/js/RegNumericRange.min.js"></script>
-            <script src="assets/js/vue.min.js"></script>
-            <script src="assets/js/botui.min.js"></script>
-            <script src="assets/js/jquery.datetimepicker.full.min.js"></script>
-            <script src="assets/js/firebase-app.js"></script>
-            <script src="assets/js/firebase-database.js"></script>
-            <script src="assets/js/firebase-storage.js"></script>
-            <script src="assets/js/app.js"></script>
+                <script src="assets/js/jquery.min.js"></script>
+                <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+                <script src="assets/js/install.js"></script>
+                <script src="assets/js/intlTelInput-jquery.min.js"></script>
+                <script src="assets/js/intlTelInput.js"></script>
+                <script src="assets/js/utils.js"></script>
+                <script src="assets/js/jquery.dataTables.min.js"></script>
+                <script src="assets/js/dataTables.buttons.min.js"></script>
+                <script src="assets/js/jszip.min.js"></script>
+                <script src="assets/js/pdfmake.min.js"></script>
+                <script src="assets/js/vfs_fonts.js"></script>
+                <script src="assets/js/buttons.html5.min.js"></script>
+                <script src="assets/js/RegNumericRange.min.js"></script>
+                <script src="assets/js/vue.min.js"></script>
+                <script src="assets/js/botui.min.js"></script>
+                <script src="assets/js/jquery.datetimepicker.full.min.js"></script>
+                <script src="assets/js/firebase-app.js"></script>
+                <script src="assets/js/firebase-database.js"></script>
+                <script src="assets/js/firebase-storage.js"></script>
+                <script src="assets/js/long-press-event.min.js"></script>
+                <script src="assets/js/app.js"></script>
 </body>
 
 </html>
