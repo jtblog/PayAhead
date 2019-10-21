@@ -113,5 +113,4 @@ msging.requestPermission()
   .catch(function(err){});
 
 /*msging.onMessage(function(payload){
-
 });*/
