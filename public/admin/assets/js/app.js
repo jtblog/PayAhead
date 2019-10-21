@@ -825,7 +825,6 @@ var save_chat = function(res){
         }
       }).then(save_chat);
   }
-  
 }
 
 var message_clicked = function(e){
