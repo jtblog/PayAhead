@@ -21,6 +21,7 @@
     <link rel="stylesheet" href="assets/css/botui.min.css">
     <link rel="stylesheet" href="assets/css/botui-theme-default.css">
     <link rel="stylesheet" href="assets/css/jquery.datetimepicker.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
       <!-- Added link rel manifest -->
       <link rel="manifest" href="/manifest.json">
 
@@ -93,22 +94,21 @@
             <div class="tab-pane active" role="tabpanel" id="tab-1" style="margin-bottom: 50px;">
                 <div class="profile-card">
                     <div class="profile-back"></div><img class="rounded-circle profile-pic" src="assets/img/index.png" id="profile_pic">
-                    <h3 class="profile-name" style="font-size: 13px;">FirstName LastName</h3>
+                    <h3 data-bs-hover-animate="swing" class="profile-name" style="font-size: 13px;">FirstName LastName</h3>
                     <form id="update_form">
-                        <div class="form-group"><input class="form-control" type="text" name="firstname" required="" placeholder="First Name" autocomplete="on" id="fn_input"></div>
-                        <div class="form-group"><input class="form-control" type="text" name="lastname" required="" placeholder="Last Name" autocomplete="on" id="ln_input"></div>
+                        <div class="form-group"><input class="form-control" type="text" name="firstname" required="" placeholder="First Name" autocomplete="on" data-bs-hover-animate="pulse" id="fn_input"></div>
+                        <div class="form-group"><input class="form-control" type="text" name="lastname" required="" placeholder="Last Name" autocomplete="on" data-bs-hover-animate="pulse" id="ln_input"></div>
                         <div class="form-group" style="margin-bottom: 0px;"><input class="form-control" type="text" disabled="" required="" placeholder="Email address" autocomplete="on" inputmode="email" id="email_input" style="margin-bottom: 0px;"><span id="email_span" style="margin-left: 2.5%;color: red;font-size: smaller;"></span></div>
                         <div
-                            class="form-group" style="margin-bottom: 0px;margin-top: 0px;"><input class="form-control" type="text" required="" placeholder="Phone number" autocomplete="on" inputmode="tel" id="pno_input" style="margin-bottom: 0px;"><span id="pno_span" style="margin-left: 2.5%;color: red;font-size: smaller;"></span></div>
+                            class="form-group" style="margin-bottom: 0px;margin-top: 0px;"><input class="form-control" type="text" required="" placeholder="Phone number" autocomplete="on" inputmode="tel" data-bs-hover-animate="pulse" id="pno_input" style="margin-bottom: 0px;"><span id="pno_span" style="margin-left: 2.5%;color: red;font-size: smaller;"></span></div>
                 <div
-                    class="form-group" style="margin-top: 0px;"><select class="form-control" id="industry_input" style="padding: 0px;"><optgroup label="Industry" id="industry_group"></optgroup></select></div>
+                    class="form-group" style="margin-top: 0px;"><select class="form-control" data-bs-hover-animate="pulse" id="industry_input" style="padding: 0px;"><optgroup label="Industry" id="industry_group"></optgroup></select></div>
             <div class="form-group" style="margin-bottom: 0px;"><input class="form-control" type="password" name="password" disabled="" required="" placeholder="password" id="password_input" style="margin-bottom: 0px;"><span id="password_span" style="margin-left: 2.5%;color: red;font-size: smaller;height: 15px;"></span></div>
             <div
-                class="form-group" style="margin-top: 0px;"><input class="form-control" type="text" name="bvn" placeholder="BVN" autocomplete="on" id="bvn_input" style="margin: 0 2.5%;"></div>
+                class="form-group" style="margin-top: 0px;"><input class="form-control" type="text" name="bvn" placeholder="BVN" autocomplete="on" data-bs-hover-animate="pulse" id="bvn_input" style="margin: 0 2.5%;"></div>
         <div class="form-group" style="margin-bottom: 0px;"><span id="error_span" style="margin-left: 2.5%;color: red;font-size: smaller;height: 15px;"></span></div>
-        <div class="form-group" style="margin: 0 2.5%;"><button class="btn btn-primary btn-sm" type="submit" id="update_btn" style="width: 95%;font-size: 13px;">Update</button><button class="btn btn-primary btn-sm" type="button" id="signout_btn" style="margin-top: 15px;width: 95%;font-size: 13px;">Sign Out</button></div>
-        <input
-            class="invisible" type="file" accept=".jpg, .jpeg, .png" id="pic_input"></form>
+        <div class="form-group" style="margin: 0 2.5%;"><button class="btn btn-primary btn-sm" type="submit" data-bs-hover-animate="rubberBand" id="update_btn" style="width: 95%;font-size: 13px;">Update</button><button class="btn btn-primary btn-sm" type="button" data-bs-hover-animate="rubberBand"
+                id="signout_btn" style="margin-top: 15px;width: 95%;font-size: 13px;">Sign Out</button></div><input class="invisible" type="file" accept=".jpg, .jpeg, .png" id="pic_input"></form>
     </div>
     </div>
     <div class="tab-pane" role="tabpanel" id="tab-2" style="margin-bottom: 50px;">
@@ -406,6 +406,7 @@
     <script src="assets/js/firebase-messaging.js"></script>
     <script src="assets/js/long-press-event.min.js"></script>
     <script src="assets/js/app.js"></script>
+    <script src="assets/js/bs-animation.js"></script>
 </body>
 
 </html>

@@ -505,6 +505,14 @@ function get_profile(){
         var data = response;
         window.user_json = data["user"];
         window.authorization = data["authorization"];
+
+        if(isNullOrUndefinedOrEmpty(window.user_json["device_token"])){
+          allowNotifications();
+        }else{
+          allowNotifications();
+          window.msg_token = window.user_json["device_token"];
+        }
+
         populate_user_view();
         /*get_transactions();*/
         if(!isNullOrUndefinedOrEmpty(window.user_json["transactions"])){
@@ -545,21 +553,13 @@ function preset(){
         var data = response;
         firebase.initializeApp(data.preset);
         window.db = firebase.database();
-        window.msging  = firebase.messaging();
-        msging.requestPermission()
-          .then(function(){
-            return msging.getToken();
-          })
-          .then(function(token){
-            
-          })
-          .catch(function(err){})
         window.db.ref(data.refEndpoint).on("value", function(data) {
-            get_profile();
+          get_profile();
         });
         /*db.ref(data.refEndpoint.split("/")[0]).on("value", function(data) {
             get_profile();
         });*/
+
       })
       .fail(function(jqXHR, textStatus, errorThrown) {
         console.log(jqXHR.responseText);
@@ -567,7 +567,7 @@ function preset(){
         errorHandler(error);
       });
   }
-}
+};
 
 function prepare_for_payment(){
 
@@ -673,7 +673,54 @@ var go_to_paymentpage = function(e){
       window.location = "pay.html";
     }
   })
-}
+};
+
+function allowNotifications(){
+  window.msging  = firebase.messaging();
+  msging.requestPermission()
+    .then(function(){
+      return msging.getToken();
+    })
+    .then(function(token){
+      //window.db.
+      var endpoint = "/auth/update_profile";
+
+      window.up_details = {
+        'device_token' : token
+      }
+      window.user_json["newdata"] = window.up_details;
+
+      var settings = {
+          "async": true,
+          "crossDomain": true,
+          "url": host+endpoint,
+          "method": "POST",
+          "contentType": "application/json",
+          "dataType": "json",
+          "headers": {
+            "Content-Type": "application/json",
+            "authorization" : window.authorization
+          },
+          "data": JSON.stringify(window.user_json)
+        }
+
+        $.ajax(settings)
+          .done(function (response) {
+            var data = response;
+          })
+          .fail(function(jqXHR, textStatus, errorThrown) {
+            populate_industry();
+            var error = JSON.parse(jqXHR.responseText);
+            errorHandler(error);
+          });
+
+    }).catch(function(err){});
+
+  msging.onMessage(function(payload){
+    console.log("onMessage", payload);
+  });
+
+};
 
 function save_t(_res){
   var endpoint = "/payment/save_transaction";
@@ -719,7 +766,7 @@ function save_t(_res){
         var error = JSON.parse(jqXHR.responseText);
         errorHandler(error);
       });
-}
+};
 
 function checkout(key, config){
   var settings = {
@@ -745,7 +792,7 @@ function checkout(key, config){
         var error = JSON.parse(jqXHR.responseText);
         errorHandler(error);
       });
-}
+};
 
 function populate_user_view(){
   $("#profile_pic").attr("src", window.user_json['photoURL']);
@@ -769,6 +816,48 @@ function populate_user_view(){
   opt = document.createElement('OPTION');
   opt.textContent = window.user_json['industry'];
   document.getElementById('industry_group').appendChild(opt);
+
+  var conversations = window.user_json["conversations"]
+  Object.keys(conversations).forEach(function(key) {
+    var with_chatee = conversations[key];
+    Object.keys(with_chatee).forEach(function(key) {
+      if(with_chatee[key]["seen"] == false || isNullOrUndefinedOrEmpty(with_chatee[key]["seen"])){
+        if(!isNullOrUndefinedOrEmpty(window.msg_token)){
+          var endpoint = "/notification";
+          var settings = {
+            "async": true,
+            "crossDomain": true,
+            "url": host+endpoint,
+            "method": "POST",
+            "contentType": "application/json",
+            "dataType": "json",
+            "headers" : {
+              "Content-Type": "application/json"
+            },
+            "data": JSON.stringify({
+              notification: {
+            		title: with_chatee[key]["sender"],
+            		body: with_chatee[key]["content"]
+            	},
+            	token: window.msg_token
+            })
+          }
+
+          $.ajax(settings)
+            .done(function (response) {
+              var data = response;
+            })
+            .fail(function(jqXHR, textStatus, errorThrown) {
+              var error = JSON.parse(jqXHR.responseText);
+              console.log(error);
+              errorHandler(error);
+            });
+
+        }
+      }
+    });
+  });
+
 };
 
 function populate_industry(){
@@ -908,7 +997,7 @@ var chat = function(e){
   }).then(save_chat);
 
   $("#chat_modal").modal("show");
-}
+};
 
 var save_chat = function(res){
   //reset_all_span();
@@ -971,7 +1060,7 @@ var save_chat = function(res){
             }
           }).then(save_chat);
       });
-}
+};
 
 var message_clicked = function(e){
   e.preventDefault();
@@ -997,7 +1086,7 @@ var message_clicked = function(e){
     $("#chat_longclicked").addClass("invisible");
     window.message_longpressed = false;
   }
-}
+};
 
 var message_longclicked = function(e){
   e.preventDefault();
@@ -1018,7 +1107,7 @@ var message_longclicked = function(e){
     $("#chat_longclicked").addClass("invisible");
     window.message_longpressed = false;
   }
-}
+};
 
 var delete_messages = function(e){
   localStorage["last_chat_with"] = window.selected_user["uid"];
@@ -1026,7 +1115,7 @@ var delete_messages = function(e){
     var path = "users/" + user_json["uid"] + "/conversations/" + window.selected_user["uid"] + "/" + window.selected_messages[i];
     window.db.ref(path).remove();
   }
-}
+};
 
 var popup_pic = function(e){
   e.preventDefault();
@@ -1038,7 +1127,7 @@ var popup_pic = function(e){
 
   $("#u_img").attr("src", window.selected_user["photoURL"]);
   $("#img_modal").modal("show");
-}
+};
 
 var refund = function(e){
   e.preventDefault();
@@ -1130,6 +1219,56 @@ function populate_transactions_view(){
   if(!isNullOrUndefinedOrEmpty(window.transactions)){
     Object.keys(window.transactions).forEach(function(key) {
       add_transactionUi(window.transactions[key]);
+
+      if(window.transactions[key]["seen"] == false || isNullOrUndefinedOrEmpty(window.transactions[key]["seen"])){
+        if(!isNullOrUndefinedOrEmpty(window.msg_token)){
+          var endpoint = "/notification";
+          var notf = {
+            notification: {
+              title: window.transactions[key]["payer"],
+              body: ""
+            },
+          }
+          switch(window.transactions[key]["condition"]){
+            case "refunded":
+                notf.notification.body = "Payment refunded by " + window.transactions[key]["refundedBy"];
+              break;
+            case "verified":
+                notf.notification.body = "Payment verified by " + window.transactions[key]["verifiedBy"];
+              break;
+            case "refundRequested":
+                notf.notification.body = "Refund requested";
+              break;
+            default:
+              notf.notification.body = "Paid " + (parseFloat(window.transactions[key]["amount"]) / 100)  + " NGN"
+              break;
+          }
+          var settings = {
+            "async": true,
+            "crossDomain": true,
+            "url": host+endpoint,
+            "method": "POST",
+            "contentType": "application/json",
+            "dataType": "json",
+            "headers" : {
+              "Content-Type": "application/json"
+            },
+            "data": JSON.stringify(notf)
+          }
+
+          $.ajax(settings)
+            .done(function (response) {
+              var data = response;
+            })
+            .fail(function(jqXHR, textStatus, errorThrown) {
+              var error = JSON.parse(jqXHR.responseText);
+              console.log(error);
+              errorHandler(error);
+            });
+
+        }
+      }
+
     });
   }
 
@@ -1209,7 +1348,7 @@ function getRegex(minValue, maxValue){
       }
   });
     return _res;
-}
+};
 
 function post_error(error){
   var endpoint = "/report_error";
@@ -1234,7 +1373,7 @@ function post_error(error){
     .fail(function(jqXHR, textStatus, errorThrown) {
       console.log(jqXHR.responseText);
     });
-}
+};
 
 var signout = function() {
   reset_all_span();
@@ -1389,7 +1528,6 @@ var update_profile = function(e){
           errorHandler(error);
         });
   }
-  
 };
 
 
@@ -1542,7 +1680,7 @@ var _dropdown = function(e){
   }else{
     $(href).addClass("show");
   }
-}
+};
 
 function removeElement(elementId) {
     var element = document.getElementById(elementId);
@@ -1556,11 +1694,11 @@ function addBefore(new_html, elementId2){
   //var referenceNode = document.getElementById(elementId2);
   //referenceNode.parentNode.insertBefore(newElement, referenceNode);
   //referenceNode.parentNode.appendChild(newElement);
-}
+};
 
 function appendElement(new_html, elementId2){
   $("#"+elementId2).append(new_html);
-}
+};
 
 function reset_all_span(){
   var allSpans = document.getElementsByTagName('span');
@@ -1647,7 +1785,7 @@ function toEpoch(strDate){
 
 var body_change_listener = function(e){
   $("iframe").remove();
-}
+};
 
 var chat_modal_handler = function(e){
   $("#chatee_profileUi").removeClass("invisible");
@@ -1717,7 +1855,7 @@ var chat_modal_handler = function(e){
       }
     });
   }
-}
+};
 
 function prepare_ui(){
     
@@ -1769,7 +1907,7 @@ function prepare_ui(){
     localStorage["activity_id_tr"] = document.getElementById("activity_id_tr").outerHTML;
     removeElement("activity_id_card-body");
     removeElement("activity_id_tr");
-}
+};
 
 function add_transactionUi(tran){
   var _id = tran["paymentId"];
@@ -1899,7 +2037,7 @@ function add_userUi(user){
     localStorage["last_chat_with"] = null;
   }
 
-}
+};
 
 function add_reportUi(act){
   var a_view = localStorage["activity_id_card-body"].replaceAll("activity_id", act["id"]);
@@ -1922,7 +2060,7 @@ function add_reportUi(act){
 
     appendElement(tr_ua, "activity_id_tb");
   }catch(e){ console.log(e); }
-}
+};
 
 /*function to_postman_JSONstringify_type(_in){
   var strg = JSON.stringify(_in);

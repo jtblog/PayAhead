@@ -21,6 +21,7 @@
     <link rel="stylesheet" href="assets/css/botui.min.css">
     <link rel="stylesheet" href="assets/css/botui-theme-default.css">
     <link rel="stylesheet" href="assets/css/jquery.datetimepicker.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
       <!-- Added link rel manifest -->
       <link rel="manifest" href="/manifest.json">
 
@@ -66,6 +67,24 @@
     </div>
     </nav>
     </div>
+    <div class="carousel slide" data-ride="carousel" id="carousel-1" style="padding: 50px;position: absolute;z-index: -1;width: 100%;">
+        <div class="carousel-inner" role="listbox">
+            <div class="carousel-item active"><img class="w-100 d-block" src="assets/img/WhatsApp%20Image%202019-10-21%20at%2012.51.49%20PM.jpeg" alt="Slide Image"></div>
+            <div class="carousel-item"><img class="w-100 d-block" src="assets/img/WhatsApp%20Image%202019-10-21%20at%2012.51.30%20PM.jpeg" alt="Slide Image"></div>
+            <div class="carousel-item"><img class="w-100 d-block" src="assets/img/WhatsApp%20Image%202019-10-21%20at%2012.51.34%20PM.jpeg" alt="Slide Image"></div>
+            <div class="carousel-item"><img class="w-100 d-block" src="assets/img/WhatsApp%20Image%202019-10-21%20at%2012.51.35%20PM.jpeg" alt="Slide Image"></div>
+            <div class="carousel-item"><img class="w-100 d-block" src="assets/img/WhatsApp%20Image%202019-10-21%20at%2012.51.52%20PM(2).jpeg" alt="Slide Image"></div>
+        </div>
+        <div><a class="carousel-control-prev" href="#carousel-1" role="button" data-slide="prev"><span class="carousel-control-prev-icon"></span><span class="sr-only">Previous</span></a><a class="carousel-control-next" href="#carousel-1" role="button" data-slide="next"><span class="carousel-control-next-icon"></span><span class="sr-only">Next</span></a></div>
+        <ol
+            class="carousel-indicators">
+            <li data-target="#carousel-1" data-slide-to="0" class="active"></li>
+            <li data-target="#carousel-1" data-slide-to="1"></li>
+            <li data-target="#carousel-1" data-slide-to="2"></li>
+            <li data-target="#carousel-1" data-slide-to="3"></li>
+            <li data-target="#carousel-1" data-slide-to="4"></li>
+            </ol>
+    </div>
     <div class="invisible" id="landing_tabs" style="max-height: 550px;margin: 0 auto;max-width: 360px;">
         <ul class="nav nav-tabs">
             <li class="nav-item visible"><a class="nav-link active invisible" role="tab" data-toggle="tab" href="#tab-1" id="rp_tab" style="padding: 5px;"><span style="font-size: smaller;">&nbsp;Reset Password</span></a></li>
@@ -76,12 +95,12 @@
             <div class="tab-pane active" role="tabpanel" id="tab-1">
                 <div class="container" style="background: #ffffff;-ms-overflow-style: none;scrollbar-width: none;overflow-y: scroll;overflow: -moz-scrollbars-none;/*display: inline;*/max-width: 360px;margin: 0 auto;max-height: 550px;padding-top: 50px;border: none;">
                     <form id="npass_form">
-                        <div class="form-group" style="margin-bottom: 0px;"><input class="form-control" type="password" name="password" required="" placeholder="Enter New Password" id="npass_input" style="margin-bottom: 0px;"><span id="npass_span" style="margin-left: 2.5%;font-size: smaller;color: red;"></span></div>
+                        <div class="form-group" style="margin-bottom: 0px;"><input class="form-control" type="password" name="password" required="" placeholder="Enter New Password" data-bs-hover-animate="pulse" id="npass_input" style="margin-bottom: 0px;"><span id="npass_span" style="margin-left: 2.5%;font-size: smaller;color: red;"></span></div>
                         <div
-                            class="form-group" style="margin-top: 0px;margin-bottom: 0px;"><input class="form-control" type="password" name="password" required="" placeholder="Confirm New Password" id="cnpass_input" style="margin-bottom: 0px;"><span id="cnpass_span" style="margin-left: 2.5%;font-size: smaller;color: red;"></span></div>
+                            class="form-group" style="margin-top: 0px;margin-bottom: 0px;"><input class="form-control" type="password" name="password" required="" placeholder="Confirm New Password" data-bs-hover-animate="pulse" id="cnpass_input" style="margin-bottom: 0px;"><span id="cnpass_span" style="margin-left: 2.5%;font-size: smaller;color: red;"></span></div>
                 <div
                     class="form-group" style="margin-top: 0px;margin-bottom: 0px;"><span id="error_span" style="margin-left: 5%;font-size: smaller;color: red;"></span></div>
-            <div class="form-group" style="margin-top: 0px;"><button class="btn btn-primary btn-sm" type="submit" id="reset_btn" style="width: 95%;font-size: 13px;">Submit Password</button></div>
+            <div class="form-group" style="margin-top: 0px;"><button class="btn btn-primary btn-sm" type="submit" data-bs-hover-animate="rubberBand" id="reset_btn" style="width: 95%;font-size: 13px;">Submit Password</button></div>
             </form>
         </div>
     </div>
@@ -97,15 +116,16 @@
     <div class="tab-pane" role="tabpanel" id="tab-3">
         <div class="container" style="background: #ffffff;-ms-overflow-style: none;scrollbar-width: none;overflow-y: scroll;overflow: -moz-scrollbars-none;/*display: inline;*/max-width: 360px;margin: 0 auto;max-height: 550px;padding-top: 50px;border: none;">
             <form id="bdetails_form">
-                <div class="form-group" style="margin-bottom: 0px;margin-top: 0px;"><select class="form-control" id="bkname_input" style="padding: 0px;"><optgroup label="Bank Name" id="bkname_group"></optgroup></select><span id="bkname_span" style="margin-left: 2.5%;color: red;font-size: smaller;"></span></div>
-                <div class="form-group"
-                    style="margin-bottom: 0px;margin-top: 0px;"><input class="form-control" type="text" required="" placeholder="Bank Account Number" autocomplete="on" id="accnum_input" style="margin-bottom: 0px;"><span id="accnum_span" style="margin-left: 2.5%;color: red;font-size: smaller;"></span></div>
+                <div class="form-group" style="margin-bottom: 0px;margin-top: 0px;"><select class="form-control" data-bs-hover-animate="pulse" id="bkname_input" style="padding: 0px;"><optgroup label="Bank Name" id="bkname_group"></optgroup></select><span id="bkname_span" style="margin-left: 2.5%;color: red;font-size: smaller;"></span></div>
                 <div
-                    class="form-group" style="margin-bottom: 0px;margin-top: 0px;"><textarea class="form-control" placeholder="Short Description ( Compulsory )" id="desc_input"></textarea><span id="desc_span" style="margin-left: 2.5%;color: red;font-size: smaller;"></span></div>
-        <div class="form-group" style="margin-top: 0px;margin-bottom: 0px;"><span id="error_span" style="margin-left: 5%;font-size: smaller;color: red;"></span></div>
-        <div class="form-group" style="margin-top: 0px;"><button class="btn btn-primary btn-sm" type="button" id="acc_btn" style="width: 95%;font-size: 13px;">Submit Account Details</button></div>
-        <div class="form-group"><a href="#" class="already"></a></div>
-        </form>
+                    class="form-group" style="margin-bottom: 0px;margin-top: 0px;"><input class="form-control" type="text" required="" placeholder="Bank Account Number" autocomplete="on" data-bs-hover-animate="pulse" id="accnum_input" style="margin-bottom: 0px;"><span id="accnum_span" style="margin-left: 2.5%;color: red;font-size: smaller;"></span></div>
+        <div
+            class="form-group" style="margin-bottom: 0px;margin-top: 0px;"><textarea class="form-control" placeholder="Short Description ( Compulsory )" data-bs-hover-animate="pulse" id="desc_input"></textarea><span id="desc_span" style="margin-left: 2.5%;color: red;font-size: smaller;"></span></div>
+    <div class="form-group"
+        style="margin-top: 0px;margin-bottom: 0px;"><span id="error_span" style="margin-left: 5%;font-size: smaller;color: red;"></span></div>
+    <div class="form-group" style="margin-top: 0px;"><button class="btn btn-primary btn-sm" type="button" data-bs-hover-animate="rubberBand" id="acc_btn" style="width: 95%;font-size: 13px;">Submit Account Details</button></div>
+    <div class="form-group"><a href="#" class="already"></a></div>
+    </form>
     </div>
     </div>
     </div>
@@ -210,6 +230,7 @@
     <script src="assets/js/firebase-messaging.js"></script>
     <script src="assets/js/long-press-event.min.js"></script>
     <script src="assets/js/app.js"></script>
+    <script src="assets/js/bs-animation.js"></script>
 </body>
 
 </html>

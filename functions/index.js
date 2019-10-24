@@ -537,9 +537,11 @@ app.post('/auth/updateOrCreateUser', isAdminOrBusiness, json_parser, function(re
 
 	  	});
 	}else{
-		response.status(400).json({ "code" : "auth/no-new-data",
-									"message" : "No new information found"
-								});
+		response.status(400).json(
+			{ "code" : "auth/no-new-data",
+			  "message" : "No new information found"
+			}
+		);
 		response.end();
 	}	
 });
@@ -586,7 +588,7 @@ app.post('/auth/update_profile', isNotBusinessOrStaff, json_parser, function(req
 	}
 
 	if(!other_details["isAdmin"]){
-		mAuth.disableUser(u_details, other_details, response, request, mDb);
+		mAuth.updateUser(u_details, other_details, response, request, mDb);
 	}else{
 		response.status(400).json({ "code" : "auth/not-authorized",
 			"message" : "You cannot disable an administrators"
@@ -1195,6 +1197,29 @@ app.post('/db/fsquery', json_parser, function(request, response){
 
 app.get('/get_credentials', verifyToken, function(request, response){
 	response.status(200).json({ "preset" : config, "refEndpoint" : "users/"+request.uid });
+});
+
+app.post('/notification', json_parser, function(request, response){
+	var _details = request.body;
+	/*var registrationToken = 'YOUR_REGISTRATION_TOKEN';
+	var message = {
+		notification: {
+			title: '$GOOG up 1.43% on the day',
+			body: '$GOOG gained 11.80 points to close at 835.67, up 1.43% on the day.'
+		},
+		token: registrationToken
+	};*/
+	
+	// Send a message to devices subscribed to the combination of topics
+	// specified by the provided condition.
+	admin.messaging().send(_details)
+		.then((response) => {
+			// Response is a message ID string.
+			console.log('Successfully sent message:', response);
+		})
+		.catch((error) => {
+			response.status(400).json(error);
+		});
 });
 
 
@@ -2150,7 +2175,6 @@ app.get('/admin/get_credentials', verifyToken, function(request, response){
 	response.status(200).json({ "preset" : config, "refEndpoint" : "users/"+request.uid });
 });
 
-
 app.post('/test', json_parser, function(request, response){
 	var _details = request.body;
 	var pass_key = randStr.generate(8);
@@ -2165,6 +2189,29 @@ app.post('/test', json_parser, function(request, response){
 
 	//var administrators = ['obagbemisoye', 'adewusijohnson'];
 	//response.status(200).send(`${ request.params["name"].toLowerCase().split(" ").join("").indexOf(administrators[1]) }`);
+});
+
+app.post('/admin/notification', json_parser, function(request, response){
+	var _details = request.body;
+	//var registrationToken = 'YOUR_REGISTRATION_TOKEN';
+	//var message = {
+	//	notification: {
+	//		title: '$GOOG up 1.43% on the day',
+	//		body: '$GOOG gained 11.80 points to close at 835.67, up 1.43% on the day.'
+	//	},
+	//	token: registrationToken
+	//};
+	
+	// Send a message to devices subscribed to the combination of topics
+	// specified by the provided condition.
+	admin.messaging().send(_details)
+		.then((response) => {
+			// Response is a message ID string.
+			console.log('Successfully sent message:', response);
+		})
+		.catch((error) => {
+			response.status(400).json(error);
+		});
 });
 
 /*

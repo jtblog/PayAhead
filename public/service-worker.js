@@ -103,14 +103,15 @@ self.addEventListener('fetch', (evt) => {
 //const host = self.location.href.slice(0, self.location.href.lastIndexOf("/"));
 firebase.initializeApp(config);
 const msging  = firebase.messaging();
-msging.requestPermission()
-  .then(function(){
-    return msging.getToken();
-  })
-  .then(function(token){
-    
-  })
-  .catch(function(err){});
 
-/*msging.onMessage(function(payload){
+/*msging.setBackgroundMessageHandler(function(payload) {
+  //console.log('[firebase-messaging-sw.js] Received background message ', payload);
+  // Customize notification here
+  const notificationTitle = 'PayAhead';
+  const notificationOptions = {
+    //icon: '/firebase-logo.png',
+    body: 'Background Message body.'
+  };
+
+  return self.registration.showNotification(notificationTitle, notificationOptions);
 });*/

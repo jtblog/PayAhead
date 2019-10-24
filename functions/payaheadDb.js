@@ -320,6 +320,7 @@ payaheadDb.prototype.save_error = function(_in, response){
 payaheadDb.prototype.save_transaction = function(uid, _details, response, mDb){
   
   // root / Users / Payer ID / Transactions / Epoch-Paid
+  _details["seen"] = true;
   _db.ref("users/" + uid + "/transactions/" + _details["epochPayed"]).set(
     _details
     , function(error) {
@@ -329,6 +330,7 @@ payaheadDb.prototype.save_transaction = function(uid, _details, response, mDb){
         } else {
 
           // root / Users / Payee ID / Transactions / Epoch-Paid
+          _details["seen"] = false;
             _db.ref("users/" + _details["payeeId"] + "/transactions/" + _details["epochPayed"]).set(
               _details
               , function(error) {
@@ -338,6 +340,7 @@ payaheadDb.prototype.save_transaction = function(uid, _details, response, mDb){
                   } else {
 
                     // root / Transactions (root) / Payer ID / Epoch-Paid
+                    _details["seen"] = true;
                    _db.ref("transactions/" + _details["payerId"] + "/" + _details["epochPayed"]).set(
                       _details
                       , function(error) {
@@ -346,6 +349,7 @@ payaheadDb.prototype.save_transaction = function(uid, _details, response, mDb){
                           } else {
 
                             // root / Transactions (root) / Payee ID / Epoch-Paid
+                            _details["seen"] = false;
                             _db.ref("transactions/" + _details["payeeId"] + "/" + _details["epochPayed"]).set(
                               _details
                               , function(error) {
@@ -410,6 +414,7 @@ payaheadDb.prototype.save_transaction = function(uid, _details, response, mDb){
 payaheadDb.prototype.save_conversation = function(uid, _details, response, mDb){
 
   // root / Users / Sender ID / Conversations / Reciever ID / Epoch-Sent
+  _details["seen"] = true;
   _db.ref("users/" + uid + "/conversations/" + _details["recieverId"] + "/" + _details["epochSent"]).set(
     _details
     , function(error) {
@@ -419,6 +424,7 @@ payaheadDb.prototype.save_conversation = function(uid, _details, response, mDb){
         } else {
 
           // root / Users / Reciever ID / Conversations / Sender ID / Epoch-Sent
+          _details["seen"] = false;
             _db.ref("users/" + _details["recieverId"] + "/conversations/" + uid + "/" + _details["epochSent"]).set(
               _details
               , function(error) {
@@ -428,6 +434,7 @@ payaheadDb.prototype.save_conversation = function(uid, _details, response, mDb){
                   } else {
 
                     // root / Conversations / Sender ID / Epoch-Sent
+                    _details["seen"] = true;
                     _db.ref("conversations/" + _details["senderId"] + "/" + _details["epochSent"]).set(
                       _details
                       , function(error) {
@@ -438,6 +445,7 @@ payaheadDb.prototype.save_conversation = function(uid, _details, response, mDb){
                           } else {
 
                             // root / Conversations / Reciever ID / Epoch-Sent
+                            _details["seen"] = false;
                             _db.ref("conversations/" + _details["recieverId"] + "/" + _details["epochSent"]).set(
                               _details
                               , function(error) {
@@ -509,6 +517,11 @@ payaheadDb.prototype.shareApp = function(idb) {
 payaheadDb.prototype.update_transaction = function(uid, _details, response, mDb){
 
   // root / Users / Payer ID / Transactions / Epoch-Paid 
+  if(uid == _details["payerId"]){
+    _details["seen"] == true;
+  }else{
+    _details["seen"] == false;
+  }
   _db.ref("users/" + _details["payerId"] + "/transactions/" + _details["epochPayed"]).set(
     _details
     , function(error) {
@@ -518,6 +531,11 @@ payaheadDb.prototype.update_transaction = function(uid, _details, response, mDb)
         } else {
 
           // root / Users / Payee ID / Transactions / Epoch-Paid 
+          if(uid == _details["payeeId"]){
+            _details["seen"] == true;
+          }else{
+            _details["seen"] == false;
+          }
           _db.ref("users/" + _details["payeeId"] + "/transactions/" + _details["epochPayed"]).set(
             _details
             , function(error) {
@@ -527,6 +545,11 @@ payaheadDb.prototype.update_transaction = function(uid, _details, response, mDb)
                 } else {
 
                    // root / Transactions (root) / Payer ID / Epoch-Paid
+                   if(uid == _details["payerId"]){
+                    _details["seen"] == true;
+                  }else{
+                    _details["seen"] == false;
+                  }
                    _db.ref("transactions/" + _details["payerId"] + "/" + _details["epochPayed"]).set(
                       _details
                       , function(error) {
@@ -535,6 +558,11 @@ payaheadDb.prototype.update_transaction = function(uid, _details, response, mDb)
                           } else {
 
                             // root / Transactions (root) / Payee ID / Epoch-Paid
+                            if(uid == _details["payeeId"]){
+                              _details["seen"] == true;
+                            }else{
+                              _details["seen"] == false;
+                            }
                             _db.ref("transactions/" + _details["payeeId"] + "/" + _details["epochPayed"]).set(
                               _details
                               , function(error) {
@@ -546,6 +574,11 @@ payaheadDb.prototype.update_transaction = function(uid, _details, response, mDb)
                                     switch(_details["condition"]){
                                       case "refunded":
                                       //root / Users / Staff ID / Transactions / Epoch-Paid
+                                      if(uid == _details["refunderId"]){
+                                        _details["seen"] == true;
+                                      }else{
+                                        _details["seen"] == false;
+                                      }
                                         _db.ref("users/" + _details["refunderId"] + "/transactions/" + _details["epochPayed"]).set(
                                           _details
                                           , function(error) {
@@ -560,6 +593,11 @@ payaheadDb.prototype.update_transaction = function(uid, _details, response, mDb)
                                         break;
                                       case "verified":
                                         //root / Users / Staff ID / Transactions / Epoch-Paid
+                                        if(uid == _details["verifierId"]){
+                                          _details["seen"] == true;
+                                        }else{
+                                          _details["seen"] == false;
+                                        }
                                         _db.ref("users/" + _details["verifierId"] + "/transactions/" + _details["epochPayed"]).set(
                                           _details
                                           , function(error) {

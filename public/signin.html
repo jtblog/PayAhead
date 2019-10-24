@@ -21,6 +21,7 @@
     <link rel="stylesheet" href="assets/css/botui.min.css">
     <link rel="stylesheet" href="assets/css/botui-theme-default.css">
     <link rel="stylesheet" href="assets/css/jquery.datetimepicker.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
       <!-- Added link rel manifest -->
       <link rel="manifest" href="/manifest.json">
 
@@ -86,14 +87,14 @@
     <div class="container">
         <div style="background: #ffffff;-ms-overflow-style: none;scrollbar-width: none;overflow-y: scroll;overflow: -moz-scrollbars-none;max-width: 360px;margin: 0 auto;max-height: 550px;padding-top: 50px;border: none;z-index: 10;background-color: transparent;">
             <form id="signin_form">
-                <div class="form-group" style="margin-bottom: 0px;"><input class="form-control" type="text" required="" placeholder="Email address or Phone number" id="ep_input" style="margin-bottom: 0px;"><span id="ep_span" style="margin-left: 2.5%;font-size: smaller;color: red;"></span></div>
-                <div class="form-group"
-                    style="margin-top: 0px;margin-bottom: 0px;"><input class="form-control" type="password" name="password" required="" placeholder="password" id="password_input" style="margin-bottom: 0px;"><span id="password_span" style="margin-left: 2.5%;font-size: smaller;color: red;"></span></div>
+                <div class="form-group" style="margin-bottom: 0px;"><input class="form-control" type="text" required="" placeholder="Email address or Phone number" data-bs-hover-animate="pulse" id="ep_input" style="margin-bottom: 0px;"><span id="ep_span" style="margin-left: 2.5%;font-size: smaller;color: red;"></span></div>
                 <div
-                    class="form-group" style="margin-top: 0px;margin-bottom: 0px;"><span id="error_span" style="margin-left: 5%;font-size: smaller;color: red;"></span></div>
-        <div class="form-group" style="margin-top: 0px;"><button class="btn btn-primary btn-sm" type="submit" id="signin_btn" style="width: 95%;font-size: 13px;">Sign In</button></div>
-        <div class="form-group"><a class="text-left invisible" href="#" id="rspass_a" style="font-size: 13px;margin-left: 10px;">Forgot password</a><a class="invisible" href="#" id="emailv_a" style="font-size: 13px;margin-left: 10px;">Resend Email Verification</a></div>
-        </form>
+                    class="form-group" style="margin-top: 0px;margin-bottom: 0px;"><input class="form-control" type="password" name="password" required="" placeholder="password" data-bs-hover-animate="pulse" id="password_input" style="margin-bottom: 0px;"><span id="password_span" style="margin-left: 2.5%;font-size: smaller;color: red;"></span></div>
+        <div
+            class="form-group" style="margin-top: 0px;margin-bottom: 0px;"><span id="error_span" style="margin-left: 5%;font-size: smaller;color: red;"></span></div>
+    <div class="form-group" style="margin-top: 0px;"><button class="btn btn-primary btn-sm" type="submit" data-bs-hover-animate="rubberBand" id="signin_btn" style="width: 95%;font-size: 13px;">Sign In</button></div>
+    <div class="form-group"><a class="text-left invisible" href="#" id="rspass_a" style="font-size: 13px;margin-left: 10px;">Forgot password</a><a class="invisible" href="#" id="emailv_a" style="font-size: 13px;margin-left: 10px;">Resend Email Verification</a></div>
+    </form>
     </div>
     </div>
     <div class="features-boxed">
@@ -196,6 +197,7 @@
     <script src="assets/js/firebase-messaging.js"></script>
     <script src="assets/js/long-press-event.min.js"></script>
     <script src="assets/js/app.js"></script>
+    <script src="assets/js/bs-animation.js"></script>
 </body>
 
 </html>
