@@ -352,9 +352,23 @@
                                             <div class="modal-header">
                                                 <h6 class="modal-title"></h6><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>
                                             <div class="modal-body"><input type="text" placeholder="Payment ID" inputmode="numeric" id="verifier_input" style="font-size: 13px;font-weight: bold;padding: 5px 0;border-radius: 100px;margin: 0 auto 10px auto;border-color: gray;height: 35px;border-style: dotted;width: 100%;padding: 5px;">
-                                                <div><span class="text-danger" id="verifier_error" style="font-size: smaller;"></span></div>
+                                                <button
+                                                    class="btn btn-primary btn-sm" type="button" id="qrcode_btn" style="width: 100%;margin: 0 auto;">Scan to verify</button>
+                                                    <div><span class="text-danger" id="verifier_error" style="font-size: smaller;"></span></div>
                                             </div>
                                             <div class="modal-footer"><button class="btn btn-primary" type="button" id="verifier_btn">Verify</button></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal" role="dialog" tabindex="-1" id="qr_modal" style="margin: 0 auto;">
+                                    <div class="modal-dialog modal-sm" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h6 class="modal-title"></h6><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>
+                                            <div class="modal-body"><canvas id="canvas" style="margin: 0 auto;height: 240px; width:100%"></canvas></div>
+                                            <div class="modal-footer">
+                                                <div><span class="text-danger" id="qr_error" style="font-size: smaller;"></span></div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -482,6 +496,7 @@
                 <script src="assets/js/firebase-database.js"></script>
                 <script src="assets/js/firebase-storage.js"></script>
                 <script src="assets/js/long-press-event.min.js"></script>
+                <script src="assets/js/jsQR.js"></script>
                 <script src="assets/js/app.js"></script>
 </body>
 

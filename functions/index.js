@@ -1,28 +1,29 @@
-var functions = require('firebase-functions');
-var admin = require('firebase-admin');
-var firebase = require('firebase');
-var randStr = require('randomstring');
-var jsonQuery = require('json-query');
-var Fuse = require('fuse.js');
-var WebSocket = require('ws');
+functions = require('firebase-functions');
+admin = require('firebase-admin');
+firebase = require('firebase');
+randStr = require('randomstring');
+jsonQuery = require('json-query');
+Fuse = require('fuse.js');
+WebSocket = require('ws');
 //const swPrecache = require('sw-precache')
 
-var parser = require('body-parser');
-var json_parser = parser.json( { type: "application/*+json" } );
-//var urlencoded_parser = parser.urlencoded( { extended : false } );
-//var raw_parser = parser.raw( { type : 'application/vnd.custom-type' } );
-//var text_parser = parser.text( { type : 'text/html' } );
+parser = require('body-parser');
+json_parser = parser.json( { type: "application/*+json" } );
+//urlencoded_parser = parser.urlencoded( { extended : false } );
+//raw_parser = parser.raw( { type : 'application/vnd.custom-type' } );
+//text_parser = parser.text( { type : 'text/html' } );
 
-var express = require('express');
+express = require('express');
 
-var serviceAccount  = require('./payahead-firebase-adminsdk-credentials.json');
-var config  = require('./payahead-firebase-javascriptsdk-credentials.json');
-var mAuth = require('./payaheadAuth');
-var mDb = require('./payaheadDb');
-var mPay = require('./payaheadPay');
+serviceAccount  = require('./payahead-firebase-adminsdk-credentials.json');
+config  = require('./payahead-firebase-javascriptsdk-credentials.json');
+rave_keys = require('./rave_pay_keys.json');
+mAuth = require('./payaheadAuth');
+mDb = require('./payaheadDb');
+mPay = require('./payaheadPay');
 
-var app = express();
-var cors = require('cors');
+app = express();
+cors = require('cors');
 app.use(cors());
 
 //swPrecache.write('./public/service-worker.js', {
@@ -34,7 +35,7 @@ app.use(cors());
 firebase.initializeApp(config);
 
 // Initialize the default app
-var defaultApp = admin.initializeApp({
+defaultApp = admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: "https://payahead-80360.firebaseio.com"
 });
@@ -43,17 +44,17 @@ mAuth = new mAuth();
 mDb = new mDb();
 mPay = new mPay();
 
-var payahead_auth = firebase.auth();
-//global.payahead_db = firebase.database();
-var _auth = defaultApp.auth();
-var _db = defaultApp.database();
+payahead_auth = firebase.auth();
+//payahead_db = firebase.database();
+_auth = defaultApp.auth();
+_db = defaultApp.database();
 mAuth.shareApp(payahead_auth, defaultApp, _db);
 //mDb.shareApp(payahead_db);
 mDb.shareApp(_db);
 
-var defaultPhotoURL = "https://firebasestorage.googleapis.com/v0/b/payahead-80360.appspot.com/o/index.png?alt=media&token=473d280c-967d-4253-8bfb-b6f033347371";
+defaultPhotoURL = "https://firebasestorage.googleapis.com/v0/b/payahead-80360.appspot.com/o/index.png?alt=media&token=473d280c-967d-4253-8bfb-b6f033347371";
 
-var isNullOrUndefinedOrEmpty = function(_in){
+isNullOrUndefinedOrEmpty = function(_in){
   var _check = _in+"";
   switch(_check){
     case null:
@@ -656,6 +657,11 @@ app.post('/signout/:uid', function(request, response){
 
 app.get('/payment/get_paystack_keys', verifyToken, function(request, response){
 	mDb.get_paystack_keys(response);
+});
+
+app.get('/payment/get_rave_keys', verifyToken, function(request, response){
+	var keys = { 'PBFPubKey': rave_keys['publicKey'], 'PBFSecKey': rave_keys['secretKey']  };
+	response.status(200).json(keys);
 });
 
 app.get('/db/get_organizations', verifyToken, function(request, response){
@@ -2158,6 +2164,11 @@ app.get('/admin/db/industries', function(request, response){
 
 app.get('/admin/payment/get_paystack_keys', verifyToken, function(request, response){
 	mDb.get_paystack_keys(response);
+});
+
+app.get('/admin/payment/get_rave_keys', verifyToken, function(request, response){
+	var keys = { 'PBFPubKey': rave_keys['publicKey'], 'PBFSecKey': rave_keys['secretKey']  };
+	response.status(200).json(keys);
 });
 
 app.post('/admin/payment/update_transaction', isAdminOrBusinessOrStaff, json_parser, function(request, response){

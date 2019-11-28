@@ -1071,7 +1071,8 @@ var verify = function(e){
         $("#verifier_error").text("Payment has already been verified");
       }else{
         
-        var endpoint = "/payment/get_paystack_keys";
+        //var endpoint = "/payment/get_paystack_keys";
+        var endpoint = "/payment/get_rave_keys";
         if(!host.endsWith("/admin")){
           endpoint = "/admin" + endpoint;
         }
@@ -1087,18 +1088,24 @@ var verify = function(e){
 
         $.ajax(settings).done(function (response) {
           var data = response;
+          var ver_data = {
+            "txref": tran["txref"],
+            "SECKEY": data["PBFSecKey"]
+          }
 
           var settings = {
             "async": true,
             "crossDomain": true,
-            "url": "https://api.paystack.co/transaction/verify/" + tran["reference"],
-            "method": "GET",
+            "url" : "https://api.ravepay.co/flwv3-pug/getpaidx/api/v2/verify",
+            //"url": "https://api.paystack.co/transaction/verify/" + tran["reference"],
+            "method": "POST",
             "contentType": "application/json",
-            //"dataType": "json",
+            "dataType": "json",
             "headers" : {
-              //"Content-Type": "application/json",
-              "Authorization" : "Bearer " + data["s_key"]
-            }
+              "Content-Type": "application/json",
+              //"Authorization" : "Bearer " + data["s_key"]
+            },
+            "data": JSON.stringify(ver_data)
           }
 
           $.ajax(settings)
@@ -1180,7 +1187,8 @@ var refund = function(e){
   if(tran["condition"] == "refunded"){
     alert("Payment has already been refunded");
   }else{
-    var endpoint = "/payment/get_paystack_keys";
+    //var endpoint = "/payment/get_paystack_keys";
+    var endpoint = "/payment/get_rave_keys";
     if(!host.endsWith("/admin")){
       endpoint = "/admin" + endpoint;
     }
@@ -1197,18 +1205,24 @@ var refund = function(e){
     $.ajax(settings).done(function (response) {
       var data = response;
 
+      var ref_data = {
+        "ref": tran["flwRef"],
+        "SECKEY": data["PBFSecKey"]
+      }
+
       var settings = {
         "async": true,
         "crossDomain": true,
-        "url": "https://api.paystack.co/refund",
+        "url" : "https://api.ravepay.co/flwv3-pug/getpaidx/api/v2/verify",
+        //"url": "https://api.paystack.co/refund",
         "method": "POST",
         "contentType": "application/json",
         "dataType": "json",
         "headers" : {
           "Content-Type": "application/json",
-          "Authorization" : "Bearer " + data["s_key"]
+          //"Authorization" : "Bearer " + data["s_key"]
         },
-        "data" : JSON.stringify({"transaction" : tran["reference"]})
+        "data" : JSON.stringify(ref_data)
       }
 
       $.ajax(settings)
@@ -1713,6 +1727,143 @@ String.prototype.trimmer = function() {
     return target.toLowerCase().split(" ").join("");
 };
 
+function drawLine(begin, end, color) {
+  canvas.beginPath();
+  canvas.moveTo(begin.x, begin.y);
+  canvas.lineTo(end.x, end.y);
+  canvas.lineWidth = 4;
+  canvas.strokeStyle = color;
+  canvas.stroke();
+}
+
+function tick() {
+  if (video.readyState === video.HAVE_ENOUGH_DATA) {
+    canvasElement.height = video.videoHeight;
+    canvasElement.width = video.videoWidth;
+    canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
+    var imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
+    var code = jsQR(imageData.data, imageData.width, imageData.height, {
+      inversionAttempts: "dontInvert",
+    });
+    $("#qr_error").html("");
+    if (code) {
+      //drawLine(code.location.topLeftCorner, code.location.topRightCorner, "#FF3B58");
+      //drawLine(code.location.topRightCorner, code.location.bottomRightCorner, "#FF3B58");
+      //drawLine(code.location.bottomRightCorner, code.location.bottomLeftCorner, "#FF3B58");
+      //drawLine(code.location.bottomLeftCorner, code.location.topLeftCorner, "#FF3B58");
+      ;
+      if(code.data == JSON.parse(localStorage["sub_details1"])["paymentId"]){
+        var tran = JSON.parse(localStorage["sub_details1"]);
+        if(tran["condition"] == "verified"){
+          $("#qr_error").text("Payment has already been verified");
+        }else{
+          
+          //var endpoint = "/payment/get_paystack_keys";
+          var endpoint = "/payment/get_rave_keys";
+          if(!host.endsWith("/admin")){
+            endpoint = "/admin" + endpoint;
+          }
+          var settings = {
+            "async": true,
+            "crossDomain": true,
+            "url": host + endpoint,
+            "method": "GET",
+            "headers": {
+              "authorization": window.authorization
+            }
+          }
+  
+          $.ajax(settings).done(function (response) {
+            var data = response;
+            var ver_data = {
+              "txref": tran["txref"],
+              "SECKEY": data["PBFSecKey"]
+            }
+  
+            var settings = {
+              "async": true,
+              "crossDomain": true,
+              "url" : "https://api.ravepay.co/flwv3-pug/getpaidx/api/v2/verify",
+              //"url": "https://api.paystack.co/transaction/verify/" + tran["reference"],
+              "method": "POST",
+              "contentType": "application/json",
+              "dataType": "json",
+              "headers" : {
+                "Content-Type": "application/json",
+                //"Authorization" : "Bearer " + data["s_key"]
+              },
+              "data": JSON.stringify(ver_data)
+            }
+  
+            $.ajax(settings)
+              .done(function (response) {
+                var data = response["data"];
+  
+                var endpoint = "/payment/update_transaction";
+                if(!host.endsWith("/admin")){
+                  endpoint = "/admin" + endpoint;
+                }
+  
+                if(!isNullOrUndefinedOrEmpty(data)){
+                  Object.keys(data).forEach(function(key) {
+                    tran[key] = data[key];
+                  });
+                }
+  
+                tran["verifiedAt"] = window.user_json["branch"];
+                tran["verifiedBy"] = window.user_json["displayName"];
+                tran["verifierId"] = window.user_json["uid"];
+                tran["epochVerified"] = Date.now();
+                tran["epochLatest"] = tran["epochVerified"];
+                tran["condition"] = "verified";
+                tran["seen"] = false;
+  
+                var settings = {
+                    "async": true,
+                    "crossDomain": true,
+                    "url": host+endpoint,
+                    "method": "POST",
+                    "contentType": "application/json",
+                    "dataType": "json",
+                    "headers" : {
+                      "Content-Type": "application/json",
+                      "authorization" : window.authorization
+                    },
+                    "data": JSON.stringify(tran)
+                  }
+  
+                  $.ajax(settings)
+                    .done(function (response) {
+                      var data = response;
+                      localStorage["sub_details1"] = "";
+                      $("#qr_modal").modal("hide");
+                    })
+                    .fail(function(jqXHR, textStatus, errorThrown) {
+                      var error = JSON.parse(jqXHR.responseText);
+                      $("#qr_error").text("Could not verify payment. Please try again later");
+                      errorHandler(error);
+                    });
+  
+              })
+              .fail(function(jqXHR, textStatus, errorThrown) {
+                var error = JSON.parse(jqXHR.responseText);
+                errorHandler(error);
+              });
+          });
+  
+        }
+        
+      }else{
+        $("#verifier_error").text("Invalid ID. Cannot verify payment");
+      }
+      
+    } else {
+      $("#qr_error").html("Found no code");
+    }
+  }
+  requestAnimationFrame(tick);
+}
+
 function isNullOrUndefinedOrEmpty(_in){
   var _check = _in;//+"";
   switch(_check){
@@ -1843,9 +1994,35 @@ function prepare_ui(){
     $("#chat_modal").on('show.bs.modal', chat_modal_handler);//.on('hide.bs.modal', modal_hidden);
     $("#del_msgs").click(delete_messages);
 
+    $("#qrcode_btn").click(function(e){
+      $("#verifier_modal").modal("hide");
+      $("#qr_modal").modal("show");
+      window.video = document.createElement("video");
+      window.canvasElement = document.getElementById("canvas");
+      window.canvas = canvasElement.getContext("2d");
+
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(function(stream) {
+        video.srcObject = stream;
+        video.setAttribute("playsinline", true);
+        video.play();
+        requestAnimationFrame(tick);
+      });
+    });
+    $("#qr_modal").on('hide.bs.modal', function(e){
+      location.reload();
+    });
+
+    
+    
+    var loadingMessage = document.getElementById("loadingMessage");
+    var outputContainer = document.getElementById("output");
+    var outputMessage = document.getElementById("outputMessage");
+    var outputData = document.getElementById("outputData");
+
     var script = document.createElement("script");
     script.setAttribute("type", "text/javascript");
-    script.setAttribute("src", "https://js.paystack.co/v1/inline.js");
+    //script.setAttribute("src", "https://js.paystack.co/v1/inline.js");
+    script.setAttribute("src", "https://api.ravepay.co/flwv3-pug/getpaidx/api/flwpbf-inline.js");
     document.getElementsByTagName("head")[0].appendChild(script);
 
 

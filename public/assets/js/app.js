@@ -170,6 +170,7 @@ function landing(){
   if(urlParams.has('secret')){
     window.authorization = urlParams.get('secret');
     window.bname = urlParams.get('business_name');
+    window.bmobile = urlParams.get('business_mobile');
     window.id = urlParams.get('id');
     window.pc = urlParams.get('agreement');
   }
@@ -221,7 +222,8 @@ function landing(){
         });
   }else{
       
-      var endpoint = "/payment/get_paystack_keys";
+      //var endpoint = "/payment/get_paystack_keys";
+      var endpoint = "/payment/get_rave_keys";
       var settings = {
         "async": true,
         "crossDomain": true,
@@ -234,28 +236,32 @@ function landing(){
 
       $.ajax(settings).done(function (response) {
         var data = response;
-        window.ky = data["s_key"];
+        //window.ky = data["s_key"];
+        window.pky = data["PBFPubKey"];
+        window.sky = data["PBFSecKey"];
         var settings = {
           "async": true,
           "crossDomain": true,
-          "url": "https://api.paystack.co/bank",
+          //"url": "https://api.paystack.co/bank",
+          "url": "https://api.ravepay.co/v2/banks/NG?public_key=" + window.pky,
           "method": "GET",
-          //"contentType": "application/json",
-          //"dataType": "json",
+          "contentType": "application/json",
+          "dataType": "json",
           "headers" : {
-            //"Content-Type": "application/json",
-            "Authorization" : "Bearer " + data["s_key"]
+            "Content-Type": "application/json",
+            //"Authorization" : "Bearer " + data["s_key"]
           }
         }
 
         $.ajax(settings)
           .done(function (response) {
             var data = JSON.parse(JSON.stringify(response))['data'];
+            window.banks = data["Banks"];
             document.getElementById('bkname_group').innerHTML = "";
             for(i=0; i<data.length; i++){
               opt = document.createElement('OPTION');
-              opt.textContent = data[i]['name'];
-              opt.value = i;
+              opt.textContent = data[i]['Name'];
+              opt.value = data[i]['Code'];
               document.getElementById('bkname_group').appendChild(opt);
             }
             $("#bs_tab").click();
@@ -281,23 +287,35 @@ function landing(){
 
 var complete_business_reg = function(){
 
-  window.acc_details = {
+  /*window.acc_details = {
     'business_name' : window.bname,
     'settlement_bank' : $("#bkname_input option:selected").text(),
     'account_number' : $("#accnum_input").val(),
     'percentage_charge' : window.pc
+  }*/
+
+  window.acc_details = {
+    'business_name' : window.bname,
+    'account_bank' : $("#bkname_input option:selected").val(),
+    'account_number' : $("#accnum_input").val(),
+    'split_value' : window.pc,
+    'split_type' : "percentage",
+    'country' : 'NG',
+    'seckey' : window.sky,
+    'business_mobile' : window.bmobile
   }
 
   var settings = {
     "async": true,
     "crossDomain": true,
-    "url": "https://api.paystack.co/subaccount",
+    //"url": "https://api.paystack.co/subaccount",
+    "url": "https://api.ravepay.co/v2/gpx/subaccounts/create",
     "method": "POST",
     "contentType": "application/json",
     "dataType": "json",
     "headers" : {
       "Content-Type": "application/json",
-      "Authorization" : "Bearer " + window.ky
+      //"Authorization" : "Bearer " + window.ky
     },
     "data": JSON.stringify(window.acc_details)
   }
@@ -307,6 +325,7 @@ var complete_business_reg = function(){
       var data = JSON.parse(JSON.stringify(response))['data'];
       data["uid"] = window["id"];
       data["description"] = $("#desc_input").val();
+      data["subaccount_code"] = { "id" : data["subaccount_id"] };
       var endpoint = "/save_business_account";
       var settings = {
         "async": true,
@@ -602,7 +621,8 @@ function prepare_for_payment(){
         $("#proceed_btn").removeClass("invisible");
         var script = document.createElement("script");
         script.setAttribute("type", "text/javascript");
-        script.setAttribute("src", "https://js.paystack.co/v1/inline.js");
+        //script.setAttribute("src", "https://js.paystack.co/v1/inline.js");
+        script.setAttribute("src", "https://api.ravepay.co/flwv3-pug/getpaidx/api/flwpbf-inline.js");
         document.getElementsByTagName("head")[0].appendChild(script);
       })
       .fail(function(jqXHR, textStatus, errorThrown) {
@@ -620,14 +640,17 @@ var pay_popup = function(e){
     if(!isNullOrUndefinedOrEmpty(JSON.stringify(window.sub_details0))){
         var secret = {};
 
-        var amt = "" + ($("#amount_input").val() * 100);
+        var amt = "" + $("#amount_input").val();// * 100);
         window.sub_details0["amount"] = amt;
 
         var config = {
-          "email" : window.user_json["email"],
+          //"email" : window.user_json["email"],
+          "customer_email" : window.user_json["email"],
           "amount" : amt,
+          "currency": "NGN",
+          "txref" : "payahead-" + Math.floor(100000 + Math.random() * 900000),
           //"bearer": "account" or "subaccount",
-          "subaccount": window.sub_details0["subaccount_code"],
+          "subaccounts": [ window.sub_details0["subaccount_code"] ],
           onClose: function(){
             //alert('Window closed.');
           },
@@ -638,7 +661,8 @@ var pay_popup = function(e){
           }
         };
         
-        var endpoint = "/payment/get_paystack_keys";
+        //var endpoint = "/payment/get_paystack_keys";
+        var endpoint = "/payment/get_rave_keys";
         var settings = {
           "async": true,
           "crossDomain": true,
@@ -651,10 +675,11 @@ var pay_popup = function(e){
 
         $.ajax(settings).done(function (response) {
           var data = response;
-          //secret["p_key"] = data["p_key"];
-          //secret["s_key"] = data["s_key"];
-          config["key"] = data["p_key"];
-          PaystackPop.setup(config).openIframe();
+          //config["key"] = data["p_key"];
+          config["PBFPubKey"] = data["PBFPubKey"];
+          window.win = window;
+          getpaidSetup(config);
+          //PaystackPop.setup(config).openIframe();
           /*checkout(secret["s_key"], config);*/
         }); 
       }
@@ -725,7 +750,8 @@ function allowNotifications(){
 function save_t(_res){
   var endpoint = "/payment/save_transaction";
   var _p = {
-    "reference" : _res.reference,
+    //"reference" : _res.reference,
+    "reference" : _res.tx.flwRef,
     "payeeId" : window.sub_details0["uid"],
     "payee" : window.sub_details0["business_name"],
     "payerId" : window.user_json["uid"],
@@ -1909,6 +1935,22 @@ function prepare_ui(){
     removeElement("activity_id_tr");
 };
 
+var qrgen = function(e){
+  e.preventDefault();
+  var id = $(this).attr('id');
+  id = id.replaceAll("_qrghref", "");
+  document.getElementById("qrcode").innerHTML = "";
+  var qrcode = new QRCode(document.getElementById("qrcode"), {
+    text: id,
+    width: 128,
+    height: 128,
+    colorDark : "#000000",
+    colorLight : "#ffffff",
+    correctLevel : QRCode.CorrectLevel.H
+  });
+  $("#qrgen_modal").modal("show");
+};
+
 function add_transactionUi(tran){
   var _id = tran["paymentId"];
             
@@ -1926,6 +1968,7 @@ function add_transactionUi(tran){
   $("#" + _id + "_byh6").html($("#" + _id + "_byh6").html() + tran["payer"]);
   $("#" + _id + "_timeh6").html($("#" + _id + "_timeh6").html() + toDate(tran["epochPayed"]) );
   $("#" + _id + "_btn").click(_dropdown);
+  $("#" + _id + "_qrghref").click(qrgen);
 
   if(window.user_json["isBusiness"] == true || window.user_json["isStaff"] == true || window.user_json["isBusiness"] == "true" || window.user_json["isStaff"] == "true"){
     $("#" + _id + "_idh6").remove();

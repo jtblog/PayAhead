@@ -191,7 +191,7 @@ payaheadDb.prototype.get_user = function(uid, _user, authorization, response, re
         if(!isNullOrUndefinedOrEmpty(_user)){
           if(isBusiness && isNullOrUndefinedOrEmpty(dt["subaccount_code"])){
             var url = request.protocol + "://" + request.headers['x-forwarded-host'];
-            response.status(200).json( { "redirect" : url + '/landing.html?secret=' + authorization + "&id=" + uid + "&business_name=" + dt["business_name"] + "&agreement=" + dt["percentage_charge"] } );
+            response.status(200).json( { "redirect" : url + '/landing.html?secret=' + authorization + "&id=" + uid + "&business_name=" + dt["business_name"] + "&agreement=" + dt["percentage_charge"] + "&business_mobile=" + dt["phoneNumber"] } );
           }else{
             Object.keys(_user).forEach(function(key) {
               dt[key] = _user[key];
@@ -203,7 +203,7 @@ payaheadDb.prototype.get_user = function(uid, _user, authorization, response, re
         }else{
           if(isBusiness && isNullOrUndefinedOrEmpty(dt["subaccount_code"])){
             var url = request.protocol + "://" + request.headers['x-forwarded-host'];
-            response.status(200).json( { "redirect" : url + '/landing.html?secret=' + authorization + "&id=" + uid + "&business_name=" + dt["business_name"] + "&agreement=" + dt["percentage_charge"] } );
+            response.status(200).json( { "redirect" : url + '/landing.html?secret=' + authorization + "&id=" + uid + "&business_name=" + dt["business_name"] + "&agreement=" + dt["percentage_charge"] + "&business_mobile=" + dt["phoneNumber"] } );
           }else{
             response.status(200).json({"authorization" : authorization, "user" : dt });
           }
@@ -283,6 +283,7 @@ payaheadDb.prototype.save_businessuser_details = function(uid, _in, response, mD
         Object.keys(data).forEach(function(key) {
           _in[key] = data[key];
         });
+        _in['subaccount_code'] = { 'id' : _in['subaccount_id'] };
         _db.ref("users/" + _in["uid"]).set(
           _in
           , function(error) {

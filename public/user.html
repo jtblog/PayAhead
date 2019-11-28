@@ -113,8 +113,18 @@
     </div>
     <div class="tab-pane" role="tabpanel" id="tab-2" style="margin-bottom: 50px;">
         <div class="d-xl-flex align-items-stretch align-items-xl-center" style="padding: 0px;"><button class="btn btn-primary" type="button" id="save_pays_btn" style="font-size: 13px;padding-top: 0px;padding-bottom: 0px;padding-right: 3px;padding-left: 3px;margin: 0px;">Save</button></div>
-        <div class="modal" role="dialog" tabindex="-1" id="save_pays_modal"
-            style="margin: 0 auto;">
+        <div class="modal fade" role="dialog" tabindex="-1"
+            id="qrgen_modal" style="max-width: 360px;margin: 0 auto;">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header d-flex align-items-stretch" style="padding: 0px;display: -ms-flexbox;display: flex;-ms-flex-wrap: wrap;flex-wrap: wrap;"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>
+                    <div class="modal-body d-flex justify-content-center align-items-center" style="padding: 0px;">
+                        <div id="qrcode" style="max-width: 360px;height: 240px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal" role="dialog" tabindex="-1" id="save_pays_modal" style="margin: 0 auto;">
             <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -168,16 +178,15 @@
                 <div><a class="btn btn-primary btn-block" data-toggle="collapse" aria-expanded="false" aria-controls="collapse-1" role="button" href="#collapse-1" id="payment_id_btn" style="width: 100%;padding: 0px;height: 3px;margin: 0px;font-size: 11px;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">...</a>
                     <div
                         class="collapse" id="collapse-1">
-                        <div><a href="#" id="payment_id_rrfhref" style="font-size: 13px;margin: 0px;">Request refund</a></div>
-                        <h6 class="text-muted mb-2" id="payment_id_byh6" style="font-size: 12px;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Payed by:&nbsp;</h6><label id="payment_id_vfrfdlbl" style="font-size: 12px;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Verified on:&nbsp;<br></label></div>
+                        <div><a href="#" id="payment_id_rrfhref" style="font-size: 13px;margin: 0px;margin-right: 10px;">Request refund</a><a href="#" id="payment_id_qrghref" style="font-size: 13px;margin: 0px;">Scan</a></div>
+                        <h6 class="text-muted mb-2" id="payment_id_byh6"
+                            style="font-size: 12px;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Payed by:&nbsp;</h6><label id="payment_id_vfrfdlbl" style="font-size: 12px;-ms-overflow-style: none;scrollbar-width: none;overflow-x: scroll;overflow: -moz-scrollbars-none;">Verified on:&nbsp;<br></label></div>
             </div>
         </div>
     </div>
     </div>
     <div class="tab-pane" role="tabpanel" id="tab-4" style="margin-bottom: 50px;">
-        <div class="d-xl-flex align-items-stretch align-items-xl-center" style="padding: 0px;"><button class="btn btn-primary visible" type="button" disabled="disabled" id="users_save_btn" style="font-size: 13px;padding-top: 0px;padding-bottom: 0px;padding-right: 3px;padding-left: 3px;margin: 0px;">Save</button></div>
-        <div class="modal fade"
-            role="dialog" tabindex="-1" id="img_modal" style="max-width: 360px;margin: 0 auto;">
+        <div class="modal fade" role="dialog" tabindex="-1" id="img_modal" style="max-width: 360px;margin: 0 auto;">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header d-flex align-items-stretch" style="padding: 0px;display: -ms-flexbox;display: flex;-ms-flex-wrap: wrap;flex-wrap: wrap;"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>
@@ -185,7 +194,9 @@
                 </div>
             </div>
         </div>
-        <div class="modal fade" role="dialog" tabindex="-1" id="chat_modal" style="-ms-overflow-style: none;scrollbar-width: none;overflow-y: scroll;overflow: -moz-scrollbars-none;max-height: 550px;margin: 0 auto;height: auto;-webkit-overflow-scrolling: touch;">
+        <div class="d-xl-flex align-items-stretch align-items-xl-center" style="padding: 0px;"><button class="btn btn-primary visible" type="button" disabled="disabled" id="users_save_btn" style="font-size: 13px;padding-top: 0px;padding-bottom: 0px;padding-right: 3px;padding-left: 3px;margin: 0px;">Save</button></div>
+        <div class="modal fade"
+            role="dialog" tabindex="-1" id="chat_modal" style="-ms-overflow-style: none;scrollbar-width: none;overflow-y: scroll;overflow: -moz-scrollbars-none;max-height: 550px;margin: 0 auto;height: auto;-webkit-overflow-scrolling: touch;">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header d-flex align-items-stretch" id="chat_header" style="padding: 0px;display: -ms-flexbox;display: flex;-ms-flex-wrap: wrap;flex-wrap: wrap;"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>
@@ -404,6 +415,7 @@
     <script src="assets/js/firebase-database.js"></script>
     <script src="assets/js/firebase-storage.js"></script>
     <script src="assets/js/firebase-messaging.js"></script>
+    <script src="assets/js/qrcode.js"></script>
     <script src="assets/js/long-press-event.min.js"></script>
     <script src="assets/js/app.js"></script>
     <script src="assets/js/bs-animation.js"></script>
