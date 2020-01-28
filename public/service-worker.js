@@ -1,25 +1,9 @@
-/*
- * @license
- * Your First PWA Codelab (https://g.co/codelabs/pwa)
- * Copyright 2019 Google Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License
- */
+
 'use strict';
 importScripts('/workbox/workbox-v4.3.1/workbox-sw.js');
-importScripts('/firebase/config.js');
-importScripts('/assets/js/firebase-app.js');
-importScripts('/assets/js/firebase-messaging.js');
+//importScripts('/firebase/config.js');
+//importScripts('/assets/js/firebase-app.js');
+//importScripts('/assets/js/firebase-messaging.js');
 
 workbox.setConfig({
   modulePathPrefix: '/workbox/workbox-v4.3.1/'
@@ -101,17 +85,19 @@ self.addEventListener('fetch', (evt) => {
 
 
 //const host = self.location.href.slice(0, self.location.href.lastIndexOf("/"));
-firebase.initializeApp(config);
+/*firebase.initializeApp(config);
 const msging  = firebase.messaging();
 
 /*msging.setBackgroundMessageHandler(function(payload) {
   //console.log('[firebase-messaging-sw.js] Received background message ', payload);
   // Customize notification here
-  const notificationTitle = 'PayAhead';
+  console.log(payload);
+  /*const notificationTitle = 'PayAhead';
   const notificationOptions = {
-    //icon: '/firebase-logo.png',
+    //icon: 'assets/img/icons/icon-32x32.png',
     body: 'Background Message body.'
-  };
+  };*
 
-  return self.registration.showNotification(notificationTitle, notificationOptions);
+  //return self.registration.showNotification(notificationTitle, notificationOptions);
+  return null;
 });*/

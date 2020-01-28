@@ -17,7 +17,8 @@ express = require('express');
 
 serviceAccount  = require('./payahead-firebase-adminsdk-credentials.json');
 config  = require('./payahead-firebase-javascriptsdk-credentials.json');
-rave_keys = require('./rave_pay_keys.json');
+//rave_keys = require('./rave_pay_keys.json');
+rave_keys = require('./rave_test_keys.json');
 mAuth = require('./payaheadAuth');
 mDb = require('./payaheadDb');
 mPay = require('./payaheadPay');
@@ -683,13 +684,17 @@ app.get('/payment/get_transactions/:uid', verifyToken, function(request, respons
 
 app.post('/payment/save_transaction', verifyToken, json_parser, function(request, response){
 	var _details = request.body;
-	_details["paymentId"] = '' + Math.floor((Math.random() * 1000000000) + 1);
+	if(isNullOrUndefinedOrEmpty(_details["paymentId"])){
+		_details["paymentId"] = '' + Math.floor((Math.random() * 1000000000) + 1);
+	}
 	mDb.save_transaction(request.uid, _details, response, mDb);
 });
 
 app.post('/chat/save_conversation', verifyToken, json_parser, function(request, response){
 	var _details = request.body;
-	_details["conversationId"] = '' + Math.floor((Math.random() * 1000000000) + 1);
+	if(isNullOrUndefinedOrEmpty(_details["conversationId"])){
+		_details["conversationId"] = '' + Math.floor((Math.random() * 1000000000) + 1);
+	}
 	mDb.save_conversation(request.uid, _details, response, mDb);
 });
 
@@ -1222,6 +1227,7 @@ app.post('/notification', json_parser, function(request, response){
 		.then((response) => {
 			// Response is a message ID string.
 			console.log('Successfully sent message:', response);
+			response.status(200).json({"uid" : request.uid});
 		})
 		.catch((error) => {
 			response.status(400).json(error);
@@ -2178,7 +2184,9 @@ app.post('/admin/payment/update_transaction', isAdminOrBusinessOrStaff, json_par
 
 app.post('/admin/chat/save_conversation', verifyToken, json_parser, function(request, response){
 	var _details = request.body;
-	_details["conversationId"] = '' + Math.floor((Math.random() * 1000000000) + 1);
+	if(isNullOrUndefinedOrEmpty(_details["conversationId"])){
+		_details["conversationId"] = '' + Math.floor((Math.random() * 1000000000) + 1);
+	}
 	mDb.save_conversation(request.uid, _details, response, mDb);
 });
 
@@ -2219,6 +2227,7 @@ app.post('/admin/notification', json_parser, function(request, response){
 		.then((response) => {
 			// Response is a message ID string.
 			console.log('Successfully sent message:', response);
+			response.status(200).json({"uid" : request.uid});
 		})
 		.catch((error) => {
 			response.status(400).json(error);

@@ -12,7 +12,7 @@ var humanMessage = '<div class="botui-message message_id_msg"><div class = "mess
 var selected_messages = [];
 
 window._prepare = function(){
-  $('iframe').remove();
+  //$('iframe').remove();
   $(".copyright").html("PayAhead © " + new Date().getFullYear());
   var site = window.location.href + "";
 
@@ -25,6 +25,7 @@ window._prepare = function(){
     $("#update_form").submit(function(e){e.preventDefault();});
     $("#create_user_btn").click(addOrUpdateUser);
     $("#update_btn").click(update_profile);
+    $("#print_qr").click(qrprint);
 
     usr();
     $("#create_biz_form").submit(function(e){e.preventDefault();});
@@ -70,6 +71,7 @@ function usr(){
         previewImage(this);
     });
     preset();
+    $("#users_search_btn").click(search_users);
 };
 
 /*08033953050
@@ -276,7 +278,7 @@ var update_profile = function(e){
 
 function get_profile(){
 
-  $('iframe').remove();
+  //$('iframe').remove();
   if(isNullOrUndefinedOrEmpty(localStorage["uid"])){
     window.location = "index.html";
   }else{
@@ -315,6 +317,7 @@ function get_profile(){
         }else if(window.user_json["isStaff"] || window.user_json["isBusiness"]){
           get_company_staffs();
         }
+        allowNotifications();
       })
       .fail(function(jqXHR, textStatus, errorThrown) {
         console.log(jqXHR.responseText);
@@ -355,7 +358,7 @@ function preset(){
             get_profile();
         });*/
         try{
-          window.last_clicked.click();
+          $("#"+window.last_clicked+"").click();
         }catch(e){};
       })
       .fail(function(jqXHR, textStatus, errorThrown) {
@@ -389,6 +392,19 @@ function toDate(epoch){
   }
   
 }
+
+function allowNotifications(){
+  //navigator.serviceWorker.register('/service-worker.js')
+  Notification.requestPermission(function(result){
+    if(result == 'granted'){
+      navigator.serviceWorker.getRegistration()
+        .then(function(reg){
+          //reg.showNotification("Hello World")
+          window.reg = reg
+        })
+    }
+  })
+};
 
 function populate_user_view(){
   $(".profile-name").html(window.user_json['displayName']);
@@ -455,17 +471,136 @@ function populate_user_view(){
         $("#" + acts[key]["id"] + "_ephlbl").html( toDate(acts[key]["epoch"]) );
       });
     }
+
+    var conversations = window.user_json["conversations"]
+    if(!isNullOrUndefinedOrEmpty(conversations)){
+        Object.keys(conversations).forEach(function(key) {
+        var with_chatee = conversations[key];
+        Object.keys(with_chatee).forEach(function(key) {
+          if(with_chatee[key]["seen"] == false || isNullOrUndefinedOrEmpty(with_chatee[key]["seen"])){
+            if(!isNullOrUndefinedOrEmpty(window.reg)){
+              var options = {
+                body: with_chatee[key]["content"],
+                icon: "assets/img/icons/icon-32x32.png",
+                vibrate: [100, 0, 100],
+                data: {
+                  dateOfArrival: with_chatee[key]["epochSent"],
+                  primaryKey: 1
+                }
+              }
+              window.reg.showNotification(with_chatee[key]["sender"], options);
+              with_chatee[key]["seen"] = true;
+              try{
+                window.db.ref("users/" + window.user_json["uid"] + "/conversations/" + with_chatee[key]["recieverId"] + "/" + key ).set(
+                  with_chatee[key]
+                  , function(error) {
+                      if (error) {
+                        console.log(error);
+                      } else {
+                        console.log("Seen");
+                      }
+                  }
+                );
+              }catch(e){
+
+              }
+            }
+
+          }
+        });
+      });
+    }
+
+    var transactions = window.user_json["transactions"]
+    if(!isNullOrUndefinedOrEmpty(transactions)){
+      Object.keys(transactions).forEach(function(key) {
+        //add_transactionUi(transactions[key]);
+
+        if(transactions[key]["seen"] == false || isNullOrUndefinedOrEmpty(transactions[key]["seen"])){
+          if(!isNullOrUndefinedOrEmpty(window.reg)){
+            var options = {
+              body: "",
+              icon: "assets/img/icons/icon-32x32.png",
+              vibrate: [100, 0, 100],
+              data: {
+                dateOfArrival: transaction[key]["epochLatest"],
+                primaryKey: 1
+              }
+            }
+            switch(transactions[key]["condition"]){
+              case "refunded":
+                  options.body = "Payment refunded by " + transactions[key]["refundedBy"];
+                break;
+              case "verified":
+                  options.body = "Payment verified by " + transactions[key]["verifiedBy"];
+                break;
+              case "refundRequested":
+                  options.body = "Refund requested";
+                break;
+              default:
+                //notf.notification.body = "Paid " + (parseFloat(transactions[key]["amount"]) / 100)  + " NGN"
+                options.body = "Paid " + parseFloat(transactions[key]["amount"])  + " NGN"
+                break;
+            }
+            window.reg.showNotification(transactions[key]["payer"], options);
+
+            transactions[key]["seen"] = true;
+            try{
+                window.db.ref("users/" + window.user_json["uid"] + "/transactions/" + key).set(
+                  transactions[key]
+                  , function(error) {
+                      if (error) {
+                        console.log(error);
+                      } else {
+                        console.log("Seen");
+                        //response.status(200).json(_in);
+                      }
+                  }
+                );
+              }catch(e){
+
+              }
+          }
+        }
+
+      });
+    }
+
+
 };
 
 var _dropdown = function(e){
   e.preventDefault();
   var href = $(this).attr('href');
-  if($(href).hasClass("show")){
-    $(href).removeClass("show");
-  }else{
-    $(href).addClass("show");
+  var id = $(this).attr('id');
+
+  if(id.endsWith("_btn")){
+    if($(href).hasClass("show")){
+      $(href).removeClass("show");
+      $(href + "_btn").attr("aria-expanded","false");
+      if(!($(href + "_btn").hasClass("collapse")))
+        $(href + "_btn").removeClass("collapse");
+    }else{
+      $(href).addClass("show");
+      $(href + "_btn").attr("aria-expanded","true");
+      if($(href + "_btn").hasClass("collapse"))
+        $(href + "_btn").removeClass("collapse");
+    }
+  }else if(id.endsWith("_btnb")){
+    if($(href).hasClass("show")){
+      $(href).removeClass("show");
+      $(href + "_btnb").attr("aria-expanded","false");
+      if(!($(href + "_btnb").hasClass("collapse")))
+        $(href + "_btnb").removeClass("collapse");
+    }else{
+      $(href).addClass("show");
+      $(href + "_btnb").attr("aria-expanded","true");
+      if($(href + "_btnb").hasClass("collapse"))
+        $(href + "_btnb").removeClass("collapse");
+    }
   }
-}
+  
+};
 
 var send_email_verification = function(){
   reset_all_span();
@@ -616,6 +751,21 @@ function get_company_staffs(){
   }
 };
 
+var search_users = function(){
+  var search_string = $("#search_input").val();
+  $("#users_card").empty();
+  Object.keys(window.users).forEach( (key) => {
+    var usr = JSON.stringify(window.users[key]);
+    if(usr.indexOf(search_string) > -1 && !isNullOrUndefinedOrEmpty(search_string)){
+      add_userUi(window.users[key]);
+    }else{
+      if(isNullOrUndefinedOrEmpty(search_string)){
+        populate_users_view();
+      }
+    }
+  });
+}
+
 function populate_users_view(){
   $("#users_card").empty();
   Object.keys(window.users).forEach(function(key) {
@@ -666,6 +816,7 @@ var disable_user = function(e){
           .done(function (response) {
             var data = response;
             window.location = "admin_user.html";
+            window.location.reload(true);
           })
           .fail(function(jqXHR, textStatus, errorThrown) {
             //populate_industry();
@@ -710,6 +861,7 @@ var delete_user = function(e){
       .done(function (response) {
         var storageRef = firebase.storage();
         storageRef.refFromURL(pURL).delete();
+        window.location.reload(true);
       })
       .fail(function(jqXHR, textStatus, errorThrown) {
         var error = JSON.parse(jqXHR.responseText);
@@ -721,8 +873,8 @@ var delete_user = function(e){
 
 var chat = function(e){
   e.preventDefault();
-  window.last_clicked = $(this);
   var id = $(this).attr('id');
+  window.last_clicked = id;
   id = id.replaceAll("_chref", "");
 
   window.chat_ui = null;
@@ -913,13 +1065,14 @@ var popup_pic = function(e){
 
 var clicked_user = function(e){
   e.preventDefault();
-  window.last_clicked = $(this);
   var id = $(this).attr('id');
+  window.last_clicked = id;
   if(id.endsWith("_cbdiv")){
     id = id.replaceAll("_cbdiv", "");
   }else if(id.endsWith("_card-body")){
     id = id.replaceAll("_card-body", "");
   }
+  $("#" + id + "_btn").click();
   
   var isCurrentUser = false;
   Object.keys(window.users).forEach(function(key) {
@@ -1029,6 +1182,27 @@ var clicked_user = function(e){
   }
 };
 
+var clicked_userorpayment = function(e){
+  e.preventDefault();
+  var id = $(this).attr('id');
+  if(id.endsWith("_cbdiv")){
+    id = id.replaceAll("_cbdiv", "");
+  }else if(id.endsWith("_card-body")){
+    id = id.replaceAll("_card-body", "");
+  }else if(id.endsWith("_btn")){
+    id = id.replaceAll("_btn", "");
+  }else if(id.endsWith("_btnb")){
+    id = id.replaceAll("_btnb", "");
+  }
+  try{
+    if(!isNullOrUndefinedOrEmpty(document.getElementById(id+"_btn"))){
+      document.getElementById(id+"_btn").click();
+    }else if(!isNullOrUndefinedOrEmpty(document.getElementById(id+"_btnb"))){
+      document.getElementById(id+"_btnb").click();
+    }
+  }catch(e){}
+};
+
 function getRegex(minValue, maxValue){
   var _res = RegNumericRange(minValue, maxValue, {
     MatchWholeWord: false,
@@ -1089,7 +1263,7 @@ var verify = function(e){
         $.ajax(settings).done(function (response) {
           var data = response;
           var ver_data = {
-            "txref": tran["txref"],
+            "txref": tran["tx"]["txRef"],
             "SECKEY": data["PBFSecKey"]
           }
 
@@ -1151,6 +1325,7 @@ var verify = function(e){
                     localStorage["sub_details1"] = "";
                     $("#verifier_error").text("Verification Successfull");
                     $("#verifier_modal").modal("hide");
+                    setTimeout(window.location.reload(true), 20000);
                   })
                   .fail(function(jqXHR, textStatus, errorThrown) {
                     var error = JSON.parse(jqXHR.responseText);
@@ -1206,7 +1381,7 @@ var refund = function(e){
       var data = response;
 
       var ref_data = {
-        "ref": tran["flwRef"],
+        "ref": tran["reference"],
         "SECKEY": data["PBFSecKey"]
       }
 
@@ -1267,6 +1442,7 @@ var refund = function(e){
                 var data = response;
                 alert("Refund Successfull");
                 window.location = "admin_user.html";
+                window.location.reload(true);
               })
               .fail(function(jqXHR, textStatus, errorThrown) {
                 var error = JSON.parse(jqXHR.responseText);
@@ -1345,6 +1521,7 @@ var signout = function() {
         localStorage[key] = null;
       });
       window.location = "index.html";
+      window.location.reload(true);
       console.log(response);
     }).fail(function(jqXHR, textStatus, errorThrown) {
       Object.keys(localStorage).forEach(function(key) {
@@ -1352,8 +1529,10 @@ var signout = function() {
         localStorage[key] = null;
       });
       window.location = "index.html";
+      window.location.reload(true);
     });
   }
+  
 };
 
 function addElement(parent, element) {
@@ -1776,7 +1955,7 @@ function tick() {
           $.ajax(settings).done(function (response) {
             var data = response;
             var ver_data = {
-              "txref": tran["txref"],
+              "txref": tran["tx"]["txRef"],
               "SECKEY": data["PBFSecKey"]
             }
   
@@ -1902,7 +2081,7 @@ function isNullOrUndefinedOrEmpty(_in){
 };
 
 var body_change_listener = function(e){
-  $('iframe').remove();
+  //$('iframe').remove();
 }
 
 var chat_modal_handler = function(e){
@@ -2009,7 +2188,7 @@ function prepare_ui(){
       });
     });
     $("#qr_modal").on('hide.bs.modal', function(e){
-      location.reload();
+      window.location.reload(true);
     });
 
     
@@ -2022,7 +2201,12 @@ function prepare_ui(){
     var script = document.createElement("script");
     script.setAttribute("type", "text/javascript");
     //script.setAttribute("src", "https://js.paystack.co/v1/inline.js");
-    script.setAttribute("src", "https://api.ravepay.co/flwv3-pug/getpaidx/api/flwpbf-inline.js");
+    
+    ////////* Test script */
+    script.setAttribute("src", "https://ravesandboxapi.flutterwave.com/flwv3-pug/getpaidx/api/flwpbf-inline.js");
+    ///////* Real life script */
+    //script.setAttribute("src", "https://api.ravepay.co/flwv3-pug/getpaidx/api/flwpbf-inline.js");
+
     document.getElementsByTagName("head")[0].appendChild(script);
 
 
@@ -2078,6 +2262,23 @@ function prepare_ui(){
     removeElement("payment_id_tr");
 }
 
+var qrgen = function(e){
+  e.preventDefault();
+  var id = $(this).attr('id');
+  id = id.replaceAll("_qrghref", "");
+  id = id.replaceAll("_uqrhref", "");
+  document.getElementById("qrcode").innerHTML = "";
+  var qrcode = new QRCode(document.getElementById("qrcode"), {
+    text: id,
+    width: 128,
+    height: 128,
+    colorDark : "#000000",
+    colorLight : "#ffffff",
+    correctLevel : QRCode.CorrectLevel.H
+  });
+  $("#qrgen_modal").modal("show");
+};
+
 function add_userUi(user){
   var u_view = localStorage["user_id_card-body"].replaceAll("user_id", user["uid"]);
   u_view = u_view.replaceAll("collapse-1", user["uid"]);
@@ -2094,6 +2295,7 @@ function add_userUi(user){
   $("#" + user["uid"] + "_img").click(popup_pic);
   $('#' + user["uid"] + "_chref").click(chat);
   $('#' + user["uid"] + "_cbdiv").click(clicked_user);
+  //$('#' + user["uid"] + "_cbdiv").hover(clicked_user);
   $('#' + user["uid"] + "_dhref").click(disable_user);
   //$('#' + user["uid"] + "_dlhref").click(delete_user);
   //$('#' + user["uid"] + "_btn").click(_dropdown);
@@ -2102,6 +2304,7 @@ function add_userUi(user){
   }else{
     $('#' + user["uid"] + "_dhref").html("Disable User");
   }
+  $("#" + user["uid"] + "_uqrhref").click(qrgen);
 
   /* User has no subaccount code. Remove pay link */
   if(isNullOrUndefinedOrEmpty(user["subaccount_code"])){
@@ -2115,7 +2318,7 @@ function add_userUi(user){
   if(isNullOrUndefinedOrEmpty(user["branch"])){
     removeElement(user["uid"] + "_brchlbl");
   }
-  /*User is currently signed in. Remove chat and disable user link*/
+  /*Current user is currently signed in. Remove chat and disable user link*/
   if(user["uid"] == window.user_json["uid"]){
     removeElement(user["uid"] + "_chref");
     removeElement(user["uid"] + "_dhref");
@@ -2173,11 +2376,14 @@ function add_usr_transactionUi(tran){
   $("#" + _id + "_idh6").html($("#" + _id + "_idh6").html() + tran["reference"]);
   $("#" + _id + "_toh6").html($("#" + _id + "_toh6").html() + tran["payee"]);
   $("#" + _id + "_byh6").html($("#" + _id + "_byh6").html() + tran["payer"]);
-  $("#" + _id + "_amounth6").html($("#" + _id + "_amounth6").html() + (parseFloat(tran["amount"]) / 100) + " NGN");
+  //$("#" + _id + "_amounth6").html($("#" + _id + "_amounth6").html() + (parseFloat(tran["amount"]) / 100) + " NGN");
+  $("#" + _id + "_amounth6").html($("#" + _id + "_amounth6").html() + parseFloat(tran["amount"]) + " NGN");
   $("#" + _id + "_timeh6").html($("#" + _id + "_timeh6").html() + toDate(tran["epochPayed"]) );
   $('#' + _id + "_rfhref").click(refund);
   $('#' + _id + "_vhref").click(verify);
   $("#" + _id + "_btn").click(_dropdown);
+  $("#" + _id + "_btn").click(clicked_userorpayment);
+  $("#" + _id + "_card-body").click(clicked_userorpayment);
 
   switch(tran["condition"]){
     case "paid":
@@ -2231,6 +2437,34 @@ function add_usr_transactionUi(tran){
 
     appendElement(tr_up, "payment_id_tb");
   }catch(e){ console.log(e); }
+}
+
+
+var qrprint = function(){
+  try{
+   /*var oIframe = document.getElementById('qiframe');
+    var oContent = document.getElementById('qrcode').innerHTML;
+    var oDoc = (oIframe.contentWindow || oIframe.contentDocument);
+    if (oDoc.document) oDoc = oDoc.document;
+      oDoc.write("&lt;head><title>title&lt;/title>");
+      oDoc.write("<body onload='this.focus(); this.print();'>");
+      oDoc.write(oContent + "</body>");
+      oDoc.close();
+    }*/
+    var div = document.getElementById('qrcode');
+    var win = window.open('','Print-Window','width=400,height=400,top=100,left=100');
+    win.document.open();
+    win.document.write('<html><head><style>#in {display:none}</style><body   onload="window.print()">'+div.innerHTML+'</body></html>');
+    win.document.close();
+    setTimeout(function(){win.close();},10);
+  }catch(e){
+    //self.print();
+  }
+}
+
+
+var contact_us = function(){
+  $("#contact_modal").modal("show");
 }
 
 /*function user_claims(){

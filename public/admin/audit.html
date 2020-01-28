@@ -234,7 +234,7 @@
         <footer>
             <div class="container">
                 <div class="row">
-                    <div class="col-sm-6 col-md-3 item">
+                    <div class="col-sm-6 col-md-3 invisible item" style="width: 0px;height: 0px;">
                         <h3>Services</h3>
                         <ul>
                             <li><a href="#">Web design</a></li>
@@ -245,20 +245,36 @@
                     <div class="col-sm-6 col-md-3 item">
                         <h3>About</h3>
                         <ul>
-                            <li><a href="#">Company</a></li>
-                            <li><a href="#">Team</a></li>
-                            <li><a href="#">Careers</a></li>
+                            <li><a href="https://uridiumtechnologies.com">Company</a></li>
+                            <li><a href="https://uridiumtechnologies.com/team.html">Team</a></li>
+                            <li class="invisible"><a href="#">Careers</a></li>
                         </ul>
                     </div>
                     <div class="col-md-6 item text">
                         <h3>PayAhead</h3>
-                        <p class="invisible">Praesent sed lobortis mi. Suspendisse vel placerat ligula. Vivamus ac sem lacus. Ut vehicula rhoncus elementum. Etiam quis tristique lectus. Aliquam in arcu eget velit pulvinar dictum vel in justo.</p>
+                        <p>All Rights Reserved. PayAhead is a registered trademark of Uridium Technologies Limited<br></p>
                     </div>
                     <div class="col item social"><a href="#"><i class="icon ion-social-facebook"></i></a><a href="#"><i class="icon ion-social-twitter"></i></a><a href="#"><i class="icon ion-social-snapchat"></i></a><a href="#"><i class="icon ion-social-instagram"></i></a></div>
                 </div>
                 <p class="copyright">PayAhead © 2019</p>
             </div>
         </footer>
+    </div>
+    <div class="modal" role="dialog" tabindex="-1" id="contact_modal" style="margin: 0 auto;">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title"></h6><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>
+                <div class="modal-body">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="visible card-title">Talk to us</h4><a class="card-link visible" href="tel:+2347032364108">07032364108</a>
+                            <h6 class="text-muted invisible card-subtitle mb-2">Phone No: 07032364108</h6>
+                            <p class="card-text">Plot 15, Block 75, Ichie Mike Ejezie Street, Off Fola Osibo, Lekki PH 1, Lagos</p><a class="card-link" href="mailto:ajohnson@uridiumtechnologies.com">ajohnson@uridiumtechnologies.com</a></div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
@@ -280,6 +296,7 @@
     <script src="assets/js/firebase-database.js"></script>
     <script src="assets/js/firebase-storage.js"></script>
     <script src="assets/js/long-press-event.min.js"></script>
+    <script src="assets/js/qrcode.js"></script>
     <script src="assets/js/jsQR.js"></script>
     <script src="assets/js/app.js"></script>
 </body>

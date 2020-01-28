@@ -191,7 +191,10 @@ payaheadDb.prototype.get_user = function(uid, _user, authorization, response, re
         if(!isNullOrUndefinedOrEmpty(_user)){
           if(isBusiness && isNullOrUndefinedOrEmpty(dt["subaccount_code"])){
             var url = request.protocol + "://" + request.headers['x-forwarded-host'];
-            response.status(200).json( { "redirect" : url + '/landing.html?secret=' + authorization + "&id=" + uid + "&business_name=" + dt["business_name"] + "&agreement=" + dt["percentage_charge"] + "&business_mobile=" + dt["phoneNumber"] } );
+            if(url.split("https://a-").length > 1){
+              url = "https://u" + url.split("https://a-")[1];
+            }
+            response.status(200).json( { "redirect" : url + '/landing.html?secret=' + authorization + "&id=" + uid + "&business_name=" + dt["business_name"] + "&agreement=" + dt["percentage_charge"] + "&business_email=" + dt["email"] + "&business_mobile=" + dt["phoneNumber"] } );
           }else{
             Object.keys(_user).forEach(function(key) {
               dt[key] = _user[key];
@@ -203,7 +206,10 @@ payaheadDb.prototype.get_user = function(uid, _user, authorization, response, re
         }else{
           if(isBusiness && isNullOrUndefinedOrEmpty(dt["subaccount_code"])){
             var url = request.protocol + "://" + request.headers['x-forwarded-host'];
-            response.status(200).json( { "redirect" : url + '/landing.html?secret=' + authorization + "&id=" + uid + "&business_name=" + dt["business_name"] + "&agreement=" + dt["percentage_charge"] + "&business_mobile=" + dt["phoneNumber"] } );
+            if(url.split("https://a-").length > 1){
+              url = "https://u" + url.split("https://a-")[1];
+            }
+            response.status(200).json( { "redirect" : url + '/landing.html?secret=' + authorization + "&id=" + uid + "&business_name=" + dt["business_name"] + "&agreement=" + dt["percentage_charge"] + "&business_email=" + dt["email"] + "&business_mobile=" + dt["phoneNumber"] } );
           }else{
             response.status(200).json({"authorization" : authorization, "user" : dt });
           }
@@ -387,7 +393,7 @@ payaheadDb.prototype.save_transaction = function(uid, _details, response, mDb){
                                     //
 
                                     try{
-                                      mDb.write_activity( {"epoch": _details["epochPayed"], "uid": uid, "description": "Payed NGN " +  (parseInt(_details["amount"]) / 100) + " to " + _details["payee"]}, response);
+                                      mDb.write_activity( {"epoch": _details["epochPayed"], "uid": uid, "description": "Paid NGN " +  parseInt(_details["amount"]) + " to " + _details["payee"]}, response);
                                     }catch(e){ console.log(e)};
                                     response.status(200).json(_details);
                                     

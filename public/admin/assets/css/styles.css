@@ -156,3 +156,15 @@ custompaystack1 {
   margin-bottom: 10px;
 }
 
+@media print {
+  .in {
+    display: none;
+  }
+}
+
+@media print {
+  #in {
+    display: none;
+  }
+}
+

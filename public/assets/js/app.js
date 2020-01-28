@@ -37,6 +37,7 @@ window._prepare = function(){
   }else if(site.indexOf("/pay") > -1){
     py();
   }
+  
 };
 
 var initApp = function() {
@@ -125,6 +126,24 @@ function usr(){
     $("#signout_btn").click(signout);
     $("#update_btn").click(update_profile);
     $("#profile_pic").click(function(e){$("#pic_input").click();});
+    $("#users_search_btn").click(search_users);
+    $("#qr_scan_btn").click(function(e){
+      $("#qr_modal").modal("show");
+      window.video = document.createElement("video");
+      window.canvasElement = document.getElementById("canvas");
+      window.canvas = canvasElement.getContext("2d");
+
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(function(stream) {
+        video.srcObject = stream;
+        video.setAttribute("playsinline", true);
+        video.play();
+        requestAnimationFrame(tick);
+      });
+    })
+    $("#qr_modal").on('hide.bs.modal', function(e){
+      window.location.reload(true);
+    });
+    
     $("#pic_input").on('change', function() {
         previewImage(this);
     });
@@ -171,6 +190,7 @@ function landing(){
     window.authorization = urlParams.get('secret');
     window.bname = urlParams.get('business_name');
     window.bmobile = urlParams.get('business_mobile');
+    window.bemail = urlParams.get('business_email');
     window.id = urlParams.get('id');
     window.pc = urlParams.get('agreement');
   }
@@ -258,10 +278,10 @@ function landing(){
             var data = JSON.parse(JSON.stringify(response))['data'];
             window.banks = data["Banks"];
             document.getElementById('bkname_group').innerHTML = "";
-            for(i=0; i<data.length; i++){
+            for(i=0; i<window.banks.length; i++){
               opt = document.createElement('OPTION');
-              opt.textContent = data[i]['Name'];
-              opt.value = data[i]['Code'];
+              opt.textContent = window.banks[i]['Name'];
+              opt.value = window.banks[i]['Code'];
               document.getElementById('bkname_group').appendChild(opt);
             }
             $("#bs_tab").click();
@@ -302,6 +322,7 @@ var complete_business_reg = function(){
     'split_type' : "percentage",
     'country' : 'NG',
     'seckey' : window.sky,
+    'business_email' : window.bemail,
     'business_mobile' : window.bmobile
   }
 
@@ -525,13 +546,6 @@ function get_profile(){
         window.user_json = data["user"];
         window.authorization = data["authorization"];
 
-        if(isNullOrUndefinedOrEmpty(window.user_json["device_token"])){
-          allowNotifications();
-        }else{
-          allowNotifications();
-          window.msg_token = window.user_json["device_token"];
-        }
-
         populate_user_view();
         /*get_transactions();*/
         if(!isNullOrUndefinedOrEmpty(window.user_json["transactions"])){
@@ -543,6 +557,7 @@ function get_profile(){
           populate_reports_view();
         }
         get_users();
+        allowNotifications();
       })
       .fail(function(jqXHR, textStatus, errorThrown) {
         var error = JSON.parse(jqXHR.responseText);
@@ -622,7 +637,12 @@ function prepare_for_payment(){
         var script = document.createElement("script");
         script.setAttribute("type", "text/javascript");
         //script.setAttribute("src", "https://js.paystack.co/v1/inline.js");
-        script.setAttribute("src", "https://api.ravepay.co/flwv3-pug/getpaidx/api/flwpbf-inline.js");
+
+        ////////* Test script */
+        script.setAttribute("src", "https://ravesandboxapi.flutterwave.com/flwv3-pug/getpaidx/api/flwpbf-inline.js");
+        ///////* Real life script */
+        //script.setAttribute("src", "https://api.ravepay.co/flwv3-pug/getpaidx/api/flwpbf-inline.js");
+        
         document.getElementsByTagName("head")[0].appendChild(script);
       })
       .fail(function(jqXHR, textStatus, errorThrown) {
@@ -701,50 +721,16 @@ var go_to_paymentpage = function(e){
 };
 
 function allowNotifications(){
-  window.msging  = firebase.messaging();
-  msging.requestPermission()
-    .then(function(){
-      return msging.getToken();
-    })
-    .then(function(token){
-      //window.db.
-      var endpoint = "/auth/update_profile";
-
-      window.up_details = {
-        'device_token' : token
-      }
-      window.user_json["newdata"] = window.up_details;
-
-      var settings = {
-          "async": true,
-          "crossDomain": true,
-          "url": host+endpoint,
-          "method": "POST",
-          "contentType": "application/json",
-          "dataType": "json",
-          "headers": {
-            "Content-Type": "application/json",
-            "authorization" : window.authorization
-          },
-          "data": JSON.stringify(window.user_json)
-        }
-
-        $.ajax(settings)
-          .done(function (response) {
-            var data = response;
-          })
-          .fail(function(jqXHR, textStatus, errorThrown) {
-            populate_industry();
-            var error = JSON.parse(jqXHR.responseText);
-            errorHandler(error);
-          });
-
-    }).catch(function(err){});
-
-  msging.onMessage(function(payload){
-    console.log("onMessage", payload);
-  });
-
+  //navigator.serviceWorker.register('/service-worker.js')
+  Notification.requestPermission(function(result){
+    if(result == 'granted'){
+      navigator.serviceWorker.getRegistration()
+        .then(function(reg){
+          //reg.showNotification("Hello World")
+          window.reg = reg
+        })
+    }
+  })
 };
 
 function save_t(_res){
@@ -787,6 +773,7 @@ function save_t(_res){
         window.p_response = null;
         console.log(data);
         window.location = "user.html";
+        setTimeout(window.location.reload(true), 20000);
       })
       .fail(function(jqXHR, textStatus, errorThrown) {
         var error = JSON.parse(jqXHR.responseText);
@@ -829,7 +816,7 @@ function populate_user_view(){
   $("#bvn_input").val(window.user_json['bvn']);
 
   if( isNullOrUndefinedOrEmpty(window.user_json['email'])){
-   $("#email_input").val(""); 
+   $("#email_input").val("");
   }else{
     $("#email_input").val(window.user_json['email']);
   }
@@ -844,46 +831,44 @@ function populate_user_view(){
   document.getElementById('industry_group').appendChild(opt);
 
   var conversations = window.user_json["conversations"]
-  Object.keys(conversations).forEach(function(key) {
-    var with_chatee = conversations[key];
-    Object.keys(with_chatee).forEach(function(key) {
-      if(with_chatee[key]["seen"] == false || isNullOrUndefinedOrEmpty(with_chatee[key]["seen"])){
-        if(!isNullOrUndefinedOrEmpty(window.msg_token)){
-          var endpoint = "/notification";
-          var settings = {
-            "async": true,
-            "crossDomain": true,
-            "url": host+endpoint,
-            "method": "POST",
-            "contentType": "application/json",
-            "dataType": "json",
-            "headers" : {
-              "Content-Type": "application/json"
-            },
-            "data": JSON.stringify({
-              notification: {
-            		title: with_chatee[key]["sender"],
-            		body: with_chatee[key]["content"]
-            	},
-            	token: window.msg_token
-            })
+  if(!isNullOrUndefinedOrEmpty(conversations)){
+      Object.keys(conversations).forEach(function(key) {
+      var with_chatee = conversations[key];
+      Object.keys(with_chatee).forEach(function(key) {
+        if(with_chatee[key]["seen"] == false || isNullOrUndefinedOrEmpty(with_chatee[key]["seen"])){
+          if(!isNullOrUndefinedOrEmpty(window.reg)){
+            var options = {
+              body: with_chatee[key]["content"],
+              icon: "assets/img/icons/icon-32x32.png",
+              vibrate: [100, 0, 100],
+              data: {
+                dateOfArrival: with_chatee[key]["epochSent"],
+                primaryKey: 1
+              }
+            }
+            window.reg.showNotification(with_chatee[key]["sender"], options);
+            with_chatee[key]["seen"] = true;
+            try{
+              window.db.ref("users/" + window.user_json["uid"] + "/conversations/" + with_chatee[key]["recieverId"] + "/" + key ).set(
+                with_chatee[key]
+                , function(error) {
+                    if (error) {
+                      console.log(error);
+                    } else {
+                      console.log("Seen");
+                    }
+                }
+              );
+            }catch(e){
+
+            }
           }
 
-          $.ajax(settings)
-            .done(function (response) {
-              var data = response;
-            })
-            .fail(function(jqXHR, textStatus, errorThrown) {
-              var error = JSON.parse(jqXHR.responseText);
-              console.log(error);
-              errorHandler(error);
-            });
-
         }
-      }
+      });
     });
-  });
-
+  }
+  
 };
 
 function populate_industry(){
@@ -992,7 +977,37 @@ function populate_users_view(){
   Object.keys(window.users).forEach(function(key) {
     add_userUi(window.users[key]);
   });
+  if(!isNullOrUndefinedOrEmpty(localStorage["user_search"])){
+    $("#search_input").val(localStorage["user_search"])
+    $("#users_card").empty();
+    Object.keys(window.users).forEach( (key) => {
+      var usr = JSON.stringify(window.users[key]);
+      if(usr.indexOf(localStorage["user_search"]) > -1 && !isNullOrUndefinedOrEmpty(localStorage["user_search"])){
+        add_userUi(window.users[key]);
+      }else{
+        if(isNullOrUndefinedOrEmpty(localStorage["user_search"])){
+          populate_users_view();
+        }
+      }
+    });
+    localStorage["user_search"] = "";
+  }
 };
+
+var search_users = function(){
+  var search_string = $("#search_input").val();
+  $("#users_card").empty();
+  Object.keys(window.users).forEach( (key) => {
+    var usr = JSON.stringify(window.users[key]);
+    if(usr.indexOf(search_string) > -1 && !isNullOrUndefinedOrEmpty(search_string)){
+      add_userUi(window.users[key]);
+    }else{
+      if(isNullOrUndefinedOrEmpty(search_string)){
+        populate_users_view();
+      }
+    }
+  });
+}
 
 var chat = function(e){
   e.preventDefault();
@@ -1004,7 +1019,7 @@ var chat = function(e){
   window.chat_ui = new BotUI("chat_body");
   
   window.selected_user = window.users[id];
-  try{clicked_user();}catch(e){}
+  //try{clicked_user();}catch(e){}
 
   $("#chatee_img").attr("src", window.selected_user["photoURL"]);
   $("#chatee_h6").html(window.selected_user["displayName"]);
@@ -1149,7 +1164,7 @@ var popup_pic = function(e){
   id = id.replaceAll("_img", "");
 
   window.selected_user = window.users[id];
-  try{clicked_user();}catch(e){}
+  //try{clicked_user();}catch(e){}
 
   $("#u_img").attr("src", window.selected_user["photoURL"]);
   $("#img_modal").modal("show");
@@ -1247,51 +1262,49 @@ function populate_transactions_view(){
       add_transactionUi(window.transactions[key]);
 
       if(window.transactions[key]["seen"] == false || isNullOrUndefinedOrEmpty(window.transactions[key]["seen"])){
-        if(!isNullOrUndefinedOrEmpty(window.msg_token)){
-          var endpoint = "/notification";
-          var notf = {
-            notification: {
-              title: window.transactions[key]["payer"],
-              body: ""
-            },
+        if(!isNullOrUndefinedOrEmpty(window.reg)){
+          var options = {
+            body: "",
+            icon: "assets/img/icons/icon-32x32.png",
+            vibrate: [100, 0, 100],
+            data: {
+              dateOfArrival: transaction[key]["epochLatest"],
+              primaryKey: 1
+            }
           }
           switch(window.transactions[key]["condition"]){
             case "refunded":
-                notf.notification.body = "Payment refunded by " + window.transactions[key]["refundedBy"];
+                options.body = "Payment refunded by " + window.transactions[key]["refundedBy"];
               break;
             case "verified":
-                notf.notification.body = "Payment verified by " + window.transactions[key]["verifiedBy"];
+                options.body = "Payment verified by " + window.transactions[key]["verifiedBy"];
               break;
             case "refundRequested":
-                notf.notification.body = "Refund requested";
+                options.body = "Refund requested";
               break;
             default:
-              notf.notification.body = "Paid " + (parseFloat(window.transactions[key]["amount"]) / 100)  + " NGN"
+              //notf.notification.body = "Paid " + (parseFloat(window.transactions[key]["amount"]) / 100)  + " NGN"
+              options.body = "Paid " + parseFloat(window.transactions[key]["amount"])  + " NGN"
               break;
           }
-          var settings = {
-            "async": true,
-            "crossDomain": true,
-            "url": host+endpoint,
-            "method": "POST",
-            "contentType": "application/json",
-            "dataType": "json",
-            "headers" : {
-              "Content-Type": "application/json"
-            },
-            "data": JSON.stringify(notf)
-          }
+          window.reg.showNotification(window.transactions[key]["payer"], options);
 
-          $.ajax(settings)
-            .done(function (response) {
-              var data = response;
-            })
-            .fail(function(jqXHR, textStatus, errorThrown) {
-              var error = JSON.parse(jqXHR.responseText);
-              console.log(error);
-              errorHandler(error);
-            });
+          window.transactions[key]["seen"] = true;
+          try{
+              window.db.ref("users/" + window.user_json["uid"] + "/transactions/" + key).set(
+                window.transactions[key]
+                , function(error) {
+                    if (error) {
+                      console.log(error);
+                    } else {
+                      console.log("Seen");
+                      //response.status(200).json(_in);
+                    }
+                }
+              );
+            }catch(e){
 
+            }
         }
       }
 
@@ -1357,6 +1370,21 @@ function populate_reports_view(){
   }catch(e){ console.log(e); }
 };
 
+var clicked_userorpayment = function(e){
+  e.preventDefault();
+  var id = $(this).attr('id');
+  if(id.endsWith("_cbdiv")){
+    id = id.replaceAll("_cbdiv", "");
+  }else if(id.endsWith("_card-body")){
+    id = id.replaceAll("_card-body", "");
+  }else if(id.endsWith("_btn")){
+    id = id.replaceAll("_btn", "");
+  }
+  try{
+    document.getElementById(id+"_btn").click();
+  }catch(e){}
+  
+};
 
 function getRegex(minValue, maxValue){
   var _res = RegNumericRange(minValue, maxValue, {
@@ -1425,6 +1453,7 @@ var signout = function() {
         localStorage[key] = null;
       });
       window.location = "index.html";
+      window.location.reload(true);
       console.log(response);
     }).fail(function(jqXHR, textStatus, errorThrown) {
       Object.keys(localStorage).forEach(function(key) {
@@ -1432,8 +1461,10 @@ var signout = function() {
         localStorage[key] = null;
       });
       window.location = "index.html";
+      window.location.reload(true);
     });
   }
+  
 };
 
 var update_profile = function(e){
@@ -1555,6 +1586,45 @@ var update_profile = function(e){
         });
   }
 };
+
+function tick() {
+  if (video.readyState === video.HAVE_ENOUGH_DATA) {
+    canvasElement.height = video.videoHeight;
+    canvasElement.width = video.videoWidth;
+    canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
+    var imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
+    var code = jsQR(imageData.data, imageData.width, imageData.height, {
+      inversionAttempts: "dontInvert",
+    });
+    $("#qr_error").html("");
+    if (code) {
+      //drawLine(code.location.topLeftCorner, code.location.topRightCorner, "#FF3B58");
+      //drawLine(code.location.topRightCorner, code.location.bottomRightCorner, "#FF3B58");
+      //drawLine(code.location.bottomRightCorner, code.location.bottomLeftCorner, "#FF3B58");
+      //drawLine(code.location.bottomLeftCorner, code.location.topLeftCorner, "#FF3B58");
+      
+      $("#users_card").empty();
+      Object.keys(window.users).forEach( (key) => {
+        var usr = JSON.stringify(window.users[key]);
+        if(window.users[key].uid == code.data){
+          localStorage["user_search"] = window.users[key]["displayName"];
+        }
+        if(usr.indexOf(code.data) > -1 && !isNullOrUndefinedOrEmpty(code.data)){
+          add_userUi(window.users[key]);
+        }else{
+          if(isNullOrUndefinedOrEmpty(code.data)){
+            populate_users_view();
+          }
+        }
+      });
+      $("#qr_modal").modal("hide");
+      
+    } else {
+      $("#qr_error").html("Found no user code");
+    }
+  }
+  requestAnimationFrame(tick);
+}
 
 
 
@@ -1703,8 +1773,14 @@ var _dropdown = function(e){
   var href = $(this).attr('href');
   if($(href).hasClass("show")){
     $(href).removeClass("show");
+    $(href + "_btn").attr("aria-expanded","false");
+    if(!($(href + "_btn").hasClass("collapse")))
+      $(href + "_btn").removeClass("collapse");
   }else{
     $(href).addClass("show");
+    $(href + "_btn").attr("aria-expanded","true");
+    if($(href + "_btn").hasClass("collapse"))
+      $(href + "_btn").removeClass("collapse");
   }
 };
 
@@ -1939,6 +2015,7 @@ var qrgen = function(e){
   e.preventDefault();
   var id = $(this).attr('id');
   id = id.replaceAll("_qrghref", "");
+  //id = id.replaceAll("_uqrhref", "");
   document.getElementById("qrcode").innerHTML = "";
   var qrcode = new QRCode(document.getElementById("qrcode"), {
     text: id,
@@ -1964,11 +2041,14 @@ function add_transactionUi(tran){
   $("#" + _id + "_idh6").html($("#" + _id + "_idh6").html() + tran["paymentId"]);
   $("#" + _id + "_refh6").html($("#" + _id + "_refh6").html() + tran["reference"]);
   $("#" + _id + "_toh6").html($("#" + _id + "_toh6").html() + tran["payee"]);
-  $("#" + _id + "_amounth6").html($("#" + _id + "_amounth6").html() + (parseFloat(tran["amount"]) / 100) + " NGN");
+  //$("#" + _id + "_amounth6").html($("#" + _id + "_amounth6").html() + (parseFloat(tran["amount"]) / 100) + " NGN");
+  $("#" + _id + "_amounth6").html($("#" + _id + "_amounth6").html() + parseFloat(tran["amount"]) + " NGN");
   $("#" + _id + "_byh6").html($("#" + _id + "_byh6").html() + tran["payer"]);
   $("#" + _id + "_timeh6").html($("#" + _id + "_timeh6").html() + toDate(tran["epochPayed"]) );
   $("#" + _id + "_btn").click(_dropdown);
+  $("#" + _id + "_btn").click(clicked_userorpayment);
   $("#" + _id + "_qrghref").click(qrgen);
+  $("#" + _id + "_card-body").click(clicked_userorpayment);
 
   if(window.user_json["isBusiness"] == true || window.user_json["isStaff"] == true || window.user_json["isBusiness"] == "true" || window.user_json["isStaff"] == "true"){
     $("#" + _id + "_idh6").remove();
@@ -2041,9 +2121,12 @@ function add_userUi(user){
   $("#" + user["uid"] + "_img").click(popup_pic);
   $("#" + user["uid"] + "_chref").click(chat);
   $("#" + user["uid"] + "_phref").click(go_to_paymentpage);
+  $("#" + user["uid"] + "_cbdiv").click(clicked_userorpayment);
+  //$("#" + user["uid"] + "_cbdiv").hover(clicked_userorpayment);
   if(user["disabled"]){
     $("#" + user["uid"] + "_card-body").attr("disabled", "disabled");
   }
+  //$("#" + user["uid"] + "_uqrhref").click(qrgen);
   
 
   /* User has no subaccount code. Remove pay link */
@@ -2104,6 +2187,10 @@ function add_reportUi(act){
     appendElement(tr_ua, "activity_id_tb");
   }catch(e){ console.log(e); }
 };
+
+var contact_us = function(){
+  $("#contact_modal").modal("show");
+}
 
 /*function to_postman_JSONstringify_type(_in){
   var strg = JSON.stringify(_in);

@@ -22,6 +22,8 @@
     <link rel="stylesheet" href="assets/css/botui-theme-default.css">
     <link rel="stylesheet" href="assets/css/jquery.datetimepicker.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.10.0/baguetteBox.min.css">
+    <link rel="stylesheet" href="assets/css/smoothproducts.css">
       <!-- Added link rel manifest -->
       <link rel="manifest" href="/manifest.json">
 
@@ -53,15 +55,12 @@
 
 <body>
     <nav class="navbar navbar-light navbar-expand-md navigation-clean-button">
-        <div class="container"><a class="navbar-brand" href="#" style="color: white;">PayAhead</a><button class="navbar-toggler" data-toggle="collapse" data-target="#navcol-1"><span class="sr-only">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+        <div class="container"><a class="navbar-brand" href="index.html" style="color: white;">PayAhead</a><button class="navbar-toggler" data-toggle="collapse" data-target="#navcol-1"><span class="sr-only">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
             <div
                 class="collapse navbar-collapse" id="navcol-1">
                 <ul class="nav navbar-nav mr-auto">
-                    <li class="nav-item" role="presentation"><a class="nav-link active" href="#" style="color: white;">Features</a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="#" style="color: white;">FAQ</a></li>
-                    <li class="dropdown nav-item"><a class="dropdown-toggle nav-link" data-toggle="dropdown" aria-expanded="false" href="#" style="color: white;">Help</a>
-                        <div class="dropdown-menu" role="menu"><a class="dropdown-item" role="presentation" href="#">First Item</a><a class="dropdown-item" role="presentation" href="#">Second Item</a><a class="dropdown-item" role="presentation" href="#">Third Item</a></div>
-                    </li>
+                    <li class="nav-item" role="presentation"><a class="nav-link active" href="#features-boxed" style="color: white;">Features</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="#faq" style="color: white;">FAQ</a></li>
                 </ul><span class="text-center navbar-text actions"> <a href="signin.html" class="login" style="color: white;visibility: hidden;">Sign In</a><a class="btn btn-light action-button" role="button" href="signup.html" style="color: white;visibility: hidden;">Sign Up</a></span></div>
         </div>
     </nav>
@@ -74,20 +73,20 @@
             </div>
         </div>
     </div>
-    <div class="features-boxed">
+    <div id="features-boxed" class="features-boxed">
         <div class="container">
             <div class="intro">
                 <h2 class="text-center">Features </h2>
             </div>
             <div class="row justify-content-center features" style="background-color: #ffffff;">
                 <div class="col-sm-6 col-md-5 col-lg-4 item" style="padding: 0px;">
-                    <div class="box" style="padding: 10px;">
+                    <div class="box" style="/*padding: 10px;*/">
                         <h3 class="name">What is PayAhead?</h3>
                         <p class="description">PayAhead is a product designed to solve the problem of long queues in shopping malls, at filling stations etc thereby drive transparency, accuracy and accountability while taking away the bottleneck around reconciliation.&nbsp;</p>
                     </div>
                 </div>
                 <div class="col-sm-6 col-md-5 col-lg-4 item" style="padding: 0px;">
-                    <div class="box" style="padding: 10px;">
+                    <div class="box" style="/*padding: 10px;*/">
                         <h3 class="name">Who is the product designed for?</h3>
                         <p class="description">The product is actually designed for those with retail stores, filling stations, shopping malls etc. &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
                             &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
@@ -96,7 +95,7 @@
                     </div>
                 </div>
                 <div class="col-sm-6 col-md-5 col-lg-4 item" style="padding: 0px;">
-                    <div class="box" style="padding: 10px;">
+                    <div class="box" style="/*padding: 10px;*/">
                         <h3 class="name">Who developed PayAhead?</h3>
                         <p class="description">PayAhead is created/developed and maintained by Uridium Technologies Ltd &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
                             &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
@@ -122,11 +121,66 @@
             </div>
         </div>
     </div>
+    <section id="faq" class="clean-block clean-faq dark" style="background-color: #f7f8f8;">
+        <div class="container">
+            <div class="block-heading">
+                <h2 class="text-center text-info" style="color: #5f9ea0;">FAQ</h2>
+            </div>
+            <div><a class="btn btn-primary" data-toggle="collapse" aria-expanded="false" aria-controls="collapse-1" role="button" href="#collapse-1" style="margin-bottom: .5rem;font-family: inherit;font-weight: 500;line-height: 1.2;color: inherit;position: relative;display: -ms-flexbox;display: flex;-ms-flex-direction: column;flex-direction: column;min-width: 0;word-wrap: break-word;background-color: #fff;background-clip: border-box;border: 1px solid rgba(0,0,0,.125);border-radius: .25rem;color: rgb(0,0,0);">How do you install PayAhead ?</a>
+                <div
+                    class="collapse" id="collapse-1">
+                    <h4>On PC -</h4>
+                    <p>Visit payahead.com using Chrome (Latest).&nbsp;</p>
+                    <p>Click on the menu button at the top right corner (represented as three dots)<br></p>
+                    <p>Click on install PayAhead then click install from the pop up<br></p>
+                    <p>Alternatively, you can just click on the plus button in the address bar</p>
+                    <h4>On Android -</h4>
+                    <p>Visit payahead.com using Chrome mobile</p>
+                    <p>Click on the menu button at the top right corner (represented as three dots)<br></p>
+                    <p>Click on Add to Home screen. Then click on Add<br></p>
+                    <h4>On iPhone -</h4>
+                    <p>Visit payahead.com using Safari browser</p>
+                    <p>Tap the share button. Tap the icon labeled Add to Home Screen<br></p>
+                    <p>Tap add in the upper right corner. Name as PayAhead and tap add<br></p>
+            </div>
+        </div>
+        <div><a class="btn btn-primary" data-toggle="collapse" aria-expanded="false" aria-controls="collapse-2" role="button" href="#collapse-2" style="margin-bottom: .5rem;font-family: inherit;font-weight: 500;line-height: 1.2;color: inherit;position: relative;display: -ms-flexbox;display: flex;-ms-flex-direction: column;flex-direction: column;min-width: 0;word-wrap: break-word;background-color: #fff;background-clip: border-box;border: 1px solid rgba(0,0,0,.125);border-radius: .25rem;color: rgb(0,0,0);">How do I pay for goods and services ?</a>
+            <div
+                class="collapse" id="collapse-2">
+                <p style="color: rgb(156,22,13);"><em>Only registered users can pay with PayAhead</em></p>
+                <p>Login in to PayAhead.</p>
+                <p>Click on the Users tab.</p>
+                <p>Type search words into the box then click on search or click on QR and place your camera on a QR code to search for user.</p>
+                <p>Click on desired vendor and click on pay. Next enter amount and click on proceed to checkout.</p>
+                <p>On checkout, select any method of payment that is convenient for you.</p>
+        </div>
+        </div>
+        <div><a class="btn btn-primary" data-toggle="collapse" aria-expanded="false" aria-controls="collapse-3" role="button" href="#collapse-3" style="margin-bottom: .5rem;font-family: inherit;font-weight: 500;line-height: 1.2;color: inherit;position: relative;display: -ms-flexbox;display: flex;-ms-flex-direction: column;flex-direction: column;min-width: 0;word-wrap: break-word;background-color: #fff;background-clip: border-box;border: 1px solid rgba(0,0,0,.125);border-radius: .25rem;color: rgb(0,0,0);">Does PayAhead save my card details ?</a>
+            <div
+                class="collapse" id="collapse-3">
+                <p>No. PayAhead works with a PCIDSS compliant payment processor for the security of your data.<br></p>
+        </div>
+        </div>
+        <div><a class="btn btn-primary" data-toggle="collapse" aria-expanded="false" aria-controls="collapse-4" role="button" href="#collapse-4" style="margin-bottom: .5rem;font-family: inherit;font-weight: 500;line-height: 1.2;color: inherit;position: relative;display: -ms-flexbox;display: flex;-ms-flex-direction: column;flex-direction: column;min-width: 0;word-wrap: break-word;background-color: #fff;background-clip: border-box;border: 1px solid rgba(0,0,0,.125);border-radius: .25rem;color: rgb(0,0,0);">Must I always enter a safetoken/OTP ?</a>
+            <div
+                class="collapse" id="collapse-4">
+                <p>Yes</p>
+        </div>
+        </div>
+        <div><a class="btn btn-primary" data-toggle="collapse" aria-expanded="false" aria-controls="collapse-5" role="button" href="#collapse-5" style="margin-bottom: .5rem;font-family: inherit;font-weight: 500;line-height: 1.2;color: inherit;position: relative;display: -ms-flexbox;display: flex;-ms-flex-direction: column;flex-direction: column;min-width: 0;word-wrap: break-word;background-color: #fff;background-clip: border-box;border: 1px solid rgba(0,0,0,.125);border-radius: .25rem;color: rgb(0,0,0);">What is the meaning of safetoken/OTP ?</a>
+            <div
+                class="collapse" id="collapse-5">
+                <p>One-Time Password or OTP is used to authenticate a card-not-present transaction (Master or Verve card)</p>
+        </div>
+        </div>
+        <div class="block-content"></div>
+        </div>
+    </section>
     <div class="footer-dark" style="background-color: #5f9ea0;">
         <footer>
             <div class="container">
                 <div class="row">
-                    <div class="col-sm-6 col-md-3 item">
+                    <div class="col-sm-6 col-md-3 invisible item" style="width: 0px;height: 0px;">
                         <h3>Services</h3>
                         <ul>
                             <li><a href="#">Web design</a></li>
@@ -144,13 +198,29 @@
                     </div>
                     <div class="col-md-6 item text">
                         <h3>PayAhead</h3>
-                        <p class="invisible">Praesent sed lobortis mi. Suspendisse vel placerat ligula. Vivamus ac sem lacus. Ut vehicula rhoncus elementum. Etiam quis tristique lectus. Aliquam in arcu eget velit pulvinar dictum vel in justo.</p>
+                        <p class="visible">All Rights Reserved. PayAhead is a registered trademark of Uridium Technologies Limited<br></p>
                     </div>
                     <div class="col item social"><a href="#"><i class="icon ion-social-facebook"></i></a><a href="#"><i class="icon ion-social-twitter"></i></a><a href="#"><i class="icon ion-social-snapchat"></i></a><a href="#"><i class="icon ion-social-instagram"></i></a></div>
                 </div>
                 <p class="copyright">PayAhead © 2019</p>
             </div>
         </footer>
+    </div>
+    <div class="modal" role="dialog" tabindex="-1" id="contact_modal" style="margin: 0 auto;">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title"></h6><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>
+                <div class="modal-body">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="visible card-title">Talk to us</h4><a class="card-link visible" href="tel:+2347032364108">07032364108</a>
+                            <h6 class="text-muted invisible card-subtitle mb-2">Phone No: 07032364108</h6>
+                            <p class="card-text">Plot 15, Block 75, Ichie Mike Ejezie Street, Off Fola Osibo, Lekki PH 1, Lagos</p><a class="card-link" href="mailto:ajohnson@uridiumtechnologies.com">ajohnson@uridiumtechnologies.com</a></div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
@@ -172,6 +242,7 @@
     <script src="assets/js/firebase-database.js"></script>
     <script src="assets/js/firebase-storage.js"></script>
     <script src="assets/js/firebase-messaging.js"></script>
+    <script src="assets/js/jsQR.js"></script>
     <script src="assets/js/qrcode.js"></script>
     <script src="assets/js/long-press-event.min.js"></script>
     <script src="assets/js/app.js"></script>
